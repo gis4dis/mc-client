@@ -1,4 +1,5 @@
 import Header from './Header'
+import Map from '../components/Map'
 
 const layoutStyle = {
     margin: 20,
@@ -9,7 +10,7 @@ const layoutStyle = {
 const Layout = (props) => (
     <div style={layoutStyle}>
         <Header />
-        {props.children}
+        <Map />
     </div>
 )
 
