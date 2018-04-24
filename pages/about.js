@@ -1,4 +1,4 @@
-import Layout from '../components/MyLayout'
+import Layout from '../components/MapLayout'
 
 export default () => (
     <Layout>
