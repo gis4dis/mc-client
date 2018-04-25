@@ -23,38 +23,59 @@ const sidebarStyle = {
     padding: '16px'
 };
 
+const processProperty = (property) => {
+    return {
+        value: property.name_id,
+        text: property.name,
+        description: property.unit
+    };
+};
+
+const sidebarToggle = {
+    key: 'sidebarToggle',
+    name: 'Show settings',
+    as: 'span',
+    position: 'right'
+};
+
+const onPropertyChange = (event, data) => {
+    var propertyId = data.value;
+    console.log(propertyId);
+};
+
 class MapLayout extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            properties: [
-                {key: 'temp', value:'temp', 'text': 'temperature'},
-                {key: 'hum', value: 'hum', 'text': 'humidity'},
-                {key: 'traf', value: 'traf', text: 'trafic'}
-            ],
+            properties: [],
             sidebarVisible: props.sidebarVisible
         };
+
+        const handleSidebarToggleClick = () => {
+            this.setState({
+                sidebarVisible: !this.state.sidebarVisible
+            });
+        };
+        sidebarToggle.onClick = handleSidebarToggleClick;
     }
 
+    componentDidMount() {
+        fetch('/static/data/properties.json')
+            .then((results) => {
+                return results.json();
+            }).then((data) => {
+                let properties = data.properties;
+
+                this.setState({
+                    properties: properties.map(processProperty)
+                });
+            });
+    }
 
     render() {
-        const callback = () => this.setState({ sidebarVisible: !this.state.sidebarVisible });
-
-        const sidebarToggle = {
-            key: 'sidebarToggle',
-            name: 'Show settings',
-            as: 'span',
-            position: 'right',
-            onClick: callback
-        };
-
-        const onPropertyChange = (event, data) => {
-            var propertyId = data.value;
-        }
-
         return <div>
-            <HeaderMenu addItems={ [sidebarToggle] }/>
+            <HeaderMenu addItems={ [sidebarToggle] } activeItem='map' />
 
             <Sidebar.Pushable style={ mainPartStyle }>
                 <Sidebar
@@ -63,7 +84,9 @@ class MapLayout extends React.Component {
                         direction="right"
                         visible={ this.state.sidebarVisible }
                         style={ sidebarStyle }>
-                    <MapControls properties={ this.state.properties } onPropertyChange={ onPropertyChange }/>
+                    <MapControls
+                            properties={ this.state.properties }
+                            onPropertyChange={ onPropertyChange }/>
                 </Sidebar>
 
                 <Sidebar.Pusher>

@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name_id": "air_temperature",
+      "name": "air temperature",
+      "unit": "°C"
+    },
+    {
+      "name_id": "ground_air_temperature",
+      "name": "ground air temperature",
+      "unit": "°C"
+    },
+    {
+      "name_id": "soil_temperature",
+      "name": "soil temperature",
+      "unit": "°C"
+    },
+    {
+      "name_id": "precipitation",
+      "name": "precitipation",
+      "unit": "mm"
+    },
+    {
+      "name_id": "air_humidity",
+      "name": "air humidity",
+      "unit": "%"
+    }
+  ]
+}

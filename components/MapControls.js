@@ -16,7 +16,7 @@ class MapControls extends React.Component {
                     onChange={ this.props.onPropertyChange }
                     search
                     selection
-                    options={this.props.properties} />
+                    options={ this.props.properties } />
         </div>
     }
 

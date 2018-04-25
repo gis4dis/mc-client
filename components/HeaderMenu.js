@@ -15,15 +15,26 @@ class HeaderMenu extends React.Component {
             items = items.concat(props.addItems);
         }
 
+        var activeIndex;
+        if (props.activeItem) {
+            var keys = items.map((item) => item.key);
+            activeIndex = keys.indexOf(props.activeItem);
+        }
+
         this.state = {
-            activeItem: props.activeItem || 'home',
+            activeIndex: activeIndex || 0,
             items: items
         };
     }
 
     render() {
         return <div>
-            <Menu fixed='top' inverted items={ this.state.items } />
+            <Menu
+                    fixed='top'
+                    inverted
+                    pointing
+                    items={ this.state.items }
+                    activeIndex={ this.state.activeIndex }/>
         </div>
     }
 
