@@ -8,7 +8,8 @@ class HeaderMenu extends React.Component {
 
         var items = [
             {key: 'home', name: 'Home', as: 'a', href: '/'},
-            {key: 'map', name: 'Map', as: 'a', href: '/map'}
+            {key: 'map', name: 'Map', as: 'a', href: '/map'},
+            {key: 'about', name: 'about', as: 'a', href: '/about'}
         ];
 
         if (props.addItems) {

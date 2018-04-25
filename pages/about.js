@@ -1,7 +1,7 @@
-import Layout from '../components/MapLayout'
+import SimpleLayout from '../components/SimpleLayout'
 
 export default () => (
-    <Layout>
+    <SimpleLayout activeItem='about'>
         <p>This is the about page</p>
-    </Layout>
-)
+    </SimpleLayout>
+);
