@@ -1,7 +1,8 @@
-import HeaderMenu from './HeaderMenu'
-import Map from './Map'
-import MapControls from './MapControls'
-import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react'
+import HeaderMenu from './HeaderMenu';
+import Map from './Map';
+import MapControls from './MapControls';
+import moment from 'moment';
+import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react';
 
 const buttonStyle = {
     position: 'absolute',
@@ -43,6 +44,10 @@ const onPropertyChange = (event, data) => {
     console.log(propertyId);
 };
 
+const onDateRangeChange = (from, to) => {
+    console.log(from, to);
+};
+
 class MapLayout extends React.Component {
     constructor(props) {
         super(props);
@@ -61,6 +66,8 @@ class MapLayout extends React.Component {
     }
 
     componentDidMount() {
+        moment.locale('en');
+
         fetch('/static/data/properties.json')
             .then((results) => {
                 return results.json();
@@ -86,7 +93,9 @@ class MapLayout extends React.Component {
                         style={ sidebarStyle }>
                     <MapControls
                             properties={ this.state.properties }
-                            onPropertyChange={ onPropertyChange }/>
+                            onPropertyChange={ onPropertyChange }
+                            onDateRangeChange={ onDateRangeChange }
+                    />
                 </Sidebar>
 
                 <Sidebar.Pusher>

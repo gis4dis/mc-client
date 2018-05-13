@@ -1,31 +1,50 @@
 import React from 'react';
-import { Button, Form, Input, Label} from 'semantic-ui-react'
-
-const fixSingleCipherNumber= (number) => {
-  if (number < 10) {
-      return '0' + number;
-  }
-  return number;
-};
-
-const getInputDateValue = (date) => {
-    let yyyy = date.getFullYear();
-    let mm = fixSingleCipherNumber(date.getMonth() + 1);
-    let dd = fixSingleCipherNumber(date.getDate());
-
-    return yyyy + '-' + mm + '-' + dd;
-
-};
+import DatePicker from 'react-datepicker';
+import { Button, Form, Input, Label} from 'semantic-ui-react';
 
 class DateRangeSelector extends React.Component {
     constructor(props) {
         super(props);
 
-        let today = getInputDateValue(new Date());
-
         this.state = {
-            fromDate: today,
-            toDate: today
+            fromDate: props.from,
+            toDate: props.to
+        };
+
+        this.handleFromChange = this.handleFromChange.bind(this);
+        this.handleToChange = this.handleToChange.bind(this);
+    }
+
+    handleFromChange(date) {
+        this.setState({
+            fromDate: date
+        });
+
+        this._validateRange(date);
+
+        if (this.props.callback) {
+            this.props.callback(this.state.fromDate, this.state.toDate);
+        }
+    }
+
+    handleToChange(date) {
+        this.setState({
+            toDate: date
+        });
+
+        if (this.props.callback) {
+            this.props.callback(this.state.fromDate, this.state.toDate);
+        }
+    }
+
+    _validateRange(date) {
+        let to = this.state.toDate;
+
+        if (to.isBefore(date)) {
+            console.log('To date can\'t be before from date.');
+            this.setState({
+                toDate: date
+            });
         }
     }
 
@@ -34,11 +53,16 @@ class DateRangeSelector extends React.Component {
             <Form>
                 <Form.Field>
                     <Label size='small'>From date</Label>
-                    <Input type='date' id='dateFrom' value={ this.state.fromDate }/>
+                    <DatePicker
+                            selected={ this.state.fromDate }
+                            onChange={ this.handleFromChange } />
                 </Form.Field>
                 <Form.Field>
                     <Label size='small'>To date</Label>
-                    <Input type='date' id='dateTo' value={ this.state.toDate } />
+                    <DatePicker
+                            selected={ this.state.toDate }
+                            minDate={ this.state.fromDate }
+                            onChange={ this.handleToChange } />
                 </Form.Field>
             </Form>
         </div>
