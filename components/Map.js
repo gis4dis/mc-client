@@ -57,7 +57,7 @@ class Map extends React.Component {
                       }
                     }
                     `}</style>
-                                    <style jsx global>{`
+                <style jsx global>{`
                     .map-wrap .ui.blue.buttons.zoom .button:focus {
                       background-color: #2185d0;
                     }

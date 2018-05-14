@@ -1,19 +1,23 @@
-import React from "react";
+import React from 'react';
 import moment from 'moment';
 import DateRangeSelector from './DateRangeSelector';
+import TimeSlider from './TimeSlider';
+
+const controlPartStyle = {
+    marginTop: '16px'
+};
 
 class TimeControl extends React.Component {
     constructor(props) {
         super(props);
 
-        let today = moment();
-
         this.state = {
-            from: today,
-            to: today
+            from: moment().startOf('day').subtract(1, 'days'),
+            to: moment().startOf('day')
         };
 
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
+        // this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
     }
 
     handleDateRangeChange(from, to) {
@@ -29,7 +33,12 @@ class TimeControl extends React.Component {
 
     render() {
         return <div>
-            <DateRangeSelector from={ this.state.from } to={ this.state.to } callback={ this.handleDateRangeChange }/>
+            <div style={ controlPartStyle }>
+                <TimeSlider from={ this.state.from } to={ this.state.to } frequency={ this.props.frequency } callback={ this.props.handleTimeValueChange } />
+            </div>
+            <div style={ controlPartStyle }>
+                <DateRangeSelector from={ this.state.from } to={ this.state.to } callback={ this.handleDateRangeChange } style={ controlPartStyle }/>
+            </div>
         </div>
     }
 };

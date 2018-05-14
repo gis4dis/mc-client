@@ -20,11 +20,13 @@ class MapControls extends React.Component {
                     search
                     selection
                     options={ this.props.properties }
-                    style={ partStyle }/>
+                    style={ partStyle } />
 
             <TimeControl
+                    frequency="30"
                     handleDateRangeChange={ this.props.onDateRangeChange }
-                    style={ partStyle }/>
+                    handleTimeValueChange={ this.props.onTimeValueChange }
+                    style={ partStyle } />
         </div>
     }
 

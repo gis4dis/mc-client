@@ -48,6 +48,10 @@ const onDateRangeChange = (from, to) => {
     console.log(from, to);
 };
 
+const onTimeValueChange = (time) => {
+    console.log(time);
+};
+
 class MapLayout extends React.Component {
     constructor(props) {
         super(props);
@@ -95,6 +99,7 @@ class MapLayout extends React.Component {
                             properties={ this.state.properties }
                             onPropertyChange={ onPropertyChange }
                             onDateRangeChange={ onDateRangeChange }
+                            onTimeValueChange={ onTimeValueChange }
                     />
                 </Sidebar>
 
