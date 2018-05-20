@@ -52,7 +52,7 @@ const onTimeValueChange = (time) => {
     console.log(time);
 };
 
-class MapLayout extends React.Component {
+class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
@@ -111,4 +111,4 @@ class MapLayout extends React.Component {
     }
 }
 
-export default MapLayout;
+export default MapApp;

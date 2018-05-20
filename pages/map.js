@@ -1,5 +1,5 @@
 import React from 'react';
-import MapLayout from '../components/MapLayout';
+import MapApp from '../components/MapApp';
 
 class MapPage extends React.PureComponent {
     constructor(props) {
@@ -11,7 +11,7 @@ class MapPage extends React.PureComponent {
 
         return (
             <div className="root">
-                <MapLayout sidebarVisible />
+                <MapApp sidebarVisible />
             </div>
         );
     }
