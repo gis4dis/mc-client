@@ -34,7 +34,7 @@ class TimeControl extends React.Component {
     render() {
         return <div>
             <div style={ controlPartStyle }>
-                <TimeSlider from={ this.state.from } to={ this.state.to } frequency={ this.props.frequency } callback={ this.props.handleTimeValueChange } />
+                <TimeSlider from={ this.state.from.unix() } to={ this.state.to.unix() } frequency={ this.props.frequency } callback={ this.props.handleTimeValueChange } />
             </div>
             <div style={ controlPartStyle }>
                 <DateRangeSelector from={ this.state.from } to={ this.state.to } callback={ this.handleDateRangeChange } style={ controlPartStyle }/>

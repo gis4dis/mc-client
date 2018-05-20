@@ -6,22 +6,21 @@ class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
-        let min = props.from.unix();
-        let max = props.to.unix();
-
         this.state = {
-            min: min,
-            max: max,
-            value: min,
+            value: props.from,
             isPlaying: false
         };
 
         this.onChange = this.onChange.bind(this);
 
         this.togglePlay = this.togglePlay.bind(this);
+        this.stopButtonClick = this.stopButtonClick.bind(this);
 
         this.moveStepBack = this.moveStepBack.bind(this);
         this.moveStepForward = this.moveStepForward.bind(this);
+
+        this.setValueToMin = this.setValueToMin.bind(this);
+        this.setValueToMax = this.setValueToMax.bind(this);
     }
 
     onChange(event) {
@@ -51,6 +50,17 @@ class TimeSlider extends React.Component {
         }));
     }
 
+    stopButtonClick() {
+        if (this.timerId) {
+            this._clearTimer();
+        }
+
+        this.setState({
+            isPlaying: false,
+            value: this.props.from
+        });
+    }
+
     _clearTimer() {
         clearInterval(this.timerId);
         this.timerId = null;
@@ -62,8 +72,8 @@ class TimeSlider extends React.Component {
             let step = parseInt(props.frequency || 1);
             let newValue = time - step;
 
-            if (newValue < prevState.min) {
-                newValue = prevState.min;
+            if (newValue < props.from) {
+                newValue = props.from;
             }
 
             if (time !== newValue) {
@@ -85,12 +95,14 @@ class TimeSlider extends React.Component {
             let step = parseInt(props.frequency || 1);
             let newValue = time + step;
 
-            if (newValue > prevState.max) {
-                newValue = prevState.max;
+            if (newValue > props.to) {
+                newValue = props.to;
             }
 
-            if (this.timer && newValue === prevState.max) {
+            let stopPlaying;
+            if (this.timerId && newValue === props.to) {
                 this._clearTimer();
+                stopPlaying = true;
             }
 
             if (time !== newValue) {
@@ -101,21 +113,30 @@ class TimeSlider extends React.Component {
             }
 
             return {
+                isPlaying: stopPlaying ? false : prevState.isPlaying,
                 value: newValue
             };
         });
     }
 
-    disableStepBackButton() {
-        //TODO handle disabling buttons
+    setValueToMin() {
+        this.setState({
+            value: this.props.from
+        });
     }
 
-    disableStepForwardButton() {
-        //TODO handle disabling buttons
+    setValueToMax() {
+        this.setState({
+            value: this.props.to
+        });
     }
 
-    valueToString(value) {
-        return moment(value).format('L LT Z');
+    _isMin() {
+        return this.state.value === this.props.from;
+    }
+
+    _isMax() {
+        return this.state.value === this.props.to;
     }
 
     render() {
@@ -123,13 +144,6 @@ class TimeSlider extends React.Component {
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
         return <div className="timeSlider">
-            <div className="controlButtons">
-
-                <Button icon={ playPauseIcon } onClick={ this.togglePlay }/>
-                <Button icon='step backward' onClick={ this.moveStepBack }/>
-                <Button icon='step forward' onClick={ this.moveStepForward }/>
-            </div>
-
             <div className="currentValue">
                 { moment.unix(this.state.value).format('L LT Z') }
             </div>
@@ -137,11 +151,22 @@ class TimeSlider extends React.Component {
             <div className="sliderContainer">
                 <input type="range"
                         className="slider"
-                        min={ this.state.min }
-                        max={ this.state.max }
+                        min={ this.props.from }
+                        max={ this.props.to }
                         step={ this.props.frequency }
                         value={ this.state.value }
                         onChange={ this.onChange }/>
+            </div>
+
+            <div className="controlButtons">
+
+                <Button icon={ playPauseIcon } onClick={ this.togglePlay } disabled={ this._isMax() } />
+                <Button icon='fast backward' onClick={ this.setValueToMin } disabled={ this._isMin() } />
+                <Button icon='step backward' onClick={ this.moveStepBack } disabled={ this._isMin() } />
+                <Button icon='step forward' onClick={ this.moveStepForward } disabled={ this._isMax() } />
+                <Button icon='fast forward' onClick={ this.setValueToMax } disabled={ this._isMax() } />
+                <Button icon='stop' onClick={ this.stopButtonClick } disabled={ !this.state.isPlaying } />
+
             </div>
 
             <style jsx>{`

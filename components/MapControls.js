@@ -23,7 +23,7 @@ class MapControls extends React.Component {
                     style={ partStyle } />
 
             <TimeControl
-                    frequency="30"
+                    frequency="3600"
                     handleDateRangeChange={ this.props.onDateRangeChange }
                     handleTimeValueChange={ this.props.onTimeValueChange }
                     style={ partStyle } />
