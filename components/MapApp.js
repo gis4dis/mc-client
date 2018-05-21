@@ -1,28 +1,90 @@
+import React from 'react';
 import HeaderMenu from './HeaderMenu';
 import Map from './Map';
 import MapControls from './MapControls';
 import moment from 'moment';
 import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react';
 
-const buttonStyle = {
-    position: 'absolute',
-    right: '.5em',
-    top: '.5em',
-    zIndex: 1
-};
-
-const mainPartStyle = {
-    position: 'absolute',
-    width: '100%',
-    height: 'calc(100% - 40px)',
-    top: '40px'
-};
-
-const sidebarStyle = {
+/************************ styles ***************************************/
+const sidebarContentStyle = {
     background: '#000',
     height: '100%',
     padding: '16px'
 };
+
+const getSidebarContentStyle = (direction) => {
+    let style = Object.assign({}, sidebarContentStyle);
+
+    if (direction === 'right') {
+        style.marginLeft = '40px';
+    } else if (direction === 'bottom') {
+        style.marginTop = '40px';
+    }
+
+    return style;
+}
+
+const pusherStyle = {
+    height: '100%',
+    position: 'relative',
+    width: '100%'
+};
+
+const sidebarToggleStyle = {
+    background: '#000',
+    color: '#fff',
+    position: 'absolute',
+    zIndex: 1
+}
+
+const rightVisibleStyle = {
+    left: 0,
+    top: '50%'
+};
+
+const rightHiddenStyle = {
+    right: 0,
+    top: '50%'
+};
+
+const bottomVisibleStyle = {
+    left: '50%',
+    top: 0
+};
+
+const bottomHiddenStyle = {
+    left: '50%',
+    bottom: 0
+};
+
+const getSidebarToggleStyle = (direction, visible) => {
+    let style = Object.assign({}, sidebarToggleStyle);
+
+    if (direction === 'right') {
+        if (visible) {
+            Object.assign(style, rightVisibleStyle);
+        } else {
+            Object.assign(style, rightHiddenStyle);
+        }
+    } else if (direction === 'bottom') {
+        if (visible) {
+            Object.assign(style, bottomVisibleStyle);
+        } else {
+            Object.assign(style, bottomHiddenStyle);
+        }
+    }
+    return style;
+};
+
+const getSidebarToggleIcon = (direction, visible) => {
+    if (direction === 'right') {
+        return visible ? 'angle double right' : 'angle double left';
+    } else if (direction === 'bottom') {
+        return visible ? 'angle double down' : 'angle double up';
+    }
+};
+/************************ styles ***************************************/
+
 
 const processProperty = (property) => {
     return {
@@ -30,13 +92,6 @@ const processProperty = (property) => {
         text: property.name,
         description: property.unit
     };
-};
-
-const sidebarToggle = {
-    key: 'sidebarToggle',
-    name: 'Show settings',
-    as: 'span',
-    position: 'right'
 };
 
 const onPropertyChange = (event, data) => {
@@ -58,15 +113,11 @@ class MapApp extends React.Component {
 
         this.state = {
             properties: [],
-            sidebarVisible: props.sidebarVisible
+            sidebarVisible: props.sidebarVisible,
+            sidebarDirection: 'right'
         };
 
-        const handleSidebarToggleClick = () => {
-            this.setState({
-                sidebarVisible: !this.state.sidebarVisible
-            });
-        };
-        sidebarToggle.onClick = handleSidebarToggleClick;
+        this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
     }
 
     componentDidMount() {
@@ -82,31 +133,83 @@ class MapApp extends React.Component {
                     properties: properties.map(processProperty)
                 });
             });
+
+        window.addEventListener('resize', this.updateSidebarDirection.bind(this));
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateSidebarDirection.bind(this));
+    }
+
+    updateSidebarDirection() {
+        let direction;
+
+        if (window.innerWidth <= 700) {
+            direction = 'bottom';
+        } else {
+            direction = 'right';
+        }
+
+        this.setState({
+            sidebarDirection: direction
+        });
+    }
+
+    handleSidebarToggleClick() {
+        this.setState({
+            sidebarVisible: !this.state.sidebarVisible
+        });
     }
 
     render() {
-        return <div>
-            <HeaderMenu addItems={ [sidebarToggle] } activeItem='map' />
+        const sidebarVisible = this.state.sidebarVisible;
 
-            <Sidebar.Pushable style={ mainPartStyle }>
+        return <div className="content">
+            <HeaderMenu activeItem="map" />
+
+            <Sidebar.Pushable>
                 <Sidebar
                         as={ Container }
                         animation="overlay"
-                        direction="right"
+                        direction={ this.state.sidebarDirection }
                         visible={ this.state.sidebarVisible }
-                        style={ sidebarStyle }>
-                    <MapControls
-                            properties={ this.state.properties }
-                            onPropertyChange={ onPropertyChange }
-                            onDateRangeChange={ onDateRangeChange }
-                            onTimeValueChange={ onTimeValueChange }
-                    />
+                        width="wide">
+
+                    <div style={ getSidebarContentStyle(this.state.sidebarDirection) }>
+                        <MapControls
+                                properties={ this.state.properties }
+                                onPropertyChange={ onPropertyChange }
+                                onDateRangeChange={ onDateRangeChange }
+                                onTimeValueChange={ onTimeValueChange }
+                        />
+                    </div>
+
+                    { sidebarVisible && <Button
+                        icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
+                        onClick={ this.handleSidebarToggleClick }
+                        style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
+                    }
                 </Sidebar>
 
-                <Sidebar.Pusher>
+                <Sidebar.Pusher style={ pusherStyle }>
                     <Map />
+
+                    { !sidebarVisible && <Button
+                        icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
+                        onClick={ this.handleSidebarToggleClick }
+                        style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
+                    }
                 </Sidebar.Pusher>
             </Sidebar.Pushable>
+
+            <style jsx>{`
+                .content {
+                    height: calc(100vh - 40px);
+                    position: absolute;
+                    top: 40px;
+                    width: 100%;
+                }
+            `}</style>
         </div>
     }
 }

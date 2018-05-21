@@ -47,19 +47,19 @@ class Map extends React.Component {
                 <div className="map" ref={(d) => this.mapElement = d}> </div>
                 <style jsx>{`
                     .map-wrap, .map {
-                      width: 100%;
-                      height: 100%;
+                        height: 100%;
+                        width: 100%;
                     }
                     @media (max-width:600px) {
-                      .map-wrap {
-                        height: 100%;
-                        padding-bottom: 4rem;
-                      }
+                        .map-wrap {
+                            height: 100%;
+                            padding-bottom: 4rem;
+                        }
                     }
                     `}</style>
                 <style jsx global>{`
                     .map-wrap .ui.blue.buttons.zoom .button:focus {
-                      background-color: #2185d0;
+                        background-color: #2185d0;
                     }
                 `}</style>
             </div>
