@@ -85,27 +85,7 @@ const getSidebarToggleIcon = (direction, visible) => {
 };
 /************************ styles ***************************************/
 
-
-const processProperty = (property) => {
-    return {
-        value: property.name_id,
-        text: property.name,
-        description: property.unit
-    };
-};
-
-const onPropertyChange = (event, data) => {
-    var propertyId = data.value;
-    console.log(propertyId);
-};
-
-const onDateRangeChange = (from, to) => {
-    console.log(from, to);
-};
-
-const onTimeValueChange = (time) => {
-    console.log(time);
-};
+const serverUrl = 'http://localhost:3000';
 
 class MapApp extends React.Component {
     constructor(props) {
@@ -113,9 +93,19 @@ class MapApp extends React.Component {
 
         this.state = {
             properties: [],
+            selection: {
+                property: null,
+                from: moment().startOf('day').subtract(1, 'months'),
+                to: moment().endOf('day').subtract(1, 'days'),
+                bbox: null
+            },
             sidebarVisible: props.sidebarVisible,
             sidebarDirection: 'right'
         };
+
+        this.handlePropertyChange = this.handlePropertyChange.bind(this);
+        this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
+        this.handleTimeValueChange = this.handleDateRangeChange.bind(this);
 
         this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
     }
@@ -123,14 +113,15 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en');
 
-        fetch('http://localhost:3000/api/v1/properties/?format=json')
+        fetch(serverUrl + '/api/v1/properties/?format=json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                let properties = data;
-
                 this.setState({
-                    properties: properties.map(processProperty)
+                    properties: data,
+                    selection: {
+                        property: data.length ? data[0].name_id : null
+                    }
                 });
             });
 
@@ -161,6 +152,57 @@ class MapApp extends React.Component {
         });
     }
 
+    /******************************** app handlers *********************************/
+    handleAppStateChange(propertyId, from, to, opt_bbox) {
+        let requestParameters = {
+            name_id: propertyId,
+            phenomenon_date_from: from,
+            phenomenon_date_to: to,
+            bbox: opt_bbox
+        };
+
+        fetch('/static/data/timeseries.json')
+            .then((results) => {
+                return results.json();
+            }).then((data) => {
+                console.log(data);
+            });
+    }
+
+    handlePropertyChange(event, data) {
+        var propertyId = data.value;
+
+        this.setState((prevState, props) => {
+            if (prevState.selection.from && prevState.selection.to) {
+                this.handleAppStateChange(propertyId, prevState.selection.from, prevState.selection.to);
+            }
+
+            return {
+                selectedPropertyId: propertyId
+            };
+        });
+    };
+
+    handleDateRangeChange(from, to) {
+        this.setState((prevState, props) => {
+            if (prevState.selection.property) {
+                this.handleAppStateChange(prevState.selection.property, from, to);
+            }
+
+            return {
+                selection: {
+                    from: from,
+                    to: to
+                }
+            };
+        });
+    };
+
+    handleTimeValueChange(time) {
+        console.log(time);
+    };
+    /******************************** app handlers *********************************/
+
     render() {
         const sidebarVisible = this.state.sidebarVisible;
 
@@ -178,9 +220,10 @@ class MapApp extends React.Component {
                     <div style={ getSidebarContentStyle(this.state.sidebarDirection) }>
                         <MapControls
                                 properties={ this.state.properties }
-                                onPropertyChange={ onPropertyChange }
-                                onDateRangeChange={ onDateRangeChange }
-                                onTimeValueChange={ onTimeValueChange }
+                                selection={ this.state.selection }
+                                onPropertyChange={ this.handlePropertyChange }
+                                onDateRangeChange={ this.handleDateRangeChange }
+                                onTimeValueChange={ this.handleTimeValueChange }
                         />
                     </div>
 

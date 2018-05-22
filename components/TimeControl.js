@@ -12,8 +12,8 @@ class TimeControl extends React.Component {
         super(props);
 
         this.state = {
-            from: moment().startOf('day').subtract(1, 'months'),
-            to: moment().endOf('day').subtract(1, 'days')
+            from: props.dateRange ? props.dateRange.from : null,
+            to: props.dateRange ? props.dateRange.to : null
         };
 
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
