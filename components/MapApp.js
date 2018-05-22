@@ -123,11 +123,11 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en');
 
-        fetch('/static/data/properties.json')
+        fetch('http://localhost:3000/api/v1/properties/?format=json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                let properties = data.properties;
+                let properties = data;
 
                 this.setState({
                     properties: properties.map(processProperty)
