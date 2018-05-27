@@ -5,6 +5,11 @@ import MapControls from './MapControls';
 import moment from 'moment';
 import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react';
 
+let ol_style_Circle;
+let ol_style_Fill;
+let ol_style_Stroke;
+let ol_style_Style;
+
 /************************ styles ***************************************/
 const sidebarContentStyle = {
     background: '#000',
@@ -22,7 +27,7 @@ const getSidebarContentStyle = (direction) => {
     }
 
     return style;
-}
+};
 
 const pusherStyle = {
     height: '100%',
@@ -35,7 +40,7 @@ const sidebarToggleStyle = {
     color: '#fff',
     position: 'absolute',
     zIndex: 1
-}
+};
 
 const rightVisibleStyle = {
     left: 0,
@@ -94,14 +99,18 @@ class MapApp extends React.Component {
         this.state = {
             properties: [],
             selection: {
-                property: null,
+                propertyId: null,
                 from: moment().startOf('day').subtract(1, 'months'),
                 to: moment().endOf('day').subtract(1, 'days'),
+                timeIndex: 0,
                 bbox: null
             },
+            geojsonData: null,
             sidebarVisible: props.sidebarVisible,
             sidebarDirection: 'right'
         };
+
+        this.layerStyleFunction = this.layerStyleFunction.bind(this);
 
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
@@ -111,17 +120,33 @@ class MapApp extends React.Component {
     }
 
     componentDidMount() {
+        ol_style_Circle = require('ol/style/circle').default;
+        ol_style_Fill = require('ol/style/fill').default;
+        ol_style_Stroke = require('ol/style/stroke').default;
+        ol_style_Style = require('ol/style/style').default;
+
         moment.locale('en');
 
         fetch(serverUrl + '/api/v1/properties/?format=json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                this.setState({
-                    properties: data,
-                    selection: {
-                        property: data.length ? data[0].name_id : null
-                    }
+                let propertyId = data.length ? data[0].name_id : null;
+
+                this.setState((prevState,props) => {
+                    let selection = prevState.selection;
+                    selection.propertyId = propertyId;
+
+                    this.handleAppStateChange({
+                        propertyId: propertyId,
+                        from: prevState.from,
+                        to: prevState.to
+                    });
+
+                    return {
+                        properties: data,
+                        selection: selection
+                    };
                 });
             });
 
@@ -153,47 +178,68 @@ class MapApp extends React.Component {
     }
 
     /******************************** app handlers *********************************/
-    handleAppStateChange(propertyId, from, to, opt_bbox) {
+    /**
+     * @param options
+     * propertyId
+     * from
+     * to
+     * opt_bbox
+     */
+    handleAppStateChange(options) {
         let requestParameters = {
-            name_id: propertyId,
-            phenomenon_date_from: from,
-            phenomenon_date_to: to,
-            bbox: opt_bbox
+            name_id: options.propertyId,
+            phenomenon_date_from: options.from,
+            phenomenon_date_to: options.to,
+            bbox: options.bbox
         };
 
         fetch('/static/data/timeseries.json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                console.log(data);
+                this.setState({
+                   geojsonData: data
+                });
             });
     }
 
     handlePropertyChange(event, data) {
-        var propertyId = data.value;
+        let propertyId = data.value;
 
         this.setState((prevState, props) => {
             if (prevState.selection.from && prevState.selection.to) {
-                this.handleAppStateChange(propertyId, prevState.selection.from, prevState.selection.to);
+                this.handleAppStateChange({
+                    propertyId: propertyId,
+                    from: prevState.selection.from,
+                    to: prevState.selection.to
+                });
             }
 
+            let selection = prevState.selection;
+            selection.propertyId = propertyId;
+
             return {
-                selectedPropertyId: propertyId
+                selection: selection
             };
         });
     };
 
     handleDateRangeChange(from, to) {
         this.setState((prevState, props) => {
-            if (prevState.selection.property) {
-                this.handleAppStateChange(prevState.selection.property, from, to);
-            }
-
-            return {
-                selection: {
+            if (prevState.selection.propertyId) {
+                this.handleAppStateChange({
+                    propertyId: prevState.selection.propertyId,
                     from: from,
                     to: to
-                }
+                });
+            }
+
+            let selection = prevState.selection;
+            selection.from = from;
+            selection.to = to;
+
+            return {
+                selection: selection
             };
         });
     };
@@ -202,6 +248,42 @@ class MapApp extends React.Component {
         console.log(time);
     };
     /******************************** app handlers *********************************/
+
+    layerStyleFunction(feature, resolution) {
+        let index = this.state.selection.timeIndex || 0;
+
+        let value = feature.get('property_values')[index];
+        let color;
+        let radius;
+
+        if (value < 2) {
+            color = 'blue';
+            radius = 5;
+        } else if (value < 5) {
+            color = 'green';
+            radius = 7;
+        } else if (value < 10) {
+            color = 'yellow';
+            radius = 9;
+        } else if (value < 15) {
+            color = 'orange';
+            radius = 11;
+        } else {
+            color = 'red';
+            radius = 11;
+        }
+
+        let style = new ol_style_Style({
+            image: new ol_style_Circle({
+                radius: radius,
+                snapToPixel: false,
+                fill: new ol_style_Fill({color: color}),
+                stroke: new ol_style_Stroke({color: color, width: 1})
+            })
+        });
+
+        return style;
+    }
 
     render() {
         const sidebarVisible = this.state.sidebarVisible;
@@ -235,7 +317,7 @@ class MapApp extends React.Component {
                 </Sidebar>
 
                 <Sidebar.Pusher style={ pusherStyle }>
-                    <Map />
+                    <Map data={ this.state.geojsonData } dataStyle={ this.layerStyleFunction }/>
 
                     { !sidebarVisible && <Button
                         icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
