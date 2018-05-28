@@ -23,8 +23,17 @@ class TimeSlider extends React.Component {
         this.setValueToMax = this.setValueToMax.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
+            this.setState({
+                value: nextProps.from
+            });
+        }
+    }
+
     onChange(event) {
         let time = parseInt(event.target.value);
+        console.log(time, this.props.callback);
         this.setState({
             value: time
         });

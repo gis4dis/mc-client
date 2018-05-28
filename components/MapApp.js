@@ -96,25 +96,31 @@ class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
+        let from = moment().startOf('day').subtract(1, 'months');
+        let to = moment().endOf('day').subtract(1, 'days');
+
         this.state = {
             properties: [],
             selection: {
                 propertyId: null,
-                from: moment().startOf('day').subtract(1, 'months'),
-                to: moment().endOf('day').subtract(1, 'days'),
-                timeIndex: 0,
+                from: from,
+                to: to,
+                timeValueIndex: 0,
                 bbox: null
+            },
+            currentValues: {
+                from: from,
+                to: to,
+                frequency: 3600
             },
             geojsonData: null,
             sidebarVisible: props.sidebarVisible,
             sidebarDirection: 'right'
         };
 
-        this.layerStyleFunction = this.layerStyleFunction.bind(this);
-
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
-        this.handleTimeValueChange = this.handleDateRangeChange.bind(this);
+        this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
 
         this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
     }
@@ -139,8 +145,8 @@ class MapApp extends React.Component {
 
                     this.handleAppStateChange({
                         propertyId: propertyId,
-                        from: prevState.from,
-                        to: prevState.to
+                        from: selection.from,
+                        to: selection.to
                     });
 
                     return {
@@ -183,7 +189,7 @@ class MapApp extends React.Component {
      * propertyId
      * from
      * to
-     * opt_bbox
+     * bbox
      */
     handleAppStateChange(options) {
         let requestParameters = {
@@ -198,7 +204,12 @@ class MapApp extends React.Component {
                 return results.json();
             }).then((data) => {
                 this.setState({
-                   geojsonData: data
+                    currentValues: {
+                        from: moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ss'),
+                        to: moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ss'),
+                        frequency: data.value_frequency
+                    },
+                    geojsonData: data
                 });
             });
     }
@@ -245,13 +256,21 @@ class MapApp extends React.Component {
     };
 
     handleTimeValueChange(time) {
-        console.log(time);
+        this.setState((prevState, props) => {
+            let from = prevState.currentValues.from.unix();
+            let index = (time.unix() - from) / prevState.currentValues.frequency;
+
+            let selection = prevState.selection;
+            selection.timeValueIndex = index;
+
+            return {
+                selection: selection
+            };
+        });
     };
     /******************************** app handlers *********************************/
 
-    layerStyleFunction(feature, resolution) {
-        let index = this.state.selection.timeIndex || 0;
-
+    layerStyleFunction(index, feature, resolution) {
         let value = feature.get('property_values')[index];
         let color;
         let radius;
@@ -285,6 +304,10 @@ class MapApp extends React.Component {
         return style;
     }
 
+    getLayerStyleFunction(index) {
+        return this.layerStyleFunction.bind(this, index);
+    }
+
     render() {
         const sidebarVisible = this.state.sidebarVisible;
 
@@ -303,6 +326,7 @@ class MapApp extends React.Component {
                         <MapControls
                                 properties={ this.state.properties }
                                 selection={ this.state.selection }
+                                currentValues={ this.state.currentValues }
                                 onPropertyChange={ this.handlePropertyChange }
                                 onDateRangeChange={ this.handleDateRangeChange }
                                 onTimeValueChange={ this.handleTimeValueChange }
@@ -317,7 +341,8 @@ class MapApp extends React.Component {
                 </Sidebar>
 
                 <Sidebar.Pusher style={ pusherStyle }>
-                    <Map data={ this.state.geojsonData } dataStyle={ this.layerStyleFunction }/>
+                    <Map data={ this.state.geojsonData }
+                         dataStyle={ this.getLayerStyleFunction(this.state.selection.timeValueIndex) }/>
 
                     { !sidebarVisible && <Button
                         icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }

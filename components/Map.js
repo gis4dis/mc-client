@@ -79,7 +79,6 @@ class Map extends React.Component {
         const baseLayer = getBaseLayer();
 
         this.geojsonLayer = getGeojsonLayer();
-        this.geojsonLayer.setStyle(this.props.dataStyle);
 
         const map = new ol_Map({
             target: this.mapElement,
@@ -112,6 +111,9 @@ class Map extends React.Component {
     render() {
         if (this.props.data) {
             this.processGeojsonData(this.props.data);
+        }
+        if (this.geojsonLayer) {
+            this.geojsonLayer.setStyle(this.props.dataStyle);
         }
 
         return (
