@@ -102,18 +102,34 @@ class Map extends React.Component {
         });
     }
 
-    processGeojsonData(geojson) {
+    generalizeData(data, index) {
+        let result;
+        if (data && index != null) {
+            let features = this._getFeatures(data);
+            let style = this._getStyleFunction(index);
+
+            result =  {
+                features: features,
+                style: style
+            };
+        }
+        return result;
+    }
+
+    _getFeatures(data) {
         let format = new ol_format_GeoJSON({
             defaultDataProjection: 'EPSG:4326'
         });
-        let features = format.readFeatures(geojson,  {
+        let features = format.readFeatures(data,  {
             dataProjection: 'EPSG:4326',
             featureProjection: 'EPSG:3857'
         });
 
-        let source = this.geojsonLayer.getSource();
-        source.clear();
-        source.addFeatures(features);
+        return features;
+    }
+
+    _getStyleFunction(index) {
+        return this.layerStyleFunction.bind(this, index);
     }
 
     layerStyleFunction(index, feature, resolution) {
@@ -150,16 +166,15 @@ class Map extends React.Component {
         return style;
     }
 
-    getLayerStyleFunction(index) {
-        return this.layerStyleFunction.bind(this, index);
-    }
-
     render() {
-        if (this.props.data) {
-            this.processGeojsonData(this.props.data);
-        }
-        if (this.geojsonLayer) {
-            this.geojsonLayer.setStyle(this.getLayerStyleFunction(this.props.index));
+        let generalization = this.generalizeData(this.props.data, this.props.index);
+
+        if (generalization && this.geojsonLayer) {
+            let source = this.geojsonLayer.getSource();
+            source.clear();
+            source.addFeatures(generalization.features);
+
+            this.geojsonLayer.setStyle(generalization.style);
         }
 
         return (
