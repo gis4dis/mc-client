@@ -17,7 +17,6 @@ class TimeControl extends React.Component {
         };
 
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
-        // this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
     }
 
     handleDateRangeChange(from, to) {
@@ -44,6 +43,7 @@ class TimeControl extends React.Component {
                 <DateRangeSelector
                     from={ this.state.from }
                     to={ this.state.to }
+                    currentValues={ this.props.currentValues }
                     callback={ this.handleDateRangeChange }
                     style={ controlPartStyle }/>
             </div>
