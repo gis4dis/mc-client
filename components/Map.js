@@ -8,6 +8,10 @@ let ol_source_Vector;
 let ol_format_GeoJSON;
 let ol_proj;
 let ol_source_OSM;
+let ol_style_Circle;
+let ol_style_Fill;
+let ol_style_Stroke;
+let ol_style_Style;
 
 let projection;
 
@@ -67,6 +71,10 @@ class Map extends React.Component {
         ol_format_GeoJSON = require('ol/format/geojson').default;
         ol_proj = require('ol/proj').default;
         ol_source_OSM = require('ol/source/osm').default;
+        ol_style_Circle = require('ol/style/circle').default;
+        ol_style_Fill = require('ol/style/fill').default;
+        ol_style_Stroke = require('ol/style/stroke').default;
+        ol_style_Style = require('ol/style/style').default;
 
         projection = ol_proj.get(configuration.projection);
 
@@ -108,12 +116,50 @@ class Map extends React.Component {
         source.addFeatures(features);
     }
 
+    layerStyleFunction(index, feature, resolution) {
+        let value = feature.get('property_values')[index];
+        let color;
+        let radius;
+
+        if (value < 2) {
+            color = 'blue';
+            radius = 5;
+        } else if (value < 5) {
+            color = 'green';
+            radius = 7;
+        } else if (value < 10) {
+            color = 'yellow';
+            radius = 9;
+        } else if (value < 15) {
+            color = 'orange';
+            radius = 11;
+        } else {
+            color = 'red';
+            radius = 11;
+        }
+
+        let style = new ol_style_Style({
+            image: new ol_style_Circle({
+                radius: radius,
+                snapToPixel: false,
+                fill: new ol_style_Fill({color: color}),
+                stroke: new ol_style_Stroke({color: color, width: 1})
+            })
+        });
+
+        return style;
+    }
+
+    getLayerStyleFunction(index) {
+        return this.layerStyleFunction.bind(this, index);
+    }
+
     render() {
         if (this.props.data) {
             this.processGeojsonData(this.props.data);
         }
         if (this.geojsonLayer) {
-            this.geojsonLayer.setStyle(this.props.dataStyle);
+            this.geojsonLayer.setStyle(this.getLayerStyleFunction(this.props.index));
         }
 
         return (

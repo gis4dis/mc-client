@@ -5,11 +5,6 @@ import MapControls from './MapControls';
 import moment from 'moment';
 import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react';
 
-let ol_style_Circle;
-let ol_style_Fill;
-let ol_style_Stroke;
-let ol_style_Style;
-
 /************************ styles ***************************************/
 const sidebarContentStyle = {
     background: '#000',
@@ -126,11 +121,6 @@ class MapApp extends React.Component {
     }
 
     componentDidMount() {
-        ol_style_Circle = require('ol/style/circle').default;
-        ol_style_Fill = require('ol/style/fill').default;
-        ol_style_Stroke = require('ol/style/stroke').default;
-        ol_style_Style = require('ol/style/style').default;
-
         moment.locale('en');
 
         fetch(serverUrl + '/api/v1/properties/?format=json')
@@ -270,44 +260,6 @@ class MapApp extends React.Component {
     };
     /******************************** app handlers *********************************/
 
-    layerStyleFunction(index, feature, resolution) {
-        let value = feature.get('property_values')[index];
-        let color;
-        let radius;
-
-        if (value < 2) {
-            color = 'blue';
-            radius = 5;
-        } else if (value < 5) {
-            color = 'green';
-            radius = 7;
-        } else if (value < 10) {
-            color = 'yellow';
-            radius = 9;
-        } else if (value < 15) {
-            color = 'orange';
-            radius = 11;
-        } else {
-            color = 'red';
-            radius = 11;
-        }
-
-        let style = new ol_style_Style({
-            image: new ol_style_Circle({
-                radius: radius,
-                snapToPixel: false,
-                fill: new ol_style_Fill({color: color}),
-                stroke: new ol_style_Stroke({color: color, width: 1})
-            })
-        });
-
-        return style;
-    }
-
-    getLayerStyleFunction(index) {
-        return this.layerStyleFunction.bind(this, index);
-    }
-
     render() {
         const sidebarVisible = this.state.sidebarVisible;
 
@@ -342,7 +294,7 @@ class MapApp extends React.Component {
 
                 <Sidebar.Pusher style={ pusherStyle }>
                     <Map data={ this.state.geojsonData }
-                         dataStyle={ this.getLayerStyleFunction(this.state.selection.timeValueIndex) }/>
+                         index={ this.state.selection.timeValueIndex }/>
 
                     { !sidebarVisible && <Button
                         icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
