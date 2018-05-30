@@ -102,30 +102,13 @@ class Map extends React.Component {
         });
     }
 
-    generalizeData(data, index) {
-        let result;
-        if (data && index != null) {
-            let features = this._getFeatures(data);
-            let style = this._getStyleFunction(index);
-
-            result =  {
-                features: features,
-                style: style
-            };
-        }
-        return result;
-    }
-
-    _getFeatures(data) {
-        let format = new ol_format_GeoJSON({
-            defaultDataProjection: 'EPSG:4326'
-        });
-        let features = format.readFeatures(data,  {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-        });
-
-        return features;
+    /***************************** fake generalization **********************/
+    generalize(property, features, valueIndex, resolution) {
+        let style = this._getStyleFunction(valueIndex);
+        return {
+            features: features,
+            style: style
+        };
     }
 
     _getStyleFunction(index) {
@@ -165,9 +148,32 @@ class Map extends React.Component {
 
         return style;
     }
+    /***************************** fake generalization **********************/
+
+    getFeatures(data) {
+        if (ol_format_GeoJSON) {
+            let format = new ol_format_GeoJSON({
+                defaultDataProjection: 'EPSG:4326'
+            });
+            let features = format.readFeatures(data,  {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+
+            return features;
+        }
+        return null;
+    }
 
     render() {
-        let generalization = this.generalizeData(this.props.data, this.props.index);
+        let generalization;
+        if (this.state.map && this.props.data) {
+            let allFeatures = this.getFeatures(this.props.data);
+            let view = this.state.map.getView();
+            let resolution = view.getResolution();
+
+            generalization = this.generalize(this.props.property, allFeatures, this.props.index, resolution);
+        }
 
         if (generalization && this.geojsonLayer) {
             let source = this.geojsonLayer.getSource();

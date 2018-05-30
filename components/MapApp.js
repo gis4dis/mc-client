@@ -153,6 +153,7 @@ class MapApp extends React.Component {
         window.removeEventListener('resize', this.updateSidebarDirection.bind(this));
     }
 
+    /**************************** sidebar handlers *********************************/
     updateSidebarDirection() {
         let direction;
 
@@ -172,6 +173,7 @@ class MapApp extends React.Component {
             sidebarVisible: !this.state.sidebarVisible
         });
     }
+    /**************************** sidebar handlers *********************************/
 
     /******************************** app handlers *********************************/
     /**
@@ -260,6 +262,12 @@ class MapApp extends React.Component {
     };
     /******************************** app handlers *********************************/
 
+    getPropertyById(propertyId) {
+        let property = this.state.properties.find((property) => (property.name_id === propertyId));
+
+        return property;
+    }
+
     render() {
         const sidebarVisible = this.state.sidebarVisible;
 
@@ -293,7 +301,8 @@ class MapApp extends React.Component {
                 </Sidebar>
 
                 <Sidebar.Pusher style={ pusherStyle }>
-                    <Map data={ this.state.geojsonData }
+                    <Map property={ this.getPropertyById(this.state.selection.propertyId) }
+                         data={ this.state.geojsonData }
                          index={ this.state.selection.timeValueIndex }/>
 
                     { !sidebarVisible && <Button
