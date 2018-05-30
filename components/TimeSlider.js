@@ -64,6 +64,11 @@ class TimeSlider extends React.Component {
             this._clearTimer();
         }
 
+        if (this.props.callback) {
+            let timeDate = moment.unix(this.props.from);
+            this.props.callback(timeDate);
+        }
+
         this.setState({
             isPlaying: false,
             value: this.props.from
@@ -129,12 +134,22 @@ class TimeSlider extends React.Component {
     }
 
     setValueToMin() {
+        if (this.props.callback) {
+            let timeDate = moment.unix(this.props.from);
+            this.props.callback(timeDate);
+        }
+
         this.setState({
             value: this.props.from
         });
     }
 
     setValueToMax() {
+        if (this.props.callback) {
+            let timeDate = moment.unix(this.props.to);
+            this.props.callback(timeDate);
+        }
+
         this.setState({
             value: this.props.to
         });
