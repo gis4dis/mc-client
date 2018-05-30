@@ -183,28 +183,56 @@ class TimeSlider extends React.Component {
             </div>
 
             <div className="controlButtons">
-
-                <Button icon={ playPauseIcon } onClick={ this.togglePlay } disabled={ this._isMax() } />
-                <Button icon='fast backward' onClick={ this.setValueToMin } disabled={ this._isMin() } />
-                <Button icon='step backward' onClick={ this.moveStepBack } disabled={ this._isMin() } />
-                <Button icon='step forward' onClick={ this.moveStepForward } disabled={ this._isMax() } />
-                <Button icon='fast forward' onClick={ this.setValueToMax } disabled={ this._isMax() } />
-                <Button icon='stop' onClick={ this.stopButtonClick } disabled={ !this.state.isPlaying } />
-
+                <Button icon={ playPauseIcon }
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.togglePlay }
+                        disabled={ this._isMax() } />
+                <Button icon='fast backward'
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.setValueToMin }
+                        disabled={ this._isMin() } />
+                <Button icon='step backward'
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.moveStepBack }
+                        disabled={ this._isMin() } />
+                <Button icon='step forward'
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.moveStepForward }
+                        disabled={ this._isMax() } />
+                <Button icon='fast forward'
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.setValueToMax }
+                        disabled={ this._isMax() } />
+                <Button icon='stop'
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={ this.stopButtonClick }
+                        disabled={ !this.state.isPlaying } />
             </div>
 
             <style jsx>{`
                 .timeSlider {
-                    margin: 8px 0;
+                    padding: 8px 0;
                 }
 
                 .currentValue {
-                    color: #66ff33;
+                    color: #54ffff;
                     text-align: right;
                 }
 
                 .sliderContainer {
-                    margin: 8px 0 16px;
+                    margin: 8px 0 8px;
                 }
 
                 .slider {
@@ -224,7 +252,7 @@ class TimeSlider extends React.Component {
                     width: 14px;
                     height: 14px;
                     border-radius: 50%;
-                    background: #66ff33;
+                    background: #54ffff;
                     cursor: pointer;
                 }
 
@@ -234,6 +262,10 @@ class TimeSlider extends React.Component {
                     border-radius: 50%;
                     background: #4CAF50;
                     cursor: pointer;
+                }
+
+                .controlButtons {
+                    text-align: center;
                 }
             `}</style>
         </div>
