@@ -81,7 +81,7 @@ class Map extends React.Component {
         const view = new ol_View({
             projection: projection,
             center: ol_proj.transform([16.62, 49.2], 'EPSG:4326', projection),
-            zoom: 11
+            zoom: 13
         });
 
         const baseLayer = getBaseLayer();
@@ -121,19 +121,19 @@ class Map extends React.Component {
         let radius;
 
         if (value < 2) {
-            color = 'blue';
+            color = 'rgba(0, 0, 255, 0.6)';
             radius = 5;
         } else if (value < 5) {
-            color = 'green';
+            color = 'rgba(0, 255, 0, 0.6)';
             radius = 7;
         } else if (value < 10) {
-            color = 'yellow';
+            color = 'rgba(255, 255, 0, 0.6)';
             radius = 9;
         } else if (value < 15) {
-            color = 'orange';
+            color = 'rgba(255, 128, 0, 0.6)';
             radius = 11;
         } else {
-            color = 'red';
+            color = 'rgba(255, 0, 0, 0.6)';
             radius = 11;
         }
 
