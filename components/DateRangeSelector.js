@@ -1,7 +1,12 @@
 import React from 'react';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
-import { Button, Form, Input, Label} from 'semantic-ui-react';
+import { Button, Form, Input, Label } from 'semantic-ui-react';
+
+const formStyle = {
+  margin: '8px'
+};
+
 
 class DateRangeSelector extends React.Component {
     constructor(props) {
@@ -71,21 +76,25 @@ class DateRangeSelector extends React.Component {
         let to = this._getCurrentValueString(this.state.toDate, this.props.currentValues.to);
 
         return <div>
-            <Form>
+            <Form style={ formStyle }>
                 <Form.Field>
                     <Label size='small'>From date</Label>
-                    { from  && <Label basic color='red' pointing='left' size='small'>{ from }</Label> }
                     <DatePicker
-                            selected={ this.state.fromDate }
-                            onChange={ this.handleFromChange } />
+                        selected={ this.state.fromDate }
+                        onChange={ this.handleFromChange } />
+                    { from  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
+                        { from }</Label> }
                 </Form.Field>
+            </Form>
+            <Form style={ formStyle }>
                 <Form.Field>
                     <Label size='small'>To date</Label>
-                    { to  && <Label basic color='red' pointing='left' size='small'>{ to }</Label> }
                     <DatePicker
                             selected={ this.state.toDate }
                             minDate={ this.state.fromDate }
                             onChange={ this.handleToChange } />
+                    { to  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
+                        { to }</Label> }
                 </Form.Field>
             </Form>
         </div>
