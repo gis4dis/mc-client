@@ -4,7 +4,8 @@ import DatePicker from 'react-datepicker';
 import { Button, Form, Input, Label } from 'semantic-ui-react';
 
 const formStyle = {
-  margin: '8px'
+    margin: '8px',
+    maxWidth: '245px'
 };
 
 
