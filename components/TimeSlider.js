@@ -33,13 +33,12 @@ class TimeSlider extends React.Component {
 
     onChange(event) {
         let time = parseInt(event.target.value);
-        console.log(time, this.props.callback);
         this.setState({
             value: time
         });
 
         if (this.props.callback) {
-            let timeDate = moment.unix(time);
+            let timeDate = moment.unix(time).utcOffset(this.props.timeZone);
             this.props.callback(timeDate);
         }
     }
@@ -65,7 +64,7 @@ class TimeSlider extends React.Component {
         }
 
         if (this.props.callback) {
-            let timeDate = moment.unix(this.props.from);
+            let timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
             this.props.callback(timeDate);
         }
 
@@ -92,7 +91,7 @@ class TimeSlider extends React.Component {
 
             if (time !== newValue) {
                 if (props.callback) {
-                    let timeDate = moment.unix(newValue);
+                    let timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
                     props.callback(timeDate);
                 }
             }
@@ -121,7 +120,7 @@ class TimeSlider extends React.Component {
 
             if (time !== newValue) {
                 if (props.callback) {
-                    let timeDate = moment.unix(newValue);
+                    let timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
                     props.callback(timeDate);
                 }
             }
@@ -135,7 +134,7 @@ class TimeSlider extends React.Component {
 
     setValueToMin() {
         if (this.props.callback) {
-            let timeDate = moment.unix(this.props.from);
+            let timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
             this.props.callback(timeDate);
         }
 
@@ -146,7 +145,7 @@ class TimeSlider extends React.Component {
 
     setValueToMax() {
         if (this.props.callback) {
-            let timeDate = moment.unix(this.props.to);
+            let timeDate = moment.unix(this.props.to).utcOffset(this.props.timeZone);
             this.props.callback(timeDate);
         }
 
@@ -169,7 +168,7 @@ class TimeSlider extends React.Component {
 
         return <div className="timeSlider">
             <div className="currentValue">
-                { moment.unix(this.state.value).format('L LT Z') }
+                { moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z') }
             </div>
 
             <div className="sliderContainer">

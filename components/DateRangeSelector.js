@@ -23,6 +23,8 @@ class DateRangeSelector extends React.Component {
     }
 
     handleFromChange(date) {
+        date.utcOffset(this.props.timeZone);
+
         this.setState({
             fromDate: date
         });
@@ -35,6 +37,8 @@ class DateRangeSelector extends React.Component {
     }
 
     handleToChange(date) {
+        date.utcOffset(this.props.timeZone);
+
         this.setState({
             toDate: date
         });
@@ -56,12 +60,12 @@ class DateRangeSelector extends React.Component {
     }
 
     _isSameDate(value, currentValue) {
-        return moment(value).isSame(currentValue, 'day');
+        return value.isSame(currentValue, 'day');
     }
 
     _getCurrentValueString(value, currentValue) {
         let result;
-        if (!moment(value).isSame(currentValue, 'second')) {
+        if (!value.isSame(currentValue, 'second')) {
             if (this._isSameDate(value, currentValue)) {
                 result = currentValue.format('LT');
             } else {

@@ -36,6 +36,7 @@ class MapControls extends React.Component {
             <TimeControl
                     dateRange={ {from: this.props.selection.from, to: this.props.selection.to} }
                     currentValues={ this.props.currentValues }
+                    timeZone={ this.props.timeZone }
                     handleDateRangeChange={ this.props.onDateRangeChange }
                     handleTimeValueChange={ this.props.onTimeValueChange }
                     style={ partStyle } />

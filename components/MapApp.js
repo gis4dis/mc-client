@@ -86,13 +86,16 @@ const getSidebarToggleIcon = (direction, visible) => {
 /************************ styles ***************************************/
 
 const serverUrl = 'http://localhost:3000';
+const timeZone = '+01:00'
 
 class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
-        let from = moment().startOf('day').subtract(1, 'months');
-        let to = moment().endOf('day').subtract(1, 'days');
+        let now = moment().utcOffset(timeZone);
+
+        let from = now.clone().startOf('day').subtract(1, 'months');
+        let to = now.clone().endOf('day').subtract(1, 'days');
 
         this.state = {
             properties: [],
@@ -197,8 +200,8 @@ class MapApp extends React.Component {
             }).then((data) => {
                 this.setState({
                     currentValues: {
-                        from: moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ss'),
-                        to: moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ss'),
+                        from: moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone),
+                        to: moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone),
                         frequency: data.value_frequency
                     },
                     geojsonData: data
@@ -287,6 +290,7 @@ class MapApp extends React.Component {
                                 properties={ this.state.properties }
                                 selection={ this.state.selection }
                                 currentValues={ this.state.currentValues }
+                                timeZone={ timeZone }
                                 onPropertyChange={ this.handlePropertyChange }
                                 onDateRangeChange={ this.handleDateRangeChange }
                                 onTimeValueChange={ this.handleTimeValueChange }

@@ -71,7 +71,7 @@
       }
     }
   ],
-  "phenomenon_time_from": "2018-04-07 00:00:00",
-  "phenomenon_time_to": "2018-04-07 23:00:00",
+  "phenomenon_time_from": "2018-04-07 00:00:00+01:00",
+  "phenomenon_time_to": "2018-04-07 23:00:00+01:00",
   "value_frequency": 3600
 }

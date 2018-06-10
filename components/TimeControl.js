@@ -36,6 +36,7 @@ class TimeControl extends React.Component {
                 <TimeSlider
                     from={ this.props.currentValues.from.unix() }
                     to={ this.props.currentValues.to.unix() }
+                    timeZone={ this.props.timeZone }
                     frequency={ this.props.currentValues.frequency }
                     callback={ this.props.handleTimeValueChange } />
             </div>
@@ -43,6 +44,7 @@ class TimeControl extends React.Component {
                 <DateRangeSelector
                     from={ this.state.from }
                     to={ this.state.to }
+                    timeZone={ this.props.timeZone }
                     currentValues={ this.props.currentValues }
                     callback={ this.handleDateRangeChange }
                     style={ controlPartStyle }/>
