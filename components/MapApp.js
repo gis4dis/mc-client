@@ -86,6 +86,8 @@ const getSidebarToggleIcon = (direction, visible) => {
 /************************ styles ***************************************/
 
 const serverUrl = 'http://localhost:3000';
+const propertiesRequestPath = '/api/v1/properties/';
+const timeSeriesRequestPath = '/api/v1/timeseries/';
 const timeZone = '+01:00'
 
 class MapApp extends React.Component {
@@ -126,7 +128,7 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en');
 
-        fetch(serverUrl + '/api/v1/properties/?format=json')
+        fetch(serverUrl + propertiesRequestPath + '?format=json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
@@ -180,6 +182,22 @@ class MapApp extends React.Component {
 
     /******************************** app handlers *********************************/
     /**
+     * @param params
+     * @private
+     */
+    _sendTimeSeriesRequest(params) {
+        let paramParts = [];
+        for (let key in params) {
+            if (params[key] != null) {
+                paramParts.push(key + '=' + params[key]);
+            }
+        }
+
+        let requestUrl = serverUrl + timeSeriesRequestPath + '?' + paramParts.join('&');
+        return fetch(requestUrl);
+    }
+
+    /**
      * @param options
      * propertyId
      * from
@@ -189,19 +207,25 @@ class MapApp extends React.Component {
     handleAppStateChange(options) {
         let requestParameters = {
             name_id: options.propertyId,
-            phenomenon_date_from: options.from,
-            phenomenon_date_to: options.to,
+            phenomenon_date_from: options.from.format('YYYY-MM-DD'),
+            phenomenon_date_to: options.to.format('YYYY-MM-DD'),
             bbox: options.bbox
         };
 
-        fetch('/static/data/timeseries.json')
+        this._sendTimeSeriesRequest(requestParameters)
             .then((results) => {
                 return results.json();
             }).then((data) => {
+                let from = data.phenomenon_time_from ?
+                    moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                    null;
+                let to = data.phenomenon_time_to ?
+                    moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                    null;
                 this.setState({
                     currentValues: {
-                        from: moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone),
-                        to: moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone),
+                        from: from,
+                        to: to,
                         frequency: data.value_frequency
                     },
                     geojsonData: data

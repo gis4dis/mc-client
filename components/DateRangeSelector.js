@@ -32,7 +32,7 @@ class DateRangeSelector extends React.Component {
         this._validateRange(date);
 
         if (this.props.callback) {
-            this.props.callback(this.state.fromDate, this.state.toDate);
+            this.props.callback(date, this.state.toDate);
         }
     }
 
@@ -44,7 +44,7 @@ class DateRangeSelector extends React.Component {
         });
 
         if (this.props.callback) {
-            this.props.callback(this.state.fromDate, this.state.toDate);
+            this.props.callback(this.state.fromDate, date);
         }
     }
 
@@ -65,7 +65,7 @@ class DateRangeSelector extends React.Component {
 
     _getCurrentValueString(value, currentValue) {
         let result;
-        if (!value.isSame(currentValue, 'second')) {
+        if (currentValue && !value.isSame(currentValue, 'second')) {
             if (this._isSameDate(value, currentValue)) {
                 result = currentValue.format('LT');
             } else {

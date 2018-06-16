@@ -7,7 +7,7 @@ class TimeSlider extends React.Component {
         super(props);
 
         this.state = {
-            value: props.from,
+            value: props.from || 0,
             isPlaying: false
         };
 
@@ -26,7 +26,7 @@ class TimeSlider extends React.Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
             this.setState({
-                value: nextProps.from
+                value: nextProps.from || 0
             });
         }
     }
@@ -167,17 +167,20 @@ class TimeSlider extends React.Component {
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
         return <div className="timeSlider">
-            <div className="currentValue">
-                { moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z') }
-            </div>
+            {this.props.from && this.props.to &&
+                <div className="currentValue">
+                    {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
+                </div>
+            }
 
             <div className="sliderContainer">
                 <input type="range"
                         className="slider"
-                        min={ this.props.from }
-                        max={ this.props.to }
+                        min={ this.props.from || 0 }
+                        max={ this.props.to || 100 }
                         step={ this.props.frequency }
                         value={ this.state.value }
+                        disabled={ this.props.disabled }
                         onChange={ this.onChange }/>
             </div>
 
@@ -187,37 +190,37 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={ this.togglePlay }
-                        disabled={ this._isMax() } />
+                        disabled={ this.props.disabled || this._isMax() } />
                 <Button icon='fast backward'
                         color="teal"
                         circular
                         inverted
                         onClick={ this.setValueToMin }
-                        disabled={ this._isMin() } />
+                        disabled={ this.props.disabled || this._isMin() } />
                 <Button icon='step backward'
                         color="teal"
                         circular
                         inverted
                         onClick={ this.moveStepBack }
-                        disabled={ this._isMin() } />
+                        disabled={ this.props.disabled || this._isMin() } />
                 <Button icon='step forward'
                         color="teal"
                         circular
                         inverted
                         onClick={ this.moveStepForward }
-                        disabled={ this._isMax() } />
+                        disabled={ this.props.disabled || this._isMax() } />
                 <Button icon='fast forward'
                         color="teal"
                         circular
                         inverted
                         onClick={ this.setValueToMax }
-                        disabled={ this._isMax() } />
+                        disabled={ this.props.disabled || this._isMax() } />
                 <Button icon='stop'
                         color="teal"
                         circular
                         inverted
                         onClick={ this.stopButtonClick }
-                        disabled={ !this.state.isPlaying } />
+                        disabled={ this.props.disabled || !this.state.isPlaying } />
             </div>
 
             <style jsx>{`

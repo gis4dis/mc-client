@@ -105,13 +105,13 @@ class Map extends React.Component {
 
     render() {
         let generalization;
-        if (this.state.map && this.props.data) {
+        if (this.state.map && this.props.data && this.props.data.feature_collection) {
             let view = this.state.map.getView();
             let resolution = view.getResolution();
 
             let options = {
                 property: this.props.property,
-                features: this.props.data,
+                features: this.props.data.feature_collection,
                 value_idx: this.props.index,
                 resolution: resolution
             };
