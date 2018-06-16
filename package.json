@@ -13,11 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@weco/next-plugin-transpile-modules": "0.0.2",
     "express": "^4.16.3",
     "http-proxy-middleware": "^0.18.0",
     "isomorphic-unfetch": "^2.0.0",
     "next": "^5.1.0",
-    "ol": "^4.6.5",
+    "ol": "jirik/ol3#nodejs-package",
     "react": "^16.3.1",
     "react-datepicker": "^1.4.1",
     "react-dom": "^16.3.1",

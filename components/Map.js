@@ -1,4 +1,5 @@
 import React from 'react';
+import generalize from "../src/cg/src/cg/generalize"
 
 let ol_Map;
 let ol_View;
@@ -102,77 +103,20 @@ class Map extends React.Component {
         });
     }
 
-    /***************************** fake generalization **********************/
-    generalize(property, features, valueIndex, resolution) {
-        let style = this._getStyleFunction(valueIndex);
-        return {
-            features: features,
-            style: style
-        };
-    }
-
-    _getStyleFunction(index) {
-        return this.layerStyleFunction.bind(this, index);
-    }
-
-    layerStyleFunction(index, feature, resolution) {
-        let value = feature.get('property_values')[index];
-        let color;
-        let radius;
-
-        if (value < 2) {
-            color = 'rgba(0, 0, 255, 0.6)';
-            radius = 5;
-        } else if (value < 5) {
-            color = 'rgba(0, 255, 0, 0.6)';
-            radius = 7;
-        } else if (value < 10) {
-            color = 'rgba(255, 255, 0, 0.6)';
-            radius = 9;
-        } else if (value < 15) {
-            color = 'rgba(255, 128, 0, 0.6)';
-            radius = 11;
-        } else {
-            color = 'rgba(255, 0, 0, 0.6)';
-            radius = 11;
-        }
-
-        let style = new ol_style_Style({
-            image: new ol_style_Circle({
-                radius: radius,
-                snapToPixel: false,
-                fill: new ol_style_Fill({color: color}),
-                stroke: new ol_style_Stroke({color: color, width: 1})
-            })
-        });
-
-        return style;
-    }
-    /***************************** fake generalization **********************/
-
-    getFeatures(data) {
-        if (ol_format_GeoJSON) {
-            let format = new ol_format_GeoJSON({
-                defaultDataProjection: 'EPSG:4326'
-            });
-            let features = format.readFeatures(data,  {
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
-            });
-
-            return features;
-        }
-        return null;
-    }
-
     render() {
         let generalization;
         if (this.state.map && this.props.data) {
-            let allFeatures = this.getFeatures(this.props.data);
             let view = this.state.map.getView();
             let resolution = view.getResolution();
 
-            generalization = this.generalize(this.props.property, allFeatures, this.props.index, resolution);
+            let options = {
+                property: this.props.property,
+                features: this.props.data,
+                value_idx: this.props.index,
+                resolution: resolution
+            };
+
+            generalization = generalize(options);
         }
 
         if (generalization && this.geojsonLayer) {
