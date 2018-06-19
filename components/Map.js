@@ -45,7 +45,7 @@ const getBaseLayer = () => {
 const getGeojsonLayer = (geojson) => {
     const geojsonLayer = new ol_layer_Vector({
         source: new ol_source_Vector({
-            projection : 'EPSG:3857'
+            projection : 'EPSG:4326'
         })
     });
 
@@ -103,30 +103,64 @@ class Map extends React.Component {
         });
     }
 
-    render() {
-        let generalization;
-        if (this.state.map && this.props.data && this.props.data.feature_collection) {
+    componentWillReceiveProps(nextProps) {
+        let generalization = this._getGeneralization(nextProps);
+
+        if (generalization && this.geojsonLayer) {
+            let isDataChange = this.props.data !== nextProps.data;
+            this._updateFeatures(generalization.features, isDataChange);
+
+            this.geojsonLayer.setStyle(generalization.style);
+        }
+    }
+
+    _handleResolutionChange(event) {
+        console.log(event);
+    }
+
+    _getGeneralization(props) {
+        if (this.state.map && props.data && props.data.feature_collection) {
             let view = this.state.map.getView();
             let resolution = view.getResolution();
 
             let options = {
-                property: this.props.property,
-                features: this.props.data.feature_collection,
-                value_idx: this.props.index,
+                property: props.property,
+                features: props.data.feature_collection,
+                value_idx: props.index,
                 resolution: resolution
             };
 
-            generalization = generalize(options);
+            return generalize(options);
         }
+        return null;
+    }
 
-        if (generalization && this.geojsonLayer) {
-            let source = this.geojsonLayer.getSource();
-            source.clear();
-            source.addFeatures(generalization.features);
+    _updateFeatures(newFeatures, isDataChange) {
+        let source = this.geojsonLayer.getSource();
+        let currentFeatures = source.getFeatures();
+        let newIds = newFeatures.map((feature) => (feature.get('id_by_provider')));
+        let matchingIds = [];
+        currentFeatures.forEach((feature) => {
+            let fid = feature.get('id_by_provider');
+            if (!newIds.includes(fid)) {
+                source.removeFeature(feature);
+            } else {
+                if (isDataChange) {
+                    // TODO handle possible change in property_values (= new geojson)
+                }
+                matchingIds.push(fid);
+            }
+        });
 
-            this.geojsonLayer.setStyle(generalization.style);
+        let featuresToAdd = newFeatures.filter((feature) => {
+            return !matchingIds.includes(feature.get('id_by_provider'));
+        });
+        if (featuresToAdd.length) {
+            source.addFeatures(featuresToAdd);
         }
+    }
 
+    render() {
         return (
             <div className="map-wrap">
                 <div className="map" ref={(d) => this.mapElement = d}> </div>
