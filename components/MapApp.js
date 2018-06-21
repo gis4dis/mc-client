@@ -228,7 +228,8 @@ class MapApp extends React.Component {
                         to: to,
                         frequency: data.value_frequency
                     },
-                    geojsonData: data
+                    geojsonData: data,
+                    isDataValid: from && to
                 });
             });
     }
@@ -331,6 +332,7 @@ class MapApp extends React.Component {
                 <Sidebar.Pusher style={ pusherStyle }>
                     <Map property={ this.getPropertyById(this.state.selection.propertyId) }
                          data={ this.state.geojsonData }
+                         isDataValid={ this.state.isDataValid }
                          index={ this.state.selection.timeValueIndex }/>
 
                     { !sidebarVisible && <Button
