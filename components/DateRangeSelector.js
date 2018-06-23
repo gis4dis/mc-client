@@ -29,10 +29,20 @@ class DateRangeSelector extends React.Component {
             fromDate: date
         });
 
-        this._validateRange(date);
-
-        if (this.props.callback) {
+        let to = this.state.toDate;
+        if (this.props.callback && this._isRangeValid(date, to)) {
             this.props.callback(date, this.state.toDate);
+        }
+
+        if (!this._isRangeValid(date, to)) {
+            this._notifyRangeFix();
+            this.setState({
+                toDate: date
+            });
+
+            if (this.props.callback) {
+                this.props.callback(date, date);
+            }
         }
     }
 
@@ -48,15 +58,12 @@ class DateRangeSelector extends React.Component {
         }
     }
 
-    _validateRange(date) {
-        let to = this.state.toDate;
+    _isRangeValid(from, to) {
+        return from.isSameOrBefore(to);
+    }
 
-        if (to.isBefore(date)) {
-            console.log('To date can\'t be before from date.');
-            this.setState({
-                toDate: date
-            });
-        }
+    _notifyRangeFix() {
+        console.log('To date can\'t be before from date.');
     }
 
     _isSameDate(value, currentValue) {
@@ -89,6 +96,7 @@ class DateRangeSelector extends React.Component {
                     <Label size='small'>From date</Label>
                     <DatePicker
                         selected={ this.state.fromDate }
+                        maxDate={ moment() }
                         onChange={ this.handleFromChange } />
                     { from  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
                         { from }</Label> }
@@ -100,6 +108,7 @@ class DateRangeSelector extends React.Component {
                     <DatePicker
                             selected={ this.state.toDate }
                             minDate={ this.state.fromDate }
+                            maxDate={ moment() }
                             onChange={ this.handleToChange } />
                     { to  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
                         { to }</Label> }
