@@ -48,6 +48,7 @@ class TimeControl extends React.Component {
                     timeZone={ this.props.timeZone }
                     currentValues={ this.props.currentValues }
                     callback={ this.handleDateRangeChange }
+                    notifyUser={ this.props.notifyUser }
                     style={ controlPartStyle }/>
             </div>
         </div>

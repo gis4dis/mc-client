@@ -64,6 +64,10 @@ class DateRangeSelector extends React.Component {
 
     _notifyRangeFix() {
         console.log('To date can\'t be before from date.');
+        this.props.notifyUser({
+            text: '\'To date\' can\'t be before \'from date\'.',
+            color: 'orange'
+        });
     }
 
     _isSameDate(value, currentValue) {

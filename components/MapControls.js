@@ -39,6 +39,7 @@ class MapControls extends React.Component {
                     timeZone={ this.props.timeZone }
                     handleDateRangeChange={ this.props.onDateRangeChange }
                     handleTimeValueChange={ this.props.onTimeValueChange }
+                    notifyUser={ this.props.notifyUser }
                     style={ partStyle } />
         </div>
     }

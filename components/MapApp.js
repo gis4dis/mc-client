@@ -2,8 +2,9 @@ import React from 'react';
 import HeaderMenu from './HeaderMenu';
 import Map from './Map';
 import MapControls from './MapControls';
+import NotificationPopup from './NotificationPopup'
 import moment from 'moment';
-import { Button, Container, Dropdown, Sidebar } from 'semantic-ui-react';
+import { Button, Container, Dropdown, Popup, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
 const sidebarContentStyle = {
@@ -115,12 +116,16 @@ class MapApp extends React.Component {
             },
             geojsonData: null,
             sidebarVisible: props.sidebarVisible,
-            sidebarDirection: 'right'
+            sidebarDirection: 'right',
+            popupOpen: false,
+            popupMessage: null
         };
 
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
         this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
+
+        this.notifyUser = this.notifyUser.bind(this);
 
         this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
     }
@@ -288,6 +293,21 @@ class MapApp extends React.Component {
             };
         });
     };
+
+    notifyUser(message) {
+        this.setState({
+            popupOpen: true,
+            popupMessage: message.text,
+            popupColor: message.color
+        });
+
+        setTimeout(function() {
+            this.setState({
+                popupOpen: false
+            });
+        }.bind(this), 5000);
+
+    }
     /******************************** app handlers *********************************/
 
     getPropertyById(propertyId) {
@@ -319,6 +339,7 @@ class MapApp extends React.Component {
                                 onPropertyChange={ this.handlePropertyChange }
                                 onDateRangeChange={ this.handleDateRangeChange }
                                 onTimeValueChange={ this.handleTimeValueChange }
+                                notifyUser={ this.notifyUser }
                         />
                     </div>
 
@@ -342,6 +363,11 @@ class MapApp extends React.Component {
                     }
                 </Sidebar.Pusher>
             </Sidebar.Pushable>
+
+            <NotificationPopup
+                    open={ this.state.popupOpen }
+                    message={ this.state.popupMessage }
+                    color={ this.state.popupColor } />
 
             <style jsx>{`
                 .content {
