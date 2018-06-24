@@ -218,25 +218,47 @@ class MapApp extends React.Component {
         };
 
         this._sendTimeSeriesRequest(requestParameters)
-            .then((results) => {
-                return results.json();
-            }).then((data) => {
-                let from = data.phenomenon_time_from ?
-                    moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
-                    null;
-                let to = data.phenomenon_time_to ?
-                    moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
-                    null;
-                this.setState({
-                    currentValues: {
-                        from: from,
-                        to: to,
-                        frequency: data.value_frequency
-                    },
-                    geojsonData: data,
-                    isDataValid: from && to
+            .then((response) => {
+                if (response.status !== 200) {
+                    let message = 'Looks like there was a problem. Status Code: ' +
+                        response.status;
+                    console.log(message);
+                    this.notifyUser({
+                        text: message,
+                        color: 'red'
+                    });
+
+                    this.setState({
+                        currentValues: {
+                            from: null,
+                            to: null,
+                            frequency: null
+                        },
+                        geojsonData: null,
+                        isDataValid: false
+                    });
+                    return;
+                }
+
+                response.json().then((data) => {
+                    let from = data.phenomenon_time_from ?
+                        moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                        null;
+                    let to = data.phenomenon_time_to ?
+                        moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                        null;
+                    this.setState({
+                        currentValues: {
+                            from: from,
+                            to: to,
+                            frequency: data.value_frequency
+                        },
+                        geojsonData: data,
+                        isDataValid: from && to
+                    });
                 });
-            });
+            })
+            .catch((error) => console.log(error));
     }
 
     handlePropertyChange(event, data) {

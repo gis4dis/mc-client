@@ -104,13 +104,17 @@ class Map extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        let generalization = this._getGeneralization(nextProps);
+        if (nextProps.isDataValid) {
+            let generalization = this._getGeneralization(nextProps);
 
-        if (generalization && this.geojsonLayer) {
-            let isDataChange = this.props.data !== nextProps.data;
-            this._updateFeatures(generalization.features, isDataChange);
+            if (generalization && this.geojsonLayer) {
+                let isDataChange = this.props.data !== nextProps.data;
+                this._updateFeatures(generalization.features, isDataChange);
 
-            this.geojsonLayer.setStyle(generalization.style);
+                this.geojsonLayer.setStyle(generalization.style);
+            }
+        } else {
+            this._clearFeatures();
         }
     }
 
@@ -158,6 +162,11 @@ class Map extends React.Component {
         if (featuresToAdd.length) {
             source.addFeatures(featuresToAdd);
         }
+    }
+
+    _clearFeatures() {
+        let source = this.geojsonLayer.getSource();
+        source.clear();
     }
 
     render() {
