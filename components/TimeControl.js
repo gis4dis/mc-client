@@ -31,11 +31,15 @@ class TimeControl extends React.Component {
     }
 
     render() {
+        let currentTo = this.props.currentValues.to ?
+            this.props.currentValues.to.clone().subtract(this.props.currentValues.frequency, 'seconds').unix() :
+            null;
+
         return <div>
             <div style={ controlPartStyle }>
                 <TimeSlider
                     from={ this.props.currentValues.from ? this.props.currentValues.from.unix() : null }
-                    to={ this.props.currentValues.to ? this.props.currentValues.to.unix() : null }
+                    to={ currentTo }
                     timeZone={ this.props.timeZone }
                     frequency={ this.props.currentValues.frequency }
                     disabled={ this.props.currentValues.from == null || this.props.currentValues.to == null}

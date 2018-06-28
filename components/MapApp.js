@@ -131,7 +131,7 @@ class MapApp extends React.Component {
     }
 
     componentDidMount() {
-        moment.locale('en');
+        moment.locale('en-gb');
 
         fetch(serverUrl + propertiesRequestPath + '?format=json')
             .then((results) => {

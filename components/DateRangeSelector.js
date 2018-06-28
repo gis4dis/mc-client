@@ -92,7 +92,9 @@ class DateRangeSelector extends React.Component {
 
         let lastPossibleMeasurement = this.state.toDate.clone().add(1, 'days').
                 subtract(this.props.currentValues.frequency, 'seconds');
-        let to = this._getCurrentValueString(lastPossibleMeasurement, this.props.currentValues.to);
+        let lastMeasurement = this.props.currentValues.to.clone().
+                subtract(this.props.currentValues.frequency, 'seconds');
+        let to = this._getCurrentValueString(lastPossibleMeasurement, lastMeasurement);
 
         return <div>
             <Form style={ formStyle }>
