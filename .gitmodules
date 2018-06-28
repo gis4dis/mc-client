@@ -1,3 +1,0 @@
-[submodule "src/cg"]
-	path = src/cg
-	url = https://github.com/gis4dis/cg.git

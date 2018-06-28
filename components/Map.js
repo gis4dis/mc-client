@@ -1,5 +1,5 @@
 import React from 'react';
-import generalize from "../src/cg/src/cg/generalize"
+import generalize from 'gis4dis-generalizer'
 
 let ol_Map;
 let ol_View;
