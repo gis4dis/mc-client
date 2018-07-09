@@ -4,12 +4,13 @@ import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup'
 import moment from 'moment';
-import { Button, Container, Dropdown, Popup, Sidebar } from 'semantic-ui-react';
+import { Button, Dropdown, Popup, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
 const sidebarContentStyle = {
     background: '#000',
     height: '100%',
+    overflow: 'auto',
     padding: '16px'
 };
 
@@ -18,8 +19,10 @@ const getSidebarContentStyle = (direction) => {
 
     if (direction === 'right') {
         style.marginLeft = '40px';
+        style.width = 'calc(100% - 40px)';
     } else if (direction === 'bottom') {
         style.marginTop = '40px';
+        style.width = '100%';
     }
 
     return style;
@@ -156,6 +159,7 @@ class MapApp extends React.Component {
                 });
             });
 
+        this.updateSidebarDirection();
         window.addEventListener('resize', this.updateSidebarDirection.bind(this));
     }
 
@@ -167,6 +171,7 @@ class MapApp extends React.Component {
     updateSidebarDirection() {
         let direction;
 
+        let width = window.innerWidth;
         if (window.innerWidth <= 700) {
             direction = 'bottom';
         } else {
@@ -182,6 +187,19 @@ class MapApp extends React.Component {
         this.setState({
             sidebarVisible: !this.state.sidebarVisible
         });
+    }
+
+    getSidebarClass() {
+        let classes = '';
+
+        if (this.state.sidebarVisible) {
+            classes += 'sidebar-visible';
+        } else {
+            classes += 'sidebar-hidden';
+        }
+
+        classes += ' ' + this.state.sidebarDirection;
+        return classes;
     }
     /**************************** sidebar handlers *********************************/
 
@@ -344,9 +362,9 @@ class MapApp extends React.Component {
         return <div className="content">
             <HeaderMenu activeItem="map" />
 
-            <Sidebar.Pushable>
+            <Sidebar.Pushable className={ this.getSidebarClass() }>
                 <Sidebar
-                        as={ Container }
+                        as="div"
                         animation="overlay"
                         direction={ this.state.sidebarDirection }
                         visible={ this.state.sidebarVisible }
