@@ -89,7 +89,6 @@ const getSidebarToggleIcon = (direction, visible) => {
 };
 /************************ styles ***************************************/
 
-const serverUrl = 'http://localhost:3000';
 const propertiesRequestPath = '/api/v1/properties/';
 const timeSeriesRequestPath = '/api/v1/timeseries/';
 const timeZone = '+01:00'
@@ -136,7 +135,7 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en-gb');
 
-        fetch(serverUrl + propertiesRequestPath + '?format=json')
+        fetch(propertiesRequestPath + '?format=json')
             .then((results) => {
                 return results.json();
             }).then((data) => {
@@ -216,7 +215,7 @@ class MapApp extends React.Component {
             }
         }
 
-        let requestUrl = serverUrl + timeSeriesRequestPath + '?' + paramParts.join('&');
+        let requestUrl = timeSeriesRequestPath + '?' + paramParts.join('&');
         return fetch(requestUrl);
     }
 
