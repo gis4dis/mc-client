@@ -7,7 +7,7 @@ script:
   - npm run export
 
 before_deploy:
-  - zip -r release.zip ./out/
+  - tar -zcf release.tar.gz ./out/
 
 deploy:
   provider: releases
