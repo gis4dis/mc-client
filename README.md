@@ -1,1 +1,3 @@
 # mc-client
+
+npm export
