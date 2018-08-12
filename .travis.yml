@@ -3,8 +3,8 @@ node_js:
 - node
 install: npm install
 script:
-  - npm build
-  - npm export
+  - npm run build
+  - npm run export
 
 before_deploy:
   - zip -r release.zip ./out/
