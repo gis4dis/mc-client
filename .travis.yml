@@ -2,3 +2,18 @@ language: node_js
 node_js:
 - node
 install: npm install
+script:
+  - npm build
+  - npm export
+
+before_deploy:
+  - zip -r release.zip ./out/
+
+deploy:
+  provider: releases
+  api_key:
+    secure: TbxDep1jpa5DkRv5xGO+mDgQGGXczNV9iwIOKcF0Yy7nj7cj/zpvhvJMD8WcgLnZ79u5rQfqkDDvHsDtH/UHWQLIXQbNNvuoJtSmp7fGtpvf1qC/j4K8HZddSjJRwg9cRVjCfkcnoWGaC/4hGfEbnXlIrpY52PuMlcEETfD9ziRcS+dyiUmha4nQEIp8IG+nWeZ2lx4yRwUzR4EHEb+c6TY2K6dADLqP2u/9Oiw7rENbM3vtG6cyDWJRwNY1dyu/zquDPxfi9xxkGB5uVZSRaD+IEIAAXIQ6EIQjv0p/pyzHR8FfnbxPmAsOG2uX1Tu0tiyLdLFkP4tjHW8C11WdcW+enwOfDM+1Ny3gimajhKpxhWy0a3uS8uIi00dM+Ew2Hje/TCWUGT3XYaGVDreLzXH0w6xQejrZYKC0kzwip8lRYc9PNGDMAFxKFniE10KinhJVjZefCQMZcdt5EDmnfnQQ0X5FAltC8+GERFtHABEXnzm43P5ss1ZpAUdOhah9idKzXVxQUu5lDA6mjwnLCTCMW9947Scp02DTqi6bmxw02YJUjHnJ2OZgxUN/5diz6OuwI7Fs8xjJlYLSr/vGLjdlq+jAnZD9tkiD53q388M8Df13WyzWA/xlMPnTtBtgy+8cMxCIqRmwdt/qaMLGGgfYZJzGWg3hyo1TZ56bZKg=
+  file: release.zip
+  skip_cleanup: true
+  on:
+    tags: true
