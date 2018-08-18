@@ -1,5 +1,6 @@
 import React from 'react';
 import generalize from 'gis4dis-generalizer'
+import FeatureCharts from "./FeatureCharts";
 
 let ol_Map;
 let ol_View;
@@ -13,6 +14,8 @@ let ol_style_Circle;
 let ol_style_Fill;
 let ol_style_Stroke;
 let ol_style_Style;
+let ol_interaction_Select;
+let ol_Overlay;
 
 let projection;
 
@@ -76,6 +79,8 @@ class Map extends React.Component {
         ol_style_Fill = require('ol/style/fill').default;
         ol_style_Stroke = require('ol/style/stroke').default;
         ol_style_Style = require('ol/style/style').default;
+        ol_interaction_Select = require('ol/interaction/select').default;
+        ol_Overlay = require('ol/overlay').default;
 
         projection = ol_proj.get(configuration.projection);
 
@@ -97,6 +102,43 @@ class Map extends React.Component {
             ],
             view: view
         });
+
+        var popup = document.getElementById('popup');
+        var closer = document.getElementById('popup-closer');
+
+        var overlay = new ol_Overlay({
+            element: popup,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+
+        closer.onclick = function() {
+            overlay.setPosition(undefined);
+            closer.blur();
+            return false;
+        };
+
+        map.addOverlay(overlay);
+
+        let selectInteraction = new ol_interaction_Select();
+        selectInteraction.on('select', function(evt) {
+            let coordinate = evt.mapBrowserEvent.coordinate;
+
+            let feature = evt.target.getFeatures().item(0);
+            this.setState({
+                selectedFeature: feature
+            });
+
+            if (feature) {
+                overlay.setPosition(coordinate);
+            } else {
+                overlay.setPosition(undefined);
+            }
+
+        }.bind(this));
+        map.addInteraction(selectInteraction);
 
         this.setState({
             map
@@ -141,26 +183,29 @@ class Map extends React.Component {
 
     _updateFeatures(newFeatures, isDataChange) {
         let source = this.geojsonLayer.getSource();
-        let currentFeatures = source.getFeatures();
-        let newIds = newFeatures.map((feature) => (feature.get('id_by_provider')));
-        let matchingIds = [];
-        currentFeatures.forEach((feature) => {
-            let fid = feature.get('id_by_provider');
-            if (!newIds.includes(fid)) {
-                source.removeFeature(feature);
-            } else {
-                if (isDataChange) {
-                    // TODO handle possible change in property_values (= new geojson)
-                }
-                matchingIds.push(fid);
-            }
-        });
 
-        let featuresToAdd = newFeatures.filter((feature) => {
-            return !matchingIds.includes(feature.get('id_by_provider'));
-        });
-        if (featuresToAdd.length) {
-            source.addFeatures(featuresToAdd);
+        if (isDataChange) {
+            source.clear();
+            source.addFeatures(newFeatures);
+        } else {
+            let currentFeatures = source.getFeatures();
+            let newIds = newFeatures.map((feature) => (feature.get('id_by_provider')));
+            let matchingIds = [];
+            currentFeatures.forEach((feature) => {
+                let fid = feature.get('id_by_provider');
+                if (!newIds.includes(fid)) {
+                    source.removeFeature(feature);
+                } else {
+                    matchingIds.push(fid);
+                }
+            });
+
+            let featuresToAdd = newFeatures.filter((feature) => {
+                return !matchingIds.includes(feature.get('id_by_provider'));
+            });
+            if (featuresToAdd.length) {
+                source.addFeatures(featuresToAdd);
+            }
         }
     }
 
@@ -178,6 +223,13 @@ class Map extends React.Component {
                         <div>No data to display</div>
                     </div> }
 
+                <div id="popup" className="ol-popup">
+                    <a href="#" id="popup-closer" className="ol-popup-closer"></a>
+                    <FeatureCharts
+                        feature={ this.state.selectedFeature }
+                        timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) } />
+                </div>
+
                 <style jsx>{`
                     .map-wrap, .map {
                         height: 100%;
@@ -187,6 +239,48 @@ class Map extends React.Component {
                         .map-wrap {
                             height: 100%;
                         }
+                    }
+                    .ol-popup {
+                        position: absolute;
+                        background-color: white;
+                        -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+                        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+                        padding: 15px;
+                        border-radius: 10px;
+                        border: 1px solid #cccccc;
+                        bottom: 12px;
+                        left: -50px;
+                        min-width: 280px;
+                    }
+                    .ol-popup:after, .ol-popup:before {
+                        top: 100%;
+                        border: solid transparent;
+                        content: " ";
+                        height: 0;
+                        width: 0;
+                        position: absolute;
+                        pointer-events: none;
+                    }
+                    .ol-popup:after {
+                        border-top-color: white;
+                        border-width: 10px;
+                        left: 48px;
+                        margin-left: -10px;
+                    }
+                    .ol-popup:before {
+                        border-top-color: #cccccc;
+                        border-width: 11px;
+                        left: 48px;
+                        margin-left: -11px;
+                    }
+                    .ol-popup-closer {
+                        text-decoration: none;
+                        position: absolute;
+                        top: 2px;
+                        right: 8px;
+                    }
+                    .ol-popup-closer:after {
+                        content: "✖";
                     }
                     .warning-wrap {
                         background-color: rgba(255, 255, 255, 0.8);
@@ -213,6 +307,7 @@ class Map extends React.Component {
                         vertical-align: middle;
                     }
                     `}</style>
+
                 <style jsx global>{`
                     .map-wrap .ui.blue.buttons.zoom .button:focus {
                         background-color: #2185d0;

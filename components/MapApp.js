@@ -391,6 +391,8 @@ class MapApp extends React.Component {
 
                 <Sidebar.Pusher style={ pusherStyle }>
                     <Map property={ this.getPropertyById(this.state.selection.propertyId) }
+                         currentValues={ this.state.currentValues }
+                         timeZone={ timeZone }
                          data={ this.state.geojsonData }
                          isDataValid={ this.state.isDataValid }
                          index={ this.state.selection.timeValueIndex }/>
