@@ -103,23 +103,7 @@ class Map extends React.Component {
             view: view
         });
 
-        var popup = document.getElementById('popup');
-        var closer = document.getElementById('popup-closer');
-
-        var overlay = new ol_Overlay({
-            element: popup,
-            autoPan: true,
-            autoPanAnimation: {
-                duration: 250
-            }
-        });
-
-        closer.onclick = function() {
-            overlay.setPosition(undefined);
-            closer.blur();
-            return false;
-        };
-
+        let overlay = this.createOverlay();
         map.addOverlay(overlay);
 
         let selectInteraction = new ol_interaction_Select();
@@ -133,8 +117,10 @@ class Map extends React.Component {
 
             if (feature) {
                 overlay.setPosition(coordinate);
+                this._setOverlayVisible(true);
             } else {
                 overlay.setPosition(undefined);
+                this._setOverlayVisible(false);
             }
 
         }.bind(this));
@@ -143,6 +129,12 @@ class Map extends React.Component {
         this.setState({
             map
         });
+    }
+
+    componentWillUnmount() {
+        var popup = document.getElementById('popup');
+        popup.removeEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
+        popup.removeEventListener('mouseout', this._onOverlayMouseLeave.bind(this));
     }
 
     componentWillReceiveProps(nextProps) {
@@ -159,6 +151,60 @@ class Map extends React.Component {
             this._clearFeatures();
         }
     }
+
+    createOverlay() {
+        var popup = document.getElementById('popup');
+        popup.style.display = 'none';
+        popup.addEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
+        popup.addEventListener('mouseleave', this._onOverlayMouseLeave.bind(this));
+
+        var closer = document.getElementById('popup-closer');
+
+        var overlay = new ol_Overlay({
+            element: popup,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            },
+            stopEvent: false
+        });
+
+        closer.onclick = () => {
+            overlay.setPosition(undefined);
+
+            this._setOverlayVisible(false);
+            this._setMapInteractionsActive(true);
+
+            closer.blur();
+            return false;
+        };
+
+        return overlay;
+    }
+
+    _onOverlayMouseEnter() {
+        this._setMapInteractionsActive(false);
+    }
+
+    _onOverlayMouseLeave() {
+        this._setMapInteractionsActive(true);
+    }
+
+    _setOverlayVisible(visible) {
+        var popup = document.getElementById('popup');
+        popup.style.display = visible ? 'block' : 'none';
+    }
+
+    _setMapInteractionsActive(active) {
+        let map = this.state.map;
+        if (map) {
+            // deactivating all interactions may cause problems
+            map.getInteractions().forEach((interaction) => {
+                interaction.setActive(active);
+            });
+        }
+    }
+
 
     _handleResolutionChange(event) {
         console.log(event);
@@ -223,8 +269,9 @@ class Map extends React.Component {
                         <div>No data to display</div>
                     </div> }
 
-                <div id="popup" className="ol-popup">
+                <div id="popup" className="ol-popup" style={ {display: 'none'} }>
                     <a href="#" id="popup-closer" className="ol-popup-closer"></a>
+
                     <FeatureCharts
                         feature={ this.state.selectedFeature }
                         timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) } />

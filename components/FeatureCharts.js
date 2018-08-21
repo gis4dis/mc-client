@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { Area, AreaChart, LineChart, Line, Tooltip, XAxis, YAxis, linearGradient } from 'recharts';
+import { Button } from 'semantic-ui-react';
+import { Area, AreaChart, LineChart, Line, ReferenceArea, Tooltip, XAxis, YAxis, linearGradient } from 'recharts';
 
 const getTime = (timeSettings, i) => {
     let from = timeSettings.from;
@@ -10,15 +11,19 @@ const getTime = (timeSettings, i) => {
     return time;
 };
 
-const getChartTicks = (timeSettings) => {
+const getChartTicks = (timeSettings, left, right) => {
     let allTicks = [];
+
     let indexTime = timeSettings.from.unix();
-    while (indexTime < timeSettings.to.unix()) {
-        allTicks.push(indexTime);
+    while (indexTime < timeSettings.to.unix() &&
+            (right === 'dataMax' || indexTime < right)) {
+        if (left === 'dataMin' || left < indexTime) {
+            allTicks.push(indexTime);
+        }
         indexTime += timeSettings.frequency;
     }
 
-    if (getDatesDiff(timeSettings) > 1) {
+    if (shouldShowOnlyDates(timeSettings, left, right)) {
         return allTicks.filter((tick) => {
             let time = moment.unix(tick).utcOffset(timeSettings.timeZone);
             let startOfDay = time.clone().startOf('day');
@@ -46,6 +51,33 @@ const getDatesDiff = (timeSettings) => {
     let to = timeSettings.to;
     return to.diff(from, 'days');
 };
+
+const shouldShowOnlyDates = (timeSettings, left, right) => {
+    let isZoomedIn = left !== 'dataMin' || right !== 'dataMax';
+
+    let leftDate = left === 'dataMin' ?
+        timeSettings.from :
+        moment.unix(left).utcOffset(timeSettings.timeZone);
+    let rightDate = right === 'dataMax' ?
+        timeSettings.to :
+        moment.unix(right).utcOffset(timeSettings.timeZone);
+    return isZoomedIn ?
+        rightDate.diff(leftDate, 'days') > 1 :
+        getDatesDiff(timeSettings) > 1;
+};
+
+/********************* zooming ***********************/
+const initialState = {
+    left : 'dataMin',
+    right : 'dataMax',
+    refAreaLeft : '',
+    refAreaRight : '',
+    animation : true
+};
+
+
+/********************* zooming ***********************/
+
 
 const getData = (feature, time) => {
     if (feature) {
@@ -77,18 +109,141 @@ const getData = (feature, time) => {
     return null;
 };
 
+const getTimeRangeString = (timeSettings) => {
+    if (timeSettings.from && timeSettings.to) {
+        return timeSettings.from.format('L') + ' - ' + timeSettings.to.format('L');
+    }
+    return null;
+};
+
+
 class FeatureCharts extends React.Component {
-    render() {
-        let title = this.props.feature ? this.props.feature.get('name') : 'Title';
+    constructor(props) {
+        super(props);
+
+        let title = this.props.feature ? this.props.feature.get('name') : null;
+        let subtitle = getTimeRangeString(this.props.timeSettings);
         let data = getData(this.props.feature, this.props.timeSettings);
 
+        let timeFormatter;
+        if (data) {
+            let format = getDatesDiff(this.props.timeSettings) > 1 ? 'L' : 'LT';
+            timeFormatter = getTimeFormatter(this.props.timeSettings.timeZone, format);
+        }
+
+        this.state = Object.assign(initialState, {
+            data: data,
+            title: title,
+            subtitle: subtitle,
+            timeFormatter: timeFormatter
+        });
+
+    };
+
+    componentWillReceiveProps(nextProps) {
+        let title = nextProps.feature ? nextProps.feature.get('name') : null;
+        let subtitle = getTimeRangeString(this.props.timeSettings);
+        let data = getData(nextProps.feature, nextProps.timeSettings);
+
+        let timeFormatter;
+        if (data) {
+            let format = getDatesDiff(nextProps.timeSettings) > 1 ? 'L' : 'LT';
+            timeFormatter = getTimeFormatter(nextProps.timeSettings.timeZone, format);
+        }
+
+        this.setState(Object.assign(initialState, {
+            data: data,
+            title: title,
+            subtitle: subtitle,
+            timeFormatter: timeFormatter
+        }));
+    }
+
+    _onMouseDown(evt) {
+        if (evt) {
+            this.setState({
+                refAreaLeft: evt.activeLabel
+            });
+        }
+    };
+
+    _onMouseMove(evt) {
+        if (this.state.refAreaLeft) {
+            this.setState({
+                refAreaRight: evt.activeLabel
+            });
+        }
+    };
+
+    zoomIn() {
+        let { refAreaLeft, refAreaRight } = this.state;
+
+        if (refAreaLeft === refAreaRight || refAreaRight === '') {
+            this.setState({
+                refAreaLeft : '',
+                refAreaRight : ''
+            });
+            return;
+        }
+
+        if (refAreaLeft > refAreaRight)
+            [ refAreaLeft, refAreaRight ] = [ refAreaRight, refAreaLeft ];
+
+        let format = shouldShowOnlyDates(this.props.timeSettings, refAreaLeft, refAreaRight) ?
+            'L' : 'LT';
+        let timeFormatter = getTimeFormatter(this.props.timeSettings.timeZone, format);
+
+        this.setState(() => ({
+            timeFormatter: timeFormatter,
+            refAreaLeft: '',
+            refAreaRight: '',
+            left: refAreaLeft,
+            right: refAreaRight
+        }));
+    };
+
+    zoomOut() {
         let format = getDatesDiff(this.props.timeSettings) > 1 ? 'L' : 'LT';
         let timeFormatter = getTimeFormatter(this.props.timeSettings.timeZone, format);
 
+        this.setState({
+            timeFormatter: timeFormatter,
+            refAreaLeft : '',
+            refAreaRight : '',
+            left : 'dataMin',
+            right : 'dataMax'
+        });
+    }
+
+    render() {
+        const { data, title, subtitle, timeFormatter, left, right, refAreaLeft, refAreaRight } = this.state;
+        const isZoomedIn = left !== 'dataMin' || right !== 'dataMax';
+
         return <div>
-            <h3>{ title }</h3>
+            {title && <div className="title">{ title }</div>}
+            <div style={ {height: '36px'} }>
+                {subtitle && <div className="subtitle">{ subtitle }</div>}
+
+                {isZoomedIn &&
+                    <Button
+                            inverted
+                            color="blue"
+                            onClick={ this.zoomOut.bind(this) }
+                            style={ {float: 'right'} }>
+                        Zoom Out
+                    </Button>
+                }
+            </div>
+
             {data &&
-                <AreaChart width={730} height={250} data={ data } margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <AreaChart
+                        width={500}
+                        height={250}
+                        data={ data }
+                        onMouseDown = { this._onMouseDown.bind(this) }
+                        onMouseMove = { this._onMouseMove.bind(this) }
+                        onMouseUp = { this.zoomIn.bind(this) }
+                        margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id="colorValues" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#0000ff" stopOpacity={0.8}/>
@@ -101,9 +256,10 @@ class FeatureCharts extends React.Component {
                     </defs>
 
                     <XAxis dataKey="time"
-                            domain={ ['dataMin', 'dataMax'] }
+                            allowDataOverflow={true}
+                            domain={ [left, right] }
                             scale="time"
-                            ticks={ getChartTicks(this.props.timeSettings) }
+                            ticks={ getChartTicks(this.props.timeSettings, left, right) }
                             type="number"
                             tickFormatter={ timeFormatter }/>
                     <YAxis yAxisId="values" />
@@ -123,20 +279,26 @@ class FeatureCharts extends React.Component {
                             stroke="#ff0000"
                             fillOpacity={1}
                             fill="url(#colorAnomalies)" />
+
+                    {(refAreaLeft && refAreaRight) &&
+                        <ReferenceArea
+                            yAxisId="values"
+                            x1={ refAreaLeft }
+                            x2={ refAreaRight }
+                            strokeOpacity={0.3} />
+                    }
                 </AreaChart>
             }
-
-            {(!data) &&
-                <div className="noData">
-                    <span>No data available</span>
-                </div>
-            }
             <style jsx>{`
-                .noData {
-                    background: #ccc;
-                    height: 150px;
-                    text-align: center;
-                    width: 200px;
+                .title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-bottom: 4px;
+                }
+
+                .subtitle {
+                    display: inline-block;
+                    margin-right: 4px;
                 }
             `}</style>
         </div>
