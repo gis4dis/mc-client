@@ -1,6 +1,7 @@
 import React from 'react';
 import generalize from 'gis4dis-generalizer'
 import FeatureCharts from "./FeatureCharts";
+import { Dimmer, Loader } from 'semantic-ui-react';
 
 let ol_Map;
 let ol_View;
@@ -263,11 +264,19 @@ class Map extends React.Component {
     render() {
         return (
             <div className="map-wrap">
+                <Dimmer active={ this.props.loading } inverted>
+                    <Loader>
+                        Loading data...
+                    </Loader>
+                </Dimmer>
+
                 <div className="map" ref={(d) => this.mapElement = d}> </div>
 
-                { !this.props.isDataValid && <div className="warning-wrap">
+                { !this.props.loading && !this.props.isDataValid &&
+                    <div className="warning-wrap">
                         <div>No data to display</div>
-                    </div> }
+                    </div>
+                }
 
                 <div id="popup" className="ol-popup" style={ {display: 'none'} }>
                     <a href="#" id="popup-closer" className="ol-popup-closer"></a>

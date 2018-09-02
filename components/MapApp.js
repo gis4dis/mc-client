@@ -4,7 +4,7 @@ import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup'
 import moment from 'moment';
-import { Button, Dropdown, Popup, Sidebar } from 'semantic-ui-react';
+import { Button, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
 const sidebarContentStyle = {
@@ -117,6 +117,7 @@ class MapApp extends React.Component {
                 frequency: 3600
             },
             geojsonData: null,
+            loading: false,
             sidebarVisible: props.sidebarVisible,
             sidebarDirection: 'right',
             popupOpen: false,
@@ -152,6 +153,7 @@ class MapApp extends React.Component {
                     });
 
                     return {
+                        loading: true,
                         properties: data,
                         selection: selection
                     };
@@ -252,7 +254,8 @@ class MapApp extends React.Component {
                             frequency: null
                         },
                         geojsonData: null,
-                        isDataValid: false
+                        isDataValid: false,
+                        loading: false
                     });
                     return;
                 }
@@ -264,6 +267,7 @@ class MapApp extends React.Component {
                     let to = data.phenomenon_time_to ?
                         moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
                         null;
+
                     this.setState({
                         currentValues: {
                             from: from,
@@ -271,7 +275,8 @@ class MapApp extends React.Component {
                             frequency: data.value_frequency
                         },
                         geojsonData: data,
-                        isDataValid: from && to
+                        isDataValid: from && to,
+                        loading: false
                     });
                 });
             })
@@ -282,7 +287,8 @@ class MapApp extends React.Component {
         let propertyId = data.value;
 
         this.setState((prevState, props) => {
-            if (prevState.selection.from && prevState.selection.to) {
+            let isRangeSet = prevState.selection.from && prevState.selection.to;
+            if (isRangeSet) {
                 this.handleAppStateChange({
                     propertyId: propertyId,
                     from: prevState.selection.from,
@@ -294,6 +300,7 @@ class MapApp extends React.Component {
             selection.propertyId = propertyId;
 
             return {
+                loading: isRangeSet,
                 selection: selection
             };
         });
@@ -301,7 +308,8 @@ class MapApp extends React.Component {
 
     handleDateRangeChange(from, to) {
         this.setState((prevState, props) => {
-            if (prevState.selection.propertyId) {
+            let isPropertyChosen = typeof prevState.selection.propertyId != 'undefined';
+            if (isPropertyChosen) {
                 this.handleAppStateChange({
                     propertyId: prevState.selection.propertyId,
                     from: from,
@@ -314,6 +322,7 @@ class MapApp extends React.Component {
             selection.to = to;
 
             return {
+                loading: isPropertyChosen,
                 selection: selection
             };
         });
@@ -395,6 +404,7 @@ class MapApp extends React.Component {
                          timeZone={ timeZone }
                          data={ this.state.geojsonData }
                          isDataValid={ this.state.isDataValid }
+                         loading={ this.state.loading }
                          index={ this.state.selection.timeValueIndex }/>
 
                     { !sidebarVisible && <Button
