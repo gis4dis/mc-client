@@ -153,6 +153,13 @@ class Map extends React.Component {
         }
     }
 
+    updateMapSize() {
+        let map = this.state.map;
+        if (map) {
+            map.updateSize();
+        }
+    }
+
     createOverlay() {
         var popup = document.getElementById('popup');
         popup.style.display = 'none';

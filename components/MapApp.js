@@ -7,25 +7,14 @@ import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
+const sidebarWidth = 350;
+const sidebarHeight = 350;
+
 const sidebarContentStyle = {
     background: '#000',
     height: '100%',
     overflow: 'auto',
     padding: '16px'
-};
-
-const getSidebarContentStyle = (direction) => {
-    let style = Object.assign({}, sidebarContentStyle);
-
-    if (direction === 'right') {
-        style.marginLeft = '40px';
-        style.width = 'calc(100% - 40px)';
-    } else if (direction === 'bottom') {
-        style.marginTop = '40px';
-        style.width = '100%';
-    }
-
-    return style;
 };
 
 const pusherStyle = {
@@ -41,41 +30,19 @@ const sidebarToggleStyle = {
     zIndex: 1
 };
 
-const rightVisibleStyle = {
-    left: 0,
-    top: '50%'
-};
-
-const rightHiddenStyle = {
-    right: 0,
-    top: '50%'
-};
-
-const bottomVisibleStyle = {
-    left: '50%',
-    top: 0
-};
-
-const bottomHiddenStyle = {
-    left: '50%',
-    bottom: 0
-};
-
 const getSidebarToggleStyle = (direction, visible) => {
     let style = Object.assign({}, sidebarToggleStyle);
 
     if (direction === 'right') {
-        if (visible) {
-            Object.assign(style, rightVisibleStyle);
-        } else {
-            Object.assign(style, rightHiddenStyle);
-        }
+        Object.assign(style, {
+            right: 0,
+            top: '50%'
+        });
     } else if (direction === 'bottom') {
-        if (visible) {
-            Object.assign(style, bottomVisibleStyle);
-        } else {
-            Object.assign(style, bottomHiddenStyle);
-        }
+        Object.assign(style, {
+            bottom: 0,
+            left: '50%'
+        });
     }
     return style;
 };
@@ -91,7 +58,7 @@ const getSidebarToggleIcon = (direction, visible) => {
 
 const propertiesRequestPath = '/api/v1/properties/';
 const timeSeriesRequestPath = '/api/v1/timeseries/';
-const timeZone = '+01:00'
+const timeZone = '+01:00';
 
 class MapApp extends React.Component {
     constructor(props) {
@@ -131,6 +98,8 @@ class MapApp extends React.Component {
         this.notifyUser = this.notifyUser.bind(this);
 
         this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
+
+        this.mapRef = React.createRef();
     }
 
     componentDidMount() {
@@ -182,12 +151,16 @@ class MapApp extends React.Component {
         this.setState({
             sidebarDirection: direction
         });
+
+        setTimeout(() => { this.mapRef.current.updateMapSize(); }, 100);
     }
 
     handleSidebarToggleClick() {
         this.setState({
             sidebarVisible: !this.state.sidebarVisible
         });
+
+        setTimeout(() => { this.mapRef.current.updateMapSize(); }, 100);
     }
 
     getSidebarClass() {
@@ -378,7 +351,7 @@ class MapApp extends React.Component {
                         visible={ this.state.sidebarVisible }
                         width="wide">
 
-                    <div style={ getSidebarContentStyle(this.state.sidebarDirection) }>
+                    <div style={ sidebarContentStyle }>
                         <MapControls
                                 properties={ this.state.properties }
                                 selection={ this.state.selection }
@@ -390,28 +363,26 @@ class MapApp extends React.Component {
                                 notifyUser={ this.notifyUser }
                         />
                     </div>
-
-                    { sidebarVisible && <Button
-                        icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
-                        onClick={ this.handleSidebarToggleClick }
-                        style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
-                    }
                 </Sidebar>
 
                 <Sidebar.Pusher style={ pusherStyle }>
-                    <Map property={ this.getPropertyById(this.state.selection.propertyId) }
-                         currentValues={ this.state.currentValues }
-                         timeZone={ timeZone }
-                         data={ this.state.geojsonData }
-                         isDataValid={ this.state.isDataValid }
-                         loading={ this.state.loading }
-                         index={ this.state.selection.timeValueIndex }/>
+                    <div className={ this.getSidebarClass() + ' main-wrapper'}>
+                        <Map className="map"
+                             ref={ this.mapRef }
+                             property={ this.getPropertyById(this.state.selection.propertyId) }
+                             currentValues={ this.state.currentValues }
+                             timeZone={ timeZone }
+                             data={ this.state.geojsonData }
+                             isDataValid={ this.state.isDataValid }
+                             loading={ this.state.loading }
+                             index={ this.state.selection.timeValueIndex }/>
 
-                    { !sidebarVisible && <Button
-                        icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
-                        onClick={ this.handleSidebarToggleClick }
-                        style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
-                    }
+                        <Button
+                            icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
+                            onClick={ this.handleSidebarToggleClick }
+                            style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
+                    </div>
+
                 </Sidebar.Pusher>
             </Sidebar.Pushable>
 
@@ -426,6 +397,34 @@ class MapApp extends React.Component {
                     position: absolute;
                     top: 40px;
                     width: 100%;
+                }
+
+                .main-wrapper {
+                    position: relative;
+                }
+
+                .right.main-wrapper {
+                    height: 100%;
+                }
+
+                .right.sidebar-visible.main-wrapper {
+                    width: calc(100% - 350px);
+                }
+
+                .right.sidebar-hidden.main-wrapper {
+                    width: 100%;
+                }
+
+                .bottom.main-wrapper {
+                    width: 100%;
+                }
+
+                .bottom.sidebar-visible.main-wrapper {
+                    height: calc(100% - 350px);
+                }
+
+                .bottom.sidebar-hidden.main-wrapper {
+                    height: 100%;
                 }
             `}</style>
         </div>
