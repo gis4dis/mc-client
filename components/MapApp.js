@@ -260,7 +260,9 @@ class MapApp extends React.Component {
         let propertyId = data.value;
 
         this.setState((prevState, props) => {
-            let isRangeSet = prevState.selection.from && prevState.selection.to;
+            let isFromDefined = !!prevState.selection.from;
+            let isToDefined = !!prevState.selection.to;
+            let isRangeSet = isFromDefined && isToDefined;
             if (isRangeSet) {
                 this.handleAppStateChange({
                     propertyId: propertyId,
@@ -281,7 +283,7 @@ class MapApp extends React.Component {
 
     handleDateRangeChange(from, to) {
         this.setState((prevState, props) => {
-            let isPropertyChosen = typeof prevState.selection.propertyId != 'undefined';
+            let isPropertyChosen = prevState.selection.propertyId !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
                     propertyId: prevState.selection.propertyId,

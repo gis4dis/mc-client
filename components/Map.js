@@ -271,6 +271,14 @@ class Map extends React.Component {
     render() {
         return (
             <div className="map-wrap">
+                <div id="popup" className="ol-popup" style={{display: 'none'}}>
+                    <a href="#" id="popup-closer" className="ol-popup-closer"></a>
+
+                    <FeatureCharts
+                        feature={this.state.selectedFeature}
+                        timeSettings={Object.assign(this.props.currentValues, {timeZone: this.props.timeZone})}/>
+                </div>
+
                 <Dimmer active={ this.props.loading } inverted>
                     <Loader>
                         Loading data...
@@ -284,14 +292,6 @@ class Map extends React.Component {
                         <div>No data to display</div>
                     </div>
                 }
-
-                <div id="popup" className="ol-popup" style={ {display: 'none'} }>
-                    <a href="#" id="popup-closer" className="ol-popup-closer"></a>
-
-                    <FeatureCharts
-                        feature={ this.state.selectedFeature }
-                        timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) } />
-                </div>
 
                 <style jsx>{`
                     .map-wrap, .map {
