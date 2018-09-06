@@ -106,6 +106,8 @@ class DateRangeSelector extends React.Component {
                     <Label size='small'>From date</Label>
                     <DatePicker
                         selected={ this.state.fromDate }
+                        previousMonthButtonLabel=''
+                        nextMonthButtonLabel=''
                         maxDate={ moment() }
                         onChange={ this.handleFromChange } />
                     { from  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
@@ -119,6 +121,8 @@ class DateRangeSelector extends React.Component {
                             selected={ this.state.toDate }
                             minDate={ this.state.fromDate }
                             maxDate={ moment() }
+                            previousMonthButtonLabel=''
+                            nextMonthButtonLabel=''
                             onChange={ this.handleToChange } />
                     { to  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
                         { to }</Label> }
