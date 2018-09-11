@@ -144,7 +144,8 @@ class Map extends React.Component {
 
             if (generalization && this.geojsonLayer) {
                 let isDataChange = this.props.data !== nextProps.data;
-                this._updateFeatures(generalization.features, isDataChange);
+                let isPropertyChange = this.props.primaryProperty !== nextProps.primaryProperty;
+                this._updateFeatures(generalization.features, isDataChange || isPropertyChange);
 
                 this.geojsonLayer.setStyle(generalization.style);
             }

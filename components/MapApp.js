@@ -76,7 +76,7 @@ class MapApp extends React.Component {
             topic: defaultTopic_,
             properties: [],
             selection: {
-                primaryProperty: null,
+                primaryPropertyId: null,
                 from: from,
                 to: to,
                 timeValueIndex: 0,
@@ -115,11 +115,11 @@ class MapApp extends React.Component {
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                let primaryProperty = data.length ? data[0].name_id : null;
+                let primaryPropertyId = data.length ? data[0].name_id : null;
 
                 this.setState((prevState,props) => {
                     let selection = prevState.selection;
-                    selection.primaryProperty = primaryProperty;
+                    selection.primaryPropertyId = primaryPropertyId;
 
                     this.handleAppStateChange({
                         from: selection.from,
@@ -266,25 +266,13 @@ class MapApp extends React.Component {
     }
 
     handlePropertyChange(event, data) {
-        let primaryProperty = data.value;
+        let primaryPropertyId = data.value;
 
         this.setState((prevState, props) => {
-            // NOT NEEDED ANYMORE
-            // let isFromDefined = !!prevState.selection.from;
-            // let isToDefined = !!prevState.selection.to;
-            // let isRangeSet = isFromDefined && isToDefined;
-            // if (isRangeSet) {
-            //     this.handleAppStateChange({
-            //         from: prevState.selection.from,
-            //         to: prevState.selection.to
-            //     });
-            // }
-
             let selection = prevState.selection;
-            selection.primaryProperty = primaryProperty;
+            selection.primaryPropertyId = primaryPropertyId;
 
             return {
-                // loading: isRangeSet,
                 selection: selection
             };
         });
@@ -292,7 +280,7 @@ class MapApp extends React.Component {
 
     handleDateRangeChange(from, to) {
         this.setState((prevState, props) => {
-            let isPropertyChosen = prevState.selection.primaryProperty !== null;
+            let isPropertyChosen = prevState.selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
                     from: from,
@@ -379,7 +367,7 @@ class MapApp extends React.Component {
                     <div className={ this.getSidebarClass() + ' main-wrapper'}>
                         <Map className="map"
                              ref={ this.mapRef }
-                             primaryProperty={ this.getPropertyById(this.state.selection.primaryProperty) }
+                             primaryProperty={ this.getPropertyById(this.state.selection.primaryPropertyId) }
                              currentValues={ this.state.currentValues }
                              timeZone={ timeZone }
                              data={ this.state.geojsonData }
