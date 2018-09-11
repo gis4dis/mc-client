@@ -220,11 +220,16 @@ class Map extends React.Component {
 
     _getV1CompatibleData(primaryProperty, featureCollection) {
         let collection = Object.assign({}, featureCollection);
-        let primaryPropertyData = featureCollection[primaryProperty];
+        let propertyId = primaryProperty.name_id;
 
-        collection.property_values = primaryPropertyData.values;
-        collection.property_anomaly_rates = primaryPropertyData.anomaly_rates;
-        collection.value_index_shift = primaryPropertyData.value_index_shift;
+        let features = collection.features;
+        features.forEach((feature) => {
+            let properties = feature.properties;
+            let primaryPropertyData = properties[propertyId];
+            properties.property_values = primaryPropertyData.values;
+            properties.property_anomaly_rates = primaryPropertyData.anomaly_rates;
+            properties.value_index_shift = primaryPropertyData.value_index_shift;
+        });
 
         return collection;
     }
