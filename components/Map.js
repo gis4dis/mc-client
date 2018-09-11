@@ -140,7 +140,7 @@ class Map extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.isDataValid) {
-            let generalization = this._getGeneralization(nextProps);
+            let generalization = this._getV1Generalization(nextProps);
 
             if (generalization && this.geojsonLayer) {
                 let isDataChange = this.props.data !== nextProps.data;
@@ -218,14 +218,27 @@ class Map extends React.Component {
         console.log(event);
     }
 
-    _getGeneralization(props) {
+    _getV1CompatibleData(primaryProperty, featureCollection) {
+        let collection = Object.assign({}, featureCollection);
+        let primaryPropertyData = featureCollection[primaryProperty];
+
+        collection.property_values = primaryPropertyData.values;
+        collection.property_anomaly_rates = primaryPropertyData.anomaly_rates;
+        collection.value_index_shift = primaryPropertyData.value_index_shift;
+
+        return collection;
+    }
+
+    _getV1Generalization(props) {
         if (this.state.map && props.data && props.data.feature_collection) {
             let view = this.state.map.getView();
             let resolution = view.getResolution();
 
+            let featureCollection = this._getV1CompatibleData(
+                    props.primaryProperty, props.data.feature_collection);
             let options = {
-                property: props.property,
-                features: props.data.feature_collection,
+                property: props.primaryProperty,
+                features: featureCollection,
                 value_idx: props.index,
                 resolution: resolution
             };
@@ -243,10 +256,10 @@ class Map extends React.Component {
             source.addFeatures(newFeatures);
         } else {
             let currentFeatures = source.getFeatures();
-            let newIds = newFeatures.map((feature) => (feature.get('id_by_provider')));
+            let newIds = newFeatures.map((feature) => (feature.get('id')));
             let matchingIds = [];
             currentFeatures.forEach((feature) => {
-                let fid = feature.get('id_by_provider');
+                let fid = feature.get('id');
                 if (!newIds.includes(fid)) {
                     source.removeFeature(feature);
                 } else {
@@ -255,7 +268,7 @@ class Map extends React.Component {
             });
 
             let featuresToAdd = newFeatures.filter((feature) => {
-                return !matchingIds.includes(feature.get('id_by_provider'));
+                return !matchingIds.includes(feature.get('id'));
             });
             if (featuresToAdd.length) {
                 source.addFeatures(featuresToAdd);
