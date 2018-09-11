@@ -56,8 +56,11 @@ const getSidebarToggleIcon = (direction, visible) => {
 };
 /************************ styles ***************************************/
 
-const propertiesRequestPath = '/api/v1/properties/';
-const timeSeriesRequestPath = '/api/v1/timeseries/';
+const defaultTopic_ = 'drought';
+
+const propertiesRequestPath = '/api/v2/properties/';
+const timeSeriesRequestPath = '/api/v2/timeseries/';
+
 const timeZone = '+01:00';
 
 class MapApp extends React.Component {
@@ -70,9 +73,10 @@ class MapApp extends React.Component {
         let to = now.clone().startOf('day').subtract(1, 'days');
 
         this.state = {
+            topic: defaultTopic_,
             properties: [],
             selection: {
-                propertyId: null,
+                primaryProperty: null,
                 from: from,
                 to: to,
                 timeValueIndex: 0,
@@ -105,18 +109,19 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en-gb');
 
-        fetch(propertiesRequestPath + '?format=json')
+        let propertiesRequestUrl = propertiesRequestPath +
+                '?topic=' + this.state.topic + '&format=json';
+        fetch(propertiesRequestUrl)
             .then((results) => {
                 return results.json();
             }).then((data) => {
-                let propertyId = data.length ? data[0].name_id : null;
+                let primaryProperty = data.length ? data[0].name_id : null;
 
                 this.setState((prevState,props) => {
                     let selection = prevState.selection;
-                    selection.propertyId = propertyId;
+                    selection.primaryProperty = primaryProperty;
 
                     this.handleAppStateChange({
-                        propertyId: propertyId,
                         from: selection.from,
                         to: selection.to
                     });
@@ -203,11 +208,15 @@ class MapApp extends React.Component {
      */
     handleAppStateChange(options) {
         let requestParameters = {
-            name_id: options.propertyId,
+            topic: this.state.topic,
             phenomenon_date_from: options.from.format('YYYY-MM-DD'),
             phenomenon_date_to: options.to.format('YYYY-MM-DD'),
             bbox: options.bbox
         };
+        if (this.state.properties.length) {
+            let nameIds = this.state.properties.map((property) => property.name_id);
+            requestParameters.properties = nameIds.join(',');
+        }
 
         this._sendTimeSeriesRequest(requestParameters)
             .then((response) => {
@@ -257,25 +266,25 @@ class MapApp extends React.Component {
     }
 
     handlePropertyChange(event, data) {
-        let propertyId = data.value;
+        let primaryProperty = data.value;
 
         this.setState((prevState, props) => {
-            let isFromDefined = !!prevState.selection.from;
-            let isToDefined = !!prevState.selection.to;
-            let isRangeSet = isFromDefined && isToDefined;
-            if (isRangeSet) {
-                this.handleAppStateChange({
-                    propertyId: propertyId,
-                    from: prevState.selection.from,
-                    to: prevState.selection.to
-                });
-            }
+            // NOT NEEDED ANYMORE
+            // let isFromDefined = !!prevState.selection.from;
+            // let isToDefined = !!prevState.selection.to;
+            // let isRangeSet = isFromDefined && isToDefined;
+            // if (isRangeSet) {
+            //     this.handleAppStateChange({
+            //         from: prevState.selection.from,
+            //         to: prevState.selection.to
+            //     });
+            // }
 
             let selection = prevState.selection;
-            selection.propertyId = propertyId;
+            selection.primaryProperty = primaryProperty;
 
             return {
-                loading: isRangeSet,
+                // loading: isRangeSet,
                 selection: selection
             };
         });
@@ -283,10 +292,9 @@ class MapApp extends React.Component {
 
     handleDateRangeChange(from, to) {
         this.setState((prevState, props) => {
-            let isPropertyChosen = prevState.selection.propertyId !== null;
+            let isPropertyChosen = prevState.selection.primaryProperty !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
-                    propertyId: prevState.selection.propertyId,
                     from: from,
                     to: to
                 });
@@ -371,7 +379,7 @@ class MapApp extends React.Component {
                     <div className={ this.getSidebarClass() + ' main-wrapper'}>
                         <Map className="map"
                              ref={ this.mapRef }
-                             property={ this.getPropertyById(this.state.selection.propertyId) }
+                             primaryProperty={ this.getPropertyById(this.state.selection.primaryProperty) }
                              currentValues={ this.state.currentValues }
                              timeZone={ timeZone }
                              data={ this.state.geojsonData }
