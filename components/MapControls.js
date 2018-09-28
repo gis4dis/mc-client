@@ -30,7 +30,7 @@ class MapControls extends React.Component {
                     search
                     selection
                     options={ this.props.properties.map(processProperty) }
-                    value={ this.props.selection.propertyId }
+                    value={ this.props.selection.primaryPropertyId }
                     style={ partStyle } />
 
             <TimeControl
