@@ -108,7 +108,12 @@ class Map extends React.Component {
         let overlay = this.createOverlay();
         map.addOverlay(overlay);
 
-        let selectInteraction = new ol_interaction_Select();
+        let selectInteraction = new ol_interaction_Select({
+            style: function(feature, resolution) {
+                let style = this.geojsonLayer.getStyle();
+                return style(feature, resolution);
+            }.bind(this)
+        });
         selectInteraction.on('select', function(evt) {
             let coordinate = evt.mapBrowserEvent.coordinate;
 
@@ -121,6 +126,7 @@ class Map extends React.Component {
             this._setOverlayVisible(!!feature);
         }.bind(this));
         map.addInteraction(selectInteraction);
+        this._selectInteraction = selectInteraction;
 
         this.setState({
             map
@@ -156,6 +162,7 @@ class Map extends React.Component {
         }
     }
 
+    /************************* overlay ***********************************************************/
     createOverlay() {
         var popup = document.getElementById('popup');
         popup.style.display = 'none';
@@ -184,6 +191,7 @@ class Map extends React.Component {
 
             this._setOverlayVisible(false);
             this._setMapInteractionsActive(true);
+            this._selectInteraction.getFeatures().clear();
         }
         event.target.blur();
     }
@@ -204,6 +212,7 @@ class Map extends React.Component {
             dimmerIsActive: visible && this.props.isSmall
         });
     }
+    /************************* overlay ***********************************************************/
 
     _setMapInteractionsActive(active) {
         let map = this.state.map;
@@ -220,6 +229,7 @@ class Map extends React.Component {
         console.log(event);
     }
 
+    /************************* CG v1 compatibility ***********************************************/
     _getV1CompatibleData(primaryProperty, featureCollection) {
         let collection = Object.assign({}, featureCollection);
         let propertyId = primaryProperty.name_id;
@@ -254,6 +264,7 @@ class Map extends React.Component {
         }
         return null;
     }
+    /************************* CG v1 compatibility ***********************************************/
 
     _updateFeatures(newFeatures, isDataChange) {
         let source = this.geojsonLayer.getSource();
