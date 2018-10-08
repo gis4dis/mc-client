@@ -63,7 +63,8 @@ class Map extends React.Component {
         super(props);
 
         this.state = {
-            map: null
+            map: null,
+            dimmerIsActive: false
         };
     }
 
@@ -116,14 +117,8 @@ class Map extends React.Component {
                 selectedFeature: feature
             });
 
-            if (feature) {
-                overlay.setPosition(coordinate);
-                this._setOverlayVisible(true);
-            } else {
-                overlay.setPosition(undefined);
-                this._setOverlayVisible(false);
-            }
-
+            overlay.setPosition(feature && !this.props.isSmall ? coordinate : undefined);
+            this._setOverlayVisible(!!feature);
         }.bind(this));
         map.addInteraction(selectInteraction);
 
@@ -167,9 +162,8 @@ class Map extends React.Component {
         popup.addEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
         popup.addEventListener('mouseleave', this._onOverlayMouseLeave.bind(this));
 
-        var closer = document.getElementById('popup-closer');
-
         var overlay = new ol_Overlay({
+            id: 'featurePopup',
             element: popup,
             autoPan: true,
             autoPanAnimation: {
@@ -178,17 +172,20 @@ class Map extends React.Component {
             stopEvent: false
         });
 
-        closer.onclick = () => {
+        return overlay;
+    }
+
+    _closeOverlay(event) {
+        var map = this.state.map;
+        if (map) {
+            var overlay = map.getOverlayById('featurePopup');
+
             overlay.setPosition(undefined);
 
             this._setOverlayVisible(false);
             this._setMapInteractionsActive(true);
-
-            closer.blur();
-            return false;
-        };
-
-        return overlay;
+        }
+        event.target.blur();
     }
 
     _onOverlayMouseEnter() {
@@ -201,7 +198,11 @@ class Map extends React.Component {
 
     _setOverlayVisible(visible) {
         var popup = document.getElementById('popup');
-        popup.style.display = visible ? 'block' : 'none';
+        popup.style.display = visible && !this.props.isSmall ? 'block' : 'none';
+
+        this.setState({
+            dimmerIsActive: visible && this.props.isSmall
+        });
     }
 
     _setMapInteractionsActive(active) {
@@ -290,12 +291,22 @@ class Map extends React.Component {
     render() {
         return (
             <div className="map-wrap">
-                <div id="popup" className="ol-popup" style={{display: 'none'}}>
-                    <a href="#" id="popup-closer" className="ol-popup-closer"></a>
+                <Dimmer active={ this.state.dimmerIsActive } page onClickOutside={ this._closeOverlay.bind(this) }>
+                    <div className="popup fullscreen">
+                        <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
+
+                        <FeatureCharts
+                            feature={ this.state.selectedFeature }
+                            timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
+                    </div>
+                </Dimmer>
+
+                <div id="popup" className="popup ol-popup" style={{display: 'none'}}>
+                    <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
 
                     <FeatureCharts
-                        feature={this.state.selectedFeature}
-                        timeSettings={Object.assign(this.props.currentValues, {timeZone: this.props.timeZone})}/>
+                        feature={ this.state.selectedFeature }
+                        timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
                 </div>
 
                 <Dimmer active={ this.props.loading } inverted>
@@ -322,12 +333,24 @@ class Map extends React.Component {
                             height: 100%;
                         }
                     }
+
+                    .popup {
+                        background-color: white;
+                        color: #000;
+                        padding: 15px;
+                    }
+
+                    .popup.fullscreen {
+                        overflow: hidden;
+                        padding: 25px 0;
+                        position: relative;
+                        width: 100%;
+                    }
+
                     .ol-popup {
                         position: absolute;
-                        background-color: white;
                         -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
                         filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-                        padding: 15px;
                         border-radius: 10px;
                         border: 1px solid #cccccc;
                         bottom: 12px;
@@ -355,15 +378,16 @@ class Map extends React.Component {
                         left: 48px;
                         margin-left: -11px;
                     }
-                    .ol-popup-closer {
+                    .popup-closer {
                         text-decoration: none;
                         position: absolute;
                         top: 2px;
                         right: 8px;
                     }
-                    .ol-popup-closer:after {
+                    .popup-closer:after {
                         content: "✖";
                     }
+
                     .warning-wrap {
                         background-color: rgba(255, 255, 255, 0.8);
                         border: solid 3px rgba(0, 0, 0, 0.2);

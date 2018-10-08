@@ -7,8 +7,7 @@ import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
-const sidebarWidth = 350;
-const sidebarHeight = 350;
+const narrowWidth = 700;
 
 const sidebarContentStyle = {
     background: '#000',
@@ -73,6 +72,7 @@ class MapApp extends React.Component {
         let to = now.clone().startOf('day').subtract(1, 'days');
 
         this.state = {
+            isSmall: false,
             topic: defaultTopic_,
             properties: [],
             selection: {
@@ -134,20 +134,19 @@ class MapApp extends React.Component {
                 });
             });
 
-        this.updateSidebarDirection();
-        window.addEventListener('resize', this.updateSidebarDirection.bind(this));
+        this.resizeApp();
+        window.addEventListener('resize', this.resizeApp.bind(this));
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.updateSidebarDirection.bind(this));
+        window.removeEventListener('resize', this.resizeApp.bind(this));
     }
 
     /**************************** sidebar handlers *********************************/
     updateSidebarDirection() {
         let direction;
 
-        let width = window.innerWidth;
-        if (window.innerWidth <= 700) {
+        if (window.innerWidth <= narrowWidth) {
             direction = 'bottom';
         } else {
             direction = 'right';
@@ -183,6 +182,14 @@ class MapApp extends React.Component {
     /**************************** sidebar handlers *********************************/
 
     /******************************** app handlers *********************************/
+    resizeApp() {
+        this.updateSidebarDirection();
+
+        this.setState({
+           isSmall: window.innerWidth <= narrowWidth ? true : false
+        });
+    }
+
     /**
      * @param params
      * @private
@@ -371,6 +378,7 @@ class MapApp extends React.Component {
                              currentValues={ this.state.currentValues }
                              timeZone={ timeZone }
                              data={ this.state.geojsonData }
+                             isSmall={ this.state.isSmall }
                              isDataValid={ this.state.isDataValid }
                              loading={ this.state.loading }
                              index={ this.state.selection.timeValueIndex }/>
