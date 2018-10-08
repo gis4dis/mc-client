@@ -251,10 +251,10 @@ class MapApp extends React.Component {
 
                 response.json().then((data) => {
                     let from = data.phenomenon_time_from ?
-                        moment(data.phenomenon_time_from, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                        moment(data.phenomenon_time_from).utcOffset(timeZone) :
                         null;
                     let to = data.phenomenon_time_to ?
-                        moment(data.phenomenon_time_to, 'YYYY-MM-DD HH:mm:ssZ').utcOffset(timeZone) :
+                        moment(data.phenomenon_time_to).utcOffset(timeZone) :
                         null;
 
                     this.setState({
