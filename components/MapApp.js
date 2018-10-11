@@ -123,7 +123,8 @@ class MapApp extends React.Component {
 
                     this.handleAppStateChange({
                         from: selection.from,
-                        to: selection.to
+                        to: selection.to,
+                        properties: data
                     });
 
                     return {
@@ -220,8 +221,10 @@ class MapApp extends React.Component {
             phenomenon_date_to: options.to.format('YYYY-MM-DD'),
             bbox: options.bbox
         };
-        if (this.state.properties.length) {
-            let nameIds = this.state.properties.map((property) => property.name_id);
+
+        let properties = options.properties || this.state.properties;
+        if (properties.length) {
+            let nameIds = properties.map((property) => property.name_id);
             requestParameters.properties = nameIds.join(',');
         }
 
