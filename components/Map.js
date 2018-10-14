@@ -238,9 +238,15 @@ class Map extends React.Component {
         features.forEach((feature) => {
             let properties = feature.properties;
             let primaryPropertyData = properties[propertyId];
-            properties.property_values = primaryPropertyData.values;
-            properties.property_anomaly_rates = primaryPropertyData.anomaly_rates;
-            properties.value_index_shift = primaryPropertyData.value_index_shift;
+            if (primaryPropertyData) {
+                properties.property_values = primaryPropertyData.values;
+                properties.property_anomaly_rates = primaryPropertyData.anomaly_rates;
+                properties.value_index_shift = primaryPropertyData.value_index_shift;
+            } else {
+                properties.property_values = [];
+                properties.property_anomaly_rates = [];
+                properties.value_index_shift = 0;
+            }
         });
 
         return collection;
