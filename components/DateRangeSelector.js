@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
-import { Button, Form, Input, Label } from 'semantic-ui-react';
+import { Button, Divider, Form, Input, Label } from 'semantic-ui-react';
 
 const formStyle = {
     margin: '8px',
@@ -70,6 +70,40 @@ class DateRangeSelector extends React.Component {
         });
     }
 
+    _setPrevious() {
+        this.setState((prevState, props) => {
+            let diff = prevState.toDate.diff(prevState.fromDate, 'days');
+            let from = prevState.fromDate.subtract(diff, 'days');
+            let to = prevState.toDate.subtract(diff, 'days');
+
+            if (this.props.callback) {
+                this.props.callback(from, to);
+            }
+
+            return {
+                fromDate: from,
+                toDate: to
+            };
+        });
+    }
+
+    _setNext() {
+        this.setState((prevState, props) => {
+            let diff = prevState.toDate.diff(prevState.fromDate, 'days');
+            let from = prevState.fromDate.add(diff, 'days');
+            let to = prevState.toDate.add(diff, 'days');
+
+            if (this.props.callback) {
+                this.props.callback(from, to);
+            }
+
+            return {
+                fromDate: from,
+                toDate: to
+            };
+        });
+    }
+
     _isSameDate(value, currentValue) {
         return value.isSame(currentValue, 'day');
     }
@@ -101,10 +135,12 @@ class DateRangeSelector extends React.Component {
 
 
         return <div>
+            <Divider horizontal inverted style={ {marginTop: '10px'} }>Select date</Divider>
             <Form style={ formStyle }>
                 <Form.Field>
                     <Label size='small'>From date</Label>
                     <DatePicker
+                        selectsStart
                         selected={ this.state.fromDate }
                         previousMonthButtonLabel=''
                         nextMonthButtonLabel=''
@@ -118,6 +154,7 @@ class DateRangeSelector extends React.Component {
                 <Form.Field>
                     <Label size='small'>To date</Label>
                     <DatePicker
+                            selectsEnd
                             selected={ this.state.toDate }
                             minDate={ this.state.fromDate }
                             maxDate={ moment() }
@@ -126,6 +163,22 @@ class DateRangeSelector extends React.Component {
                             onChange={ this.handleToChange } />
                     { to  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
                         { to }</Label> }
+                </Form.Field>
+            </Form>
+            <Form style={ formStyle }>
+                <Form.Field>
+                    <Button
+                        inverted
+                        color="blue"
+                        onClick={ this._setPrevious.bind(this) }>
+                        Previous
+                    </Button>
+                    <Button
+                        inverted
+                        color="blue"
+                        onClick={ this._setNext.bind(this) }>
+                        Next
+                    </Button>
                 </Form.Field>
             </Form>
         </div>
