@@ -15,18 +15,18 @@
   "license": "ISC",
   "dependencies": {
     "@weco/next-plugin-transpile-modules": "0.0.2",
-    "express": "^4.16.3",
+    "express": "4.16.3",
     "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#275cefeec5c3a8ebe604735795246ffe8a6805b3",
-    "http-proxy-middleware": "^0.18.0",
-    "isomorphic-unfetch": "^2.0.0",
-    "next": "^5.1.0",
-    "ol": "jirik/ol3#nodejs-package",
+    "http-proxy-middleware": "0.18.0",
+    "isomorphic-unfetch": "2.0.0",
+    "next": "5.1.0",
+    "ol": "jirik/ol3#19c2797513b5b3983ff186d24a60aaf81ac97e3c",
     "react": "^16.3.1",
-    "react-datepicker": "^1.4.1",
-    "react-dom": "^16.3.1",
-    "react-markdown": "^3.3.0",
-    "recharts": "^1.1.0",
-    "semantic-ui-react": "^0.79.1"
+    "react-datepicker": "1.4.1",
+    "react-dom": "16.3.1",
+    "react-markdown": "3.3.0",
+    "recharts": "1.1.0",
+    "semantic-ui-react": "0.79.1"
   },
   "devDependencies": {}
 }
