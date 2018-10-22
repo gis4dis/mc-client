@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import range from 'lodash/range';
 import DatePicker from 'react-datepicker';
 import { Button, Divider, Form, Input, Label } from 'semantic-ui-react';
 
@@ -8,6 +9,8 @@ const formStyle = {
     maxWidth: '245px'
 };
 
+const years = range(2000, moment().year() + 1, 1);
+const months = moment.months();
 
 class DateRangeSelector extends React.Component {
     constructor(props) {
@@ -121,6 +124,65 @@ class DateRangeSelector extends React.Component {
         return result;
     }
 
+    _renderCalendarHeader({
+         date,
+         changeYear,
+         changeMonth,
+         decreaseMonth,
+         increaseMonth,
+         prevMonthButtonDisabled,
+         nextMonthButtonDisabled
+     }) {
+        return <div
+            style={{
+                margin: '0 12px',
+                display: 'flex',
+                justifyContent: 'center'
+            }}
+        >
+            <button
+                className="react-datepicker__navigation react-datepicker__navigation--previous"
+                onClick={decreaseMonth}
+                disabled={prevMonthButtonDisabled}
+                style={{
+                    top: '14px'
+                }}></button>
+            <select
+                value={months[date.month()]}
+                onChange={({target: {value}}) => changeMonth(value)}
+                style={{
+                    width: '90px',
+                    padding: '.5em .5em'
+                }}>
+                {months.map(option => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+            <select
+                value={date.year()}
+                onChange={({target: {value}}) => changeYear(value)}
+                style={{
+                    width: '60px',
+                    padding: '.5em .5em'
+                }}>
+                {years.map(option => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+            <button
+                className="react-datepicker__navigation react-datepicker__navigation--next"
+                onClick={increaseMonth}
+                disabled={nextMonthButtonDisabled}
+                style={{
+                    top: '14px'
+                }}></button>
+        </div>
+    }
+
     render() {
         let from = this._getCurrentValueString(this.state.fromDate, this.props.currentValues.from);
 
@@ -135,17 +197,21 @@ class DateRangeSelector extends React.Component {
 
 
         return <div>
-            <Divider horizontal inverted style={ {marginTop: '10px'} }>Select date</Divider>
+            <Divider horizontal inverted style={ {marginTop: '18px'} }>Select date</Divider>
             <Form style={ formStyle }>
                 <Form.Field>
                     <Label size='small'>From date</Label>
                     <DatePicker
                         selectsStart
                         selected={ this.state.fromDate }
+                        startDate={ this.state.fromDate }
+                        endDate={ this.state.toDate }
+                        maxDate={ moment() }
+                        renderCustomHeader={ this._renderCalendarHeader }
                         previousMonthButtonLabel=''
                         nextMonthButtonLabel=''
-                        maxDate={ moment() }
-                        onChange={ this.handleFromChange } />
+                        onChange={ this.handleFromChange }
+                        />
                     { from  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
                         { from }</Label> }
                 </Form.Field>
@@ -156,6 +222,8 @@ class DateRangeSelector extends React.Component {
                     <DatePicker
                             selectsEnd
                             selected={ this.state.toDate }
+                            startDate={this.state.fromDate}
+                            endDate={ this.state.toDate }
                             minDate={ this.state.fromDate }
                             maxDate={ moment() }
                             previousMonthButtonLabel=''
