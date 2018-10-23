@@ -226,6 +226,7 @@ class DateRangeSelector extends React.Component {
                             endDate={ this.state.toDate }
                             minDate={ this.state.fromDate }
                             maxDate={ moment() }
+                            renderCustomHeader={ this._renderCalendarHeader }
                             previousMonthButtonLabel=''
                             nextMonthButtonLabel=''
                             onChange={ this.handleToChange } />
