@@ -133,6 +133,28 @@ class DateRangeSelector extends React.Component {
          prevMonthButtonDisabled,
          nextMonthButtonDisabled
      }) {
+        let prevMonthButtonClick = (event) => {
+            decreaseMonth(event);
+            event.target.blur();
+        };
+
+        let nextMonthButtonClick = (event) => {
+            increaseMonth(event);
+            event.target.blur();
+        };
+
+        let onMonthChange = ({target}) => {
+            let value = target.value;
+            changeMonth(value);
+            target.blur();
+        };
+
+        let onYearChange = ({target}) => {
+            let value = target.value;
+            changeYear(value);
+            target.blur();
+        };
+
         return <div
             style={{
                 margin: '0 12px',
@@ -142,16 +164,17 @@ class DateRangeSelector extends React.Component {
         >
             <button
                 className="react-datepicker__navigation react-datepicker__navigation--previous"
-                onClick={decreaseMonth}
+                onClick={prevMonthButtonClick}
                 disabled={prevMonthButtonDisabled}
                 style={{
                     top: '14px'
                 }}></button>
             <select
                 value={months[date.month()]}
-                onChange={({target: {value}}) => changeMonth(value)}
+                onChange={onMonthChange}
                 style={{
-                    width: '90px',
+                    fontWeight: 'bold',
+                    width: '92px',
                     padding: '.5em .5em'
                 }}>
                 {months.map(option => (
@@ -162,8 +185,9 @@ class DateRangeSelector extends React.Component {
             </select>
             <select
                 value={date.year()}
-                onChange={({target: {value}}) => changeYear(value)}
+                onChange={onYearChange}
                 style={{
+                    fontWeight: 'bold',
                     width: '60px',
                     padding: '.5em .5em'
                 }}>
@@ -175,7 +199,7 @@ class DateRangeSelector extends React.Component {
             </select>
             <button
                 className="react-datepicker__navigation react-datepicker__navigation--next"
-                onClick={increaseMonth}
+                onClick={nextMonthButtonClick}
                 disabled={nextMonthButtonDisabled}
                 style={{
                     top: '14px'
