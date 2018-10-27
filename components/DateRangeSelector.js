@@ -18,7 +18,8 @@ class DateRangeSelector extends React.Component {
 
         this.state = {
             fromDate: props.from,
-            toDate: props.to
+            toDate: props.to,
+            nextDisabled: false
         };
 
         this.handleFromChange = this.handleFromChange.bind(this);
@@ -73,11 +74,32 @@ class DateRangeSelector extends React.Component {
         });
     }
 
+    _getShiftedRange(state, shiftFn) {
+        let diff;
+        let from;
+        let to;
+        let fromMonthStart = state.fromDate.clone().startOf('month');
+        let toMonthEnd = state.fromDate.clone().startOf('day').endOf('month');
+
+        if (this._isSameDate(state.fromDate, fromMonthStart) &&
+                this._isSameDate(state.toDate, toMonthEnd)) {
+            diff = state.toDate.diff(state.fromDate, 'month') + 1;
+            from = shiftFn.call(state.fromDate, diff, 'month').startOf('month');
+            to = shiftFn.call(state.toDate, diff, 'month').endOf('month');
+        } else {
+            diff = state.toDate.diff(state.fromDate, 'days');
+            from = shiftFn.call(state.fromDate, diff, 'days');
+            to = shiftFn.call(state.toDate, diff, 'days');
+        }
+        return {
+            from: from,
+            to: to
+        };
+    }
+
     _setPrevious() {
         this.setState((prevState, props) => {
-            let diff = prevState.toDate.diff(prevState.fromDate, 'days');
-            let from = prevState.fromDate.subtract(diff, 'days');
-            let to = prevState.toDate.subtract(diff, 'days');
+            let {from, to} = this._getShiftedRange(prevState, moment.prototype.subtract);
 
             if (this.props.callback) {
                 this.props.callback(from, to);
@@ -92,9 +114,13 @@ class DateRangeSelector extends React.Component {
 
     _setNext() {
         this.setState((prevState, props) => {
-            let diff = prevState.toDate.diff(prevState.fromDate, 'days');
-            let from = prevState.fromDate.add(diff, 'days');
-            let to = prevState.toDate.add(diff, 'days');
+            let {from, to} = this._getShiftedRange(prevState, moment.prototype.add);
+
+            let nextDisabled = false;
+            if (moment().isBefore(to)) {
+                to = moment();
+                nextDisabled = true;
+            }
 
             if (this.props.callback) {
                 this.props.callback(from, to);
@@ -102,7 +128,8 @@ class DateRangeSelector extends React.Component {
 
             return {
                 fromDate: from,
-                toDate: to
+                toDate: to,
+                nextDisabled: nextDisabled
             };
         });
     }
@@ -132,7 +159,7 @@ class DateRangeSelector extends React.Component {
          increaseMonth,
          prevMonthButtonDisabled,
          nextMonthButtonDisabled
-     }) {
+    }) {
         let prevMonthButtonClick = (event) => {
             decreaseMonth(event);
             event.target.blur();
@@ -269,6 +296,7 @@ class DateRangeSelector extends React.Component {
                     <Button
                         inverted
                         color="blue"
+                        disabled={ this.state.nextDisabled }
                         onClick={ this._setNext.bind(this) }>
                         Next
                     </Button>
