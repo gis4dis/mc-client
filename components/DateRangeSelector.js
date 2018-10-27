@@ -2,11 +2,15 @@ import React from 'react';
 import moment from 'moment';
 import range from 'lodash/range';
 import DatePicker from 'react-datepicker';
-import { Button, Divider, Form, Input, Label } from 'semantic-ui-react';
+import { Button, Divider, Form, Icon, Input, Label, Segment } from 'semantic-ui-react';
 
 const formStyle = {
     margin: '8px',
     maxWidth: '245px'
+};
+
+const presetButtonStyle = {
+    display: 'block'
 };
 
 const years = range(2000, moment().year() + 1, 1);
@@ -19,7 +23,7 @@ class DateRangeSelector extends React.Component {
         this.state = {
             fromDate: props.from,
             toDate: props.to,
-            nextDisabled: false
+            _nextDisabled: false
         };
 
         this.handleFromChange = this.handleFromChange.bind(this);
@@ -74,6 +78,7 @@ class DateRangeSelector extends React.Component {
         });
     }
 
+    /****************************** preset options *************************************/
     _getShiftedRange(state, shiftFn) {
         let diff;
         let from;
@@ -86,8 +91,11 @@ class DateRangeSelector extends React.Component {
             diff = state.toDate.diff(state.fromDate, 'month') + 1;
             from = shiftFn.call(state.fromDate, diff, 'month').startOf('month');
             to = shiftFn.call(state.toDate, diff, 'month').endOf('month');
+            if (moment().isBefore(to)) {
+                to = moment();
+            }
         } else {
-            diff = state.toDate.diff(state.fromDate, 'days');
+            diff = state.toDate.diff(state.fromDate, 'days') + 1;
             from = shiftFn.call(state.fromDate, diff, 'days');
             to = shiftFn.call(state.toDate, diff, 'days');
         }
@@ -129,10 +137,75 @@ class DateRangeSelector extends React.Component {
             return {
                 fromDate: from,
                 toDate: to,
-                nextDisabled: nextDisabled
+                _nextDisabled: nextDisabled
             };
         });
     }
+
+    _setThisWeek() {
+        let today = moment();
+        let from = today.clone().startOf('week');
+        let to = today;
+
+        if (this.props.callback) {
+            this.props.callback(from, to);
+        }
+
+        this.setState({
+            fromDate: from,
+            toDate: today,
+            _nextDisabled: true
+        });
+    }
+
+    _setLastWeek() {
+        let today = moment();
+        let from = today.clone().startOf('week').subtract(1, 'week');
+        let to = today.clone().endOf('week').subtract(1, 'week');
+
+        if (this.props.callback) {
+            this.props.callback(from, to);
+        }
+
+        this.setState({
+            fromDate: from,
+            toDate: to,
+            _nextDisabled: false
+        });
+    }
+
+    _setThisMonth() {
+        let today = moment();
+        let from = today.clone().startOf('month');
+        let to = today;
+
+        if (this.props.callback) {
+            this.props.callback(from, to);
+        }
+
+        this.setState({
+            fromDate: from,
+            toDate: today,
+            _nextDisabled: true
+        });
+    }
+
+    _setLastMonth() {
+        let today = moment();
+        let from = today.clone().startOf('month').subtract(1, 'month');
+        let to = today.clone().endOf('month').subtract(1, 'month');
+
+        if (this.props.callback) {
+            this.props.callback(from, to);
+        }
+
+        this.setState({
+            fromDate: from,
+            toDate: to,
+            _nextDisabled: false
+        });
+    }
+    /****************************** preset options *************************************/
 
     _isSameDate(value, currentValue) {
         return value.isSame(currentValue, 'day');
@@ -247,8 +320,29 @@ class DateRangeSelector extends React.Component {
         }
 
 
-        return <div>
+        return <div style={ {position: "relative"} }>
             <Divider horizontal inverted style={ {marginTop: '18px'} }>Select date</Divider>
+
+            <div style={ {position: 'absolute', right: 0, zIndex: 1} }>
+                <Button.Group>
+                    <Button
+                            inverted
+                            icon
+                            color="blue"
+                            onClick={ this._setPrevious.bind(this) }>
+                        <Icon name="caret left"></Icon>
+                    </Button>
+                    <Button
+                            inverted
+                            icon
+                            color="blue"
+                            disabled={ this.state._nextDisabled }
+                            onClick={ this._setNext.bind(this) }>
+                        <Icon name="caret right"></Icon>
+                    </Button>
+                </Button.Group>
+            </div>
+
             <Form style={ formStyle }>
                 <Form.Field>
                     <Label size='small'>From date</Label>
@@ -285,23 +379,57 @@ class DateRangeSelector extends React.Component {
                         { to }</Label> }
                 </Form.Field>
             </Form>
+
             <Form style={ formStyle }>
-                <Form.Field>
+                <div className="button-wrapper">
                     <Button
+                        className="preset-button"
                         inverted
+                        size="mini"
                         color="blue"
-                        onClick={ this._setPrevious.bind(this) }>
-                        Previous
+                        onClick={ this._setThisWeek.bind(this) }
+                        style={ presetButtonStyle }>
+                        This Week
+                    </Button>
+                    <Button
+                        className="preset-button"
+                        inverted
+                        size="mini"
+                        color="blue"
+                        onClick={ this._setLastWeek.bind(this) }
+                        style={ presetButtonStyle }>
+                        Last Week
+                    </Button>
+                </div>
+                <div className="button-wrapper">
+                    <Button
+                        className="preset-button"
+                        inverted
+                        size="mini"
+                        color="blue"
+                        onClick={ this._setThisMonth.bind(this) }
+                        style={ presetButtonStyle }>
+                        This Month
                     </Button>
                     <Button
                         inverted
+                        size="mini"
                         color="blue"
-                        disabled={ this.state.nextDisabled }
-                        onClick={ this._setNext.bind(this) }>
-                        Next
+                        onClick={ this._setLastMonth.bind(this) }
+                        style={ presetButtonStyle }>
+                        Last Month
                     </Button>
-                </Form.Field>
+                </div>
             </Form>
+
+            <Divider horizontal inverted style={ {marginTop: '8px'} }/>
+
+            <style jsx>{`
+                .button-wrapper {
+                    display: inline-block;
+                }
+
+             `}</style>
         </div>
     }
 
