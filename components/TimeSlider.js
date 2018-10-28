@@ -6,8 +6,12 @@ class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
+        //REMOVE when implemented in server
+        let defaultInterval = 216000;
+
         this.state = {
             value: props.from || 0,
+            interval: props.interval || defaultInterval,
             isPlaying: false
         };
 
@@ -163,8 +167,13 @@ class TimeSlider extends React.Component {
     }
 
     render() {
-        const isPlaying = this.state.isPlaying;
+        const { isPlaying, interval } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
+
+        const { from, to } = this.props;
+        const thumbWidth = interval && from && to ?
+            (interval / (to - from) * 100) + '%' :
+            '14px';
 
         return <div className="timeSlider">
             {this.props.from && this.props.to &&
@@ -181,7 +190,8 @@ class TimeSlider extends React.Component {
                         step={ this.props.frequency }
                         value={ this.state.value }
                         disabled={ this.props.disabled }
-                        onChange={ this.onChange }/>
+                        onChange={ this.onChange }
+                        style={ {'--slider-thumb-width': thumbWidth} }/>
             </div>
 
             <div className="controlButtons">
@@ -251,16 +261,16 @@ class TimeSlider extends React.Component {
                 .slider::-webkit-slider-thumb {
                     -webkit-appearance: none;
                     appearance: none;
-                    width: 14px;
                     height: 14px;
+                    width: var(--slider-thumb-width, 14px);
                     border-radius: 50%;
                     background: #54ffff;
                     cursor: pointer;
                 }
 
                 .slider::-moz-range-thumb {
-                    width: 14px;
                     height: 14px;
+                    width: var(--slider-thumb-width, 14px);
                     border-radius: 50%;
                     background: #4CAF50;
                     cursor: pointer;
