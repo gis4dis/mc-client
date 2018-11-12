@@ -1,0 +1,31 @@
+.ui.form .field.date-picker-field {
+    display: inline-block;
+    margin-right: 12px;
+    position: relative;
+}
+
+.ui.pointing.label {
+    vertical-align: top;
+}
+
+.ui.pointing.label:before {
+    z-index: 0;
+}
+
+.column {
+    float: left;
+    z-index: 1;
+}
+.column.left.date-picker-wrapper {
+    margin: 4px 8px;
+    width: calc(100% - 94px);
+}
+.column.right {
+    width: 78px;
+}
+
+.date-picker-input-wrapper {
+    display: inline-block;
+    width: 105px;
+}
+

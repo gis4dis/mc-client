@@ -13,7 +13,7 @@ const presetButtonStyle = {
     display: 'block'
 };
 
-const years = range(2000, moment().year() + 1, 1);
+const years = range(2010, moment().year() + 1, 1);
 const months = moment.months();
 
 class DateRangeSelector extends React.Component {
@@ -320,65 +320,73 @@ class DateRangeSelector extends React.Component {
         }
 
 
-        return <div style={ {position: "relative"} }>
+        return <div className="main" style={ {position: "relative"} }>
             <Divider horizontal inverted style={ {marginTop: '18px'} }>Select date</Divider>
 
-            <div style={ {position: 'absolute', right: 0, zIndex: 1} }>
+            <Form className="date-picker-wrapper column left">
+                <Form.Field className="date-picker-field from">
+                    <div className="date-picker-input-labels-wrapper">
+                        <Label size='small' style={ {marginTop: '2px'} }>From date</Label>
+                        { from  && <Label basic color='red' pointing='left' size='small'>
+                            { from }</Label> }
+                    </div>
+                    <div className="date-picker-input-wrapper">
+                        <DatePicker
+                                selectsStart
+                                selected={ this.state.fromDate }
+                                startDate={ this.state.fromDate }
+                                endDate={ this.state.toDate }
+                                maxDate={ moment() }
+                                renderCustomHeader={ this._renderCalendarHeader }
+                                previousMonthButtonLabel=''
+                                nextMonthButtonLabel=''
+                                style={ {width:'105px'} }
+                                onChange={ this.handleFromChange } />
+                    </div>
+                </Form.Field>
+
+                <Form.Field className="date-picker-field to">
+                    <div className="date-picker-input-labels-wrapper">
+                        <Label size='small' style={ {marginTop: '2px'} }>To date</Label>
+                        { to  && <Label basic color='red' pointing='left' size='small'>
+                            { to }</Label> }
+                    </div>
+                    <div className="date-picker-input-wrapper">
+                        <DatePicker
+                                selectsEnd
+                                selected={ this.state.toDate }
+                                startDate={this.state.fromDate}
+                                endDate={ this.state.toDate }
+                                minDate={ this.state.fromDate }
+                                maxDate={ moment() }
+                                renderCustomHeader={ this._renderCalendarHeader }
+                                previousMonthButtonLabel=''
+                                nextMonthButtonLabel=''
+                                style={ {width:'105px'} }
+                                onChange={ this.handleToChange } />
+                    </div>
+                </Form.Field>
+            </Form>
+
+            <div className="column right">
                 <Button.Group>
                     <Button
-                            inverted
-                            icon
-                            color="blue"
-                            onClick={ this._setPrevious.bind(this) }>
+                        inverted
+                        icon
+                        color="blue"
+                        onClick={ this._setPrevious.bind(this) }>
                         <Icon name="caret left"></Icon>
                     </Button>
                     <Button
-                            inverted
-                            icon
-                            color="blue"
-                            disabled={ this.state._nextDisabled }
-                            onClick={ this._setNext.bind(this) }>
+                        inverted
+                        icon
+                        color="blue"
+                        disabled={ this.state._nextDisabled }
+                        onClick={ this._setNext.bind(this) }>
                         <Icon name="caret right"></Icon>
                     </Button>
                 </Button.Group>
             </div>
-
-            <Form style={ formStyle }>
-                <Form.Field>
-                    <Label size='small'>From date</Label>
-                    <DatePicker
-                        selectsStart
-                        selected={ this.state.fromDate }
-                        startDate={ this.state.fromDate }
-                        endDate={ this.state.toDate }
-                        maxDate={ moment() }
-                        renderCustomHeader={ this._renderCalendarHeader }
-                        previousMonthButtonLabel=''
-                        nextMonthButtonLabel=''
-                        onChange={ this.handleFromChange }
-                        />
-                    { from  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
-                        { from }</Label> }
-                </Form.Field>
-            </Form>
-            <Form style={ formStyle }>
-                <Form.Field>
-                    <Label size='small'>To date</Label>
-                    <DatePicker
-                            selectsEnd
-                            selected={ this.state.toDate }
-                            startDate={this.state.fromDate}
-                            endDate={ this.state.toDate }
-                            minDate={ this.state.fromDate }
-                            maxDate={ moment() }
-                            renderCustomHeader={ this._renderCalendarHeader }
-                            previousMonthButtonLabel=''
-                            nextMonthButtonLabel=''
-                            onChange={ this.handleToChange } />
-                    { to  && <Label attached='bottom right' basic color='red' pointing='left' size='small'>
-                        { to }</Label> }
-                </Form.Field>
-            </Form>
 
             <Form style={ formStyle }>
                 <div className="button-wrapper">
@@ -428,8 +436,7 @@ class DateRangeSelector extends React.Component {
                 .button-wrapper {
                     display: inline-block;
                 }
-
-             `}</style>
+            `}</style>
         </div>
     }
 
