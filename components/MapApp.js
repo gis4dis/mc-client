@@ -346,7 +346,21 @@ class MapApp extends React.Component {
     }
 
     render() {
-        const sidebarVisible = this.state.sidebarVisible;
+        const { sidebarVisible, sidebarDirection } = this.state;
+        const sidebarWidth = 350;
+
+        let sidebarStyle;
+        if (sidebarDirection === 'right') {
+            sidebarStyle = {
+                width: sidebarWidth + 'px',
+                maxWidth: sidebarWidth + 'px'
+            };
+        } else {
+            sidebarStyle = {
+                height: sidebarWidth + 'px',
+                maxHeight: sidebarWidth + 'px'
+            };
+        }
 
         return <div className="content">
             <HeaderMenu activeItem="map" />
@@ -355,9 +369,9 @@ class MapApp extends React.Component {
                 <Sidebar
                         as="div"
                         animation="overlay"
-                        direction={ this.state.sidebarDirection }
-                        visible={ this.state.sidebarVisible }
-                        width="wide">
+                        direction={ sidebarDirection }
+                        visible={ sidebarVisible }
+                        style={ sidebarStyle }>
 
                     <div style={ sidebarContentStyle }>
                         <MapControls
@@ -387,9 +401,9 @@ class MapApp extends React.Component {
                              index={ this.state.selection.timeValueIndex }/>
 
                         <Button
-                            icon={ getSidebarToggleIcon(this.state.sidebarDirection, this.state.sidebarVisible) }
+                            icon={ getSidebarToggleIcon(sidebarDirection, sidebarVisible) }
                             onClick={ this.handleSidebarToggleClick }
-                            style={ getSidebarToggleStyle(this.state.sidebarDirection, this.state.sidebarVisible) }/>
+                            style={ getSidebarToggleStyle(sidebarDirection, sidebarVisible) }/>
                     </div>
 
                 </Sidebar.Pusher>
