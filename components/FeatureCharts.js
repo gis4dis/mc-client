@@ -226,6 +226,16 @@ class FeatureCharts extends React.Component {
         const { data, title, subtitle, timeFormatter, left, right, refAreaLeft, refAreaRight } = this.state;
         const isZoomedIn = left !== 'dataMin' || right !== 'dataMax';
 
+        let valueAxisLabel;
+        if (this.props.property) {
+            valueAxisLabel = {
+                value: /*this.props.property.name + */' [' + this.props.property.unit + ']',
+                angle: -90,
+                offset: 10,
+                position: 'insideLeft'
+            };
+        }
+
         return <div>
             {title && <div className="title">{ title }</div>}
             <div style={ {height: '36px'} }>
@@ -269,7 +279,7 @@ class FeatureCharts extends React.Component {
                             ticks={ getChartTicks(this.props.timeSettings, left, right) }
                             type="number"
                             tickFormatter={ timeFormatter }/>
-                    <YAxis yAxisId="values" />
+                    <YAxis yAxisId="values" label={ valueAxisLabel }/>
                     <YAxis yAxisId="anomalies" orientation="right" />
 
                     <Tooltip labelFormatter={ getTimeFormatter(this.props.timeSettings.timeZone, 'LT L') }/>
