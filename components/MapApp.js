@@ -391,6 +391,8 @@ class MapApp extends React.Component {
                     <div className={ this.getSidebarClass() + ' main-wrapper'}>
                         <Map className="map"
                              ref={ this.mapRef }
+                             topic={ this.state.topic }
+                             properties={ this.state.properties }
                              primaryProperty={ this.getPropertyById(this.state.selection.primaryPropertyId) }
                              currentValues={ this.state.currentValues }
                              timeZone={ timeZone }

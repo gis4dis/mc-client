@@ -79,32 +79,39 @@ const initialState = {
 /********************* zooming ***********************/
 
 
-const getData = (feature, time) => {
-    if (feature) {
-        let data = [];
+const getData = (feature, property, time) => {
+    if (feature && property) {
 
-        let shift = feature.get('value_index_shift');
-        for (let i = 0; i < shift; i++) {
-            data.push({
-                time: getTime(time, i),
-                value: null,
-                anomaly_rate: null
-            });
+        let propertyData = feature.get(property.name_id);
+
+        if (propertyData) {
+            let data = [];
+            let shift = propertyData.value_index_shift;
+            for (let i = 0; i < shift; i++) {
+                data.push({
+                    time: getTime(time, i),
+                    value: null,
+                    anomaly_rate: null
+                });
+            }
+
+
+            let propertyValues = propertyData.values;
+            let anomalyRates = propertyData.anomaly_rates;
+
+            let count = propertyValues.length;
+            for (let i = 0; i < count; i++) {
+                let dataObject = {
+                    time: getTime(time, i + shift),
+                    value: propertyValues[i],
+                    anomaly_rate: anomalyRates[i]
+                };
+                data.push(dataObject);
+            }
+            return data;
+        } else {
+            return null;
         }
-
-        let propertyValues = feature.get('property_values');
-        let anomalyRates = feature.get('property_anomaly_rates');
-
-        let count = propertyValues.length;
-        for (let i = 0; i < count; i++) {
-            let dataObject = {
-                time: getTime(time, i + shift),
-                value: propertyValues[i],
-                anomaly_rate: anomalyRates[i]
-            };
-            data.push(dataObject);
-        }
-        return data;
     }
     return null;
 };
@@ -123,7 +130,7 @@ class FeatureCharts extends React.Component {
 
         let title = this.props.feature ? this.props.feature.get('name') : null;
         let subtitle = getTimeRangeString(this.props.timeSettings);
-        let data = getData(this.props.feature, this.props.timeSettings);
+        let data = getData(this.props.feature, this.props.property, this.props.timeSettings);
 
         let timeFormatter;
         if (data) {
@@ -143,7 +150,7 @@ class FeatureCharts extends React.Component {
     componentWillReceiveProps(nextProps) {
         let title = nextProps.feature ? nextProps.feature.get('name') : null;
         let subtitle = getTimeRangeString(this.props.timeSettings);
-        let data = getData(nextProps.feature, nextProps.timeSettings);
+        let data = getData(nextProps.feature, nextProps.property, nextProps.timeSettings);
 
         let timeFormatter;
         if (data) {

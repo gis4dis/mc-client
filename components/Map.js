@@ -141,7 +141,18 @@ class Map extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.isDataValid) {
-            let generalization = this._getV1Generalization(nextProps);
+            let view = this.state.map.getView();
+            let resolution = view.getResolution();
+            let featureCollection = nextProps.data.feature_collection;
+            let options = {
+                topic: nextProps.topic,
+                properties: nextProps.properties,
+                primary_property: nextProps.primaryProperty.name_id,
+                features: featureCollection,
+                value_idx: nextProps.index,
+                resolution: resolution
+            };
+            let generalization = generalize(options);
 
             if (generalization && this.geojsonLayer) {
                 let isDataChange = this.props.data !== nextProps.data;
@@ -229,49 +240,6 @@ class Map extends React.Component {
         console.log(event);
     }
 
-    /************************* CG v1 compatibility ***********************************************/
-    _getV1CompatibleData(primaryProperty, featureCollection) {
-        let collection = Object.assign({}, featureCollection);
-        let propertyId = primaryProperty.name_id;
-
-        let features = collection.features;
-        features.forEach((feature) => {
-            let properties = feature.properties;
-            let primaryPropertyData = properties[propertyId];
-            if (primaryPropertyData) {
-                properties.property_values = primaryPropertyData.values;
-                properties.property_anomaly_rates = primaryPropertyData.anomaly_rates;
-                properties.value_index_shift = primaryPropertyData.value_index_shift;
-            } else {
-                properties.property_values = [];
-                properties.property_anomaly_rates = [];
-                properties.value_index_shift = 0;
-            }
-        });
-
-        return collection;
-    }
-
-    _getV1Generalization(props) {
-        if (this.state.map && props.data && props.data.feature_collection) {
-            let view = this.state.map.getView();
-            let resolution = view.getResolution();
-
-            let featureCollection = this._getV1CompatibleData(
-                    props.primaryProperty, props.data.feature_collection);
-            let options = {
-                property: props.primaryProperty,
-                features: featureCollection,
-                value_idx: props.index,
-                resolution: resolution
-            };
-
-            return generalize(options);
-        }
-        return null;
-    }
-    /************************* CG v1 compatibility ***********************************************/
-
     _updateFeatures(newFeatures, isDataChange) {
         let source = this.geojsonLayer.getSource();
 
@@ -314,6 +282,7 @@ class Map extends React.Component {
 
                         <FeatureCharts
                             feature={ this.state.selectedFeature }
+                            property={ this.props.primaryProperty }
                             timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
                     </div>
                 </Dimmer>
@@ -323,6 +292,7 @@ class Map extends React.Component {
 
                     <FeatureCharts
                         feature={ this.state.selectedFeature }
+                        property={ this.props.primaryProperty }
                         timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
                 </div>
 
