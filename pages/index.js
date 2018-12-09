@@ -1,6 +1,6 @@
-import HeaderMenu from '../components/HeaderMenu'
+import HomepageLayout from '../components/HomepageLayout'
 
 
 export default () => (
-    <HeaderMenu />
+    <HomepageLayout />
 );
