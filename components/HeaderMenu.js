@@ -6,11 +6,20 @@ class HeaderMenu extends React.Component {
     constructor(props) {
         super(props);
 
-        var items = [
-            {key: 'home', name: 'Home', as: 'a', href: '/'},
-            {key: 'map', name: 'Map', as: 'a', href: '/map'},
-            {key: 'about', name: 'about', as: 'a', href: '/about'}
-        ];
+        let topics = [];
+        if (props.topics) {
+            topics = props.topics.map((topic) => {
+                return {
+                    key: topic.name_id,
+                    name: topic.name,
+                    href: 'topics/' + topic.name_id
+                };
+            });
+        }
+
+        let homeTab = {key: 'home', name: 'Home', as: 'a', href: '/'};
+        let aboutTab = {key: 'about', name: 'about', as: 'a', href: '/about'};
+        var items = [homeTab].concat(...topics, aboutTab);
 
         if (props.addItems) {
             items = items.concat(props.addItems);
@@ -24,9 +33,12 @@ class HeaderMenu extends React.Component {
 
         this.state = {
             activeIndex: activeIndex || 0,
-            items: items
+            items: items,
+            topics: topics
         };
     }
+
+
 
     render() {
         return <div>

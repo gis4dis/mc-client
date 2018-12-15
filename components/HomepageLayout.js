@@ -25,7 +25,7 @@ const HomepageHeading = ({ mobile }) => (
                 fontSize: mobile ? '2em' : '4em',
                 fontWeight: 'bold',
                 marginBottom: 0,
-                marginTop: mobile ? '3em' : '2em',
+                marginTop: mobile ? '2em' : '3em',
             }}
         />
         <Header
@@ -43,10 +43,8 @@ const HomepageHeading = ({ mobile }) => (
 );
 
 class DesktopContainer extends Component {
-    state = {};
-
     render() {
-        const { children } = this.props;
+        const { children, topics } = this.props;
 
         return (
             <Responsive minWidth={Responsive.onlyTablet.minWidth}>
@@ -58,7 +56,7 @@ class DesktopContainer extends Component {
                         style={{ padding: '1em 0em' }}
                         vertical
                     >
-                        <HeaderMenu />
+                        <HeaderMenu topics={ topics }/>
                         <HomepageHeading />
                     </Segment>
 
@@ -69,19 +67,8 @@ class DesktopContainer extends Component {
 }
 
 class MobileContainer extends Component {
-    state = {};
-
-    handlePusherClick = () => {
-        const { sidebarOpened } = this.state;
-
-        if (sidebarOpened) this.setState({ sidebarOpened: false });
-    };
-
-    handleToggle = () => this.setState({ sidebarOpened: !this.state.sidebarOpened });
-
     render() {
-        const { children } = this.props;
-        const { sidebarOpened } = this.state;
+        const { children, topics } = this.props;
 
         return (
             <Responsive maxWidth={Responsive.onlyMobile.maxWidth}>
@@ -92,7 +79,7 @@ class MobileContainer extends Component {
                     style={{ padding: '1em 0em' }}
                     vertical
                 >
-                    <HeaderMenu />
+                    <HeaderMenu topics={ topics }/>
                     <HomepageHeading mobile />
                 </Segment>
 
@@ -102,15 +89,15 @@ class MobileContainer extends Component {
     }
 }
 
-const ResponsiveContainer = ({ children }) => (
+const ResponsiveContainer = (props) => (
     <div>
-        <DesktopContainer>{children}</DesktopContainer>
-        <MobileContainer>{children}</MobileContainer>
+        <DesktopContainer topics={ props.topics }>{props.children}</DesktopContainer>
+        <MobileContainer topics={ props.topics }>{props.children}</MobileContainer>
     </div>
 );
 
-const HomepageLayout = () => (
-    <ResponsiveContainer>
+const HomepageLayout = (props) => (
+    <ResponsiveContainer topics={ props.topics }>
         <Segment style={{ padding: '4em 0em' }} vertical>
             <Grid container stackable verticalAlign='top' divided>
                 <Grid.Column width={8} style={{ padding: '1em' }}>

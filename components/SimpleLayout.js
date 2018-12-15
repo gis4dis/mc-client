@@ -1,4 +1,3 @@
-import HeaderMenu from './HeaderMenu'
 import { Container } from 'semantic-ui-react'
 
 const containerStyle = {
@@ -8,8 +7,6 @@ const containerStyle = {
 
 const SimpleLayout = (props) => (
     <div>
-        <HeaderMenu activeItem={ props.activeItem } />
-
         <Container style={ containerStyle }>
             { props.children }
         </Container>

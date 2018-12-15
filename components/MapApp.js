@@ -73,7 +73,7 @@ class MapApp extends React.Component {
 
         this.state = {
             isSmall: false,
-            topic: defaultTopic_,
+            topic: props.topic || defaultTopic_,
             properties: [],
             selection: {
                 primaryPropertyId: null,
@@ -363,8 +363,6 @@ class MapApp extends React.Component {
         }
 
         return <div className="content">
-            <HeaderMenu activeItem="map" />
-
             <Sidebar.Pushable className={ this.getSidebarClass() }>
                 <Sidebar
                         as="div"

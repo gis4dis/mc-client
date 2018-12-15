@@ -18,7 +18,6 @@
     "express": "4.16.3",
     "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#e879c4042e5d3cd55ca377e07af2af5dab31f74b",
     "http-proxy-middleware": "0.18.0",
-    "isomorphic-unfetch": "2.0.0",
     "lodash": "4.17.11",
     "moment": "2.22.2",
     "next": "5.1.0",
