@@ -1,12 +1,17 @@
 import React from 'react';
 import HeaderMenu from '../components/HeaderMenu';
 import MapApp from '../components/MapApp';
+import fetch from 'isomorphic-unfetch';
 
 class MapPage extends React.PureComponent {
     static async getInitialProps(ctx) {
         const topic = ctx.query.topic;
+        const req = ctx.req;
+        const baseUrl = req ?
+            req.protocol + '://' + req.get('Host') + '/' :
+            '';
 
-        const res = await fetch('http://localhost:8000/api/v2/topics?format=json');
+        const res = await fetch(baseUrl + 'api/v2/topics?format=json');
         const topics = await res.json();
 
         return {
