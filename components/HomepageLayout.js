@@ -14,6 +14,7 @@ import {
     Visibility,
 } from 'semantic-ui-react';
 import HeaderMenu from "./HeaderMenu";
+import TopicCards from "./TopicCards";
 
 const HomepageHeading = ({ mobile }) => (
     <Container text>
@@ -145,6 +146,15 @@ const HomepageLayout = (props) => (
                     </List>
                 </Grid.Column>
             </Grid>
+        </Segment>
+
+        <Segment style={{ padding: '2em 0em 4em' }} vertical>
+            <Container>
+                <Header as='h3' style={{ fontSize: '2em' }}>
+                    Topics
+                </Header>
+                <TopicCards topics={ props.topics }/>
+            </Container>
         </Segment>
 
         <Segment style={{ padding: '2em 0em 4em' }} vertical>
