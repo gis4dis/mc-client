@@ -29,3 +29,23 @@
     width: 105px;
 }
 
+.desktop-homepage {
+    display: block;
+}
+
+.mobile-homepage {
+    display: none;
+}
+
+@media screen and (max-width: 600px) {
+    .mobile-homepage {
+        display: block;
+
+        --segment-side-padding: 2em;
+        --segment-top-bottom-padding: 2em;
+    }
+
+    .desktop-homepage {
+        display: none;
+    }
+}

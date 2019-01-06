@@ -48,21 +48,20 @@ class DesktopContainer extends Component {
         const { children, topics } = this.props;
 
         return (
-            <Responsive minWidth={Responsive.onlyTablet.minWidth}>
+            <div className="desktop-homepage">
+                <Segment
+                    inverted
+                    color='blue'
+                    textAlign='center'
+                    style={{ padding: '1em 0em' }}
+                    vertical
+                >
+                    <HeaderMenu topics={ topics }/>
+                    <HomepageHeading />
+                </Segment>
 
-                    <Segment
-                        inverted
-                        color='blue'
-                        textAlign='center'
-                        style={{ padding: '1em 0em' }}
-                        vertical
-                    >
-                        <HeaderMenu topics={ topics }/>
-                        <HomepageHeading />
-                    </Segment>
-
-                {children}
-            </Responsive>
+            {children}
+            </div>
         );
     }
 }
@@ -72,20 +71,19 @@ class MobileContainer extends Component {
         const { children, topics } = this.props;
 
         return (
-            <Responsive maxWidth={Responsive.onlyMobile.maxWidth}>
+            <div className="mobile-homepage">
                 <Segment
                     inverted
                     color='blue'
                     textAlign='center'
                     style={{ padding: '1em 0em' }}
-                    vertical
-                >
+                    vertical>
                     <HeaderMenu topics={ topics }/>
                     <HomepageHeading mobile />
                 </Segment>
 
                 {children}
-            </Responsive>
+            </div>
         );
     }
 }
@@ -99,7 +97,7 @@ const ResponsiveContainer = (props) => (
 
 const HomepageLayout = (props) => (
     <ResponsiveContainer topics={ props.topics }>
-        <Segment style={{ padding: '4em 0em' }} vertical>
+        <Segment style={{ padding: 'var(--segment-top-bottom-padding, 4em) var(--segment-side-padding, 0em)' }} vertical>
             <Grid container stackable verticalAlign='top' divided>
                 <Grid.Column width={8} style={{ padding: '1em' }}>
                     <Header as='h3' style={{ fontSize: '2em' }}>
@@ -148,7 +146,7 @@ const HomepageLayout = (props) => (
             </Grid>
         </Segment>
 
-        <Segment style={{ padding: '2em 0em 4em' }} vertical>
+        <Segment style={{ padding: '2em var(--segment-side-padding, 0em)' }} vertical>
             <Container>
                 <Header as='h3' style={{ fontSize: '2em' }}>
                     Topics
@@ -157,7 +155,7 @@ const HomepageLayout = (props) => (
             </Container>
         </Segment>
 
-        <Segment style={{ padding: '2em 0em 4em' }} vertical>
+        <Segment style={{ padding: '2em var(--segment-side-padding, 0em)' }} vertical>
             <Container>
                 <Header as='h3' style={{ fontSize: '2em' }}>
                     Partners
@@ -166,10 +164,10 @@ const HomepageLayout = (props) => (
                 <Grid container stackable verticalAlign='top'>
                     <Grid.Column width={8}>
                         <Grid container verticalAlign='top'>
-                            <Grid.Column width={6}>
+                            <Grid.Column mobile={16} tablet={6} computer={6}>
                                 <Image src='static/mc/logo/muni-lg-white.png' style={ {background: 'rgb(0, 0, 200)'} }/>
                             </Grid.Column>
-                            <Grid.Column width={10}>
+                            <Grid.Column mobile={16} tablet={10} computer={10}>
                                 <List style={{ fontSize: '1.33em', fontWeight: 'bold' }}>
                                     <List.Item>
                                         <a href='https://www.muni.cz/en'>Masaryk university</a>
@@ -194,10 +192,10 @@ const HomepageLayout = (props) => (
 
                     <Grid.Column width={8}>
                         <Grid container verticalAlign='top'>
-                            <Grid.Column width={6}>
+                            <Grid.Column mobile={16} tablet={6} computer={6}>
                                 <Image src='static/mc/logo/Nanjing_Normal_University_logo.png' />
                             </Grid.Column>
-                            <Grid.Column width={10}>
+                            <Grid.Column mobile={16} tablet={10} computer={10}>
                                 <List style={{ fontSize: '1.33em', fontWeight: 'bold' }}>
                                     <List.Item>
                                         <a href='http://en.njnu.edu.cn/'>Nanjing Normal University</a>
@@ -222,7 +220,7 @@ const HomepageLayout = (props) => (
             </Container>
         </Segment>
 
-        <Segment inverted vertical style={{ padding: '5em 0em' }}>
+        <Segment inverted vertical style={{ padding: '5em var(--segment-side-padding, 0em)' }}>
             <Container>
                 <Grid divided inverted stackable>
                     <Grid.Row>

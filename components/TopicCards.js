@@ -2,7 +2,7 @@ import { Card, Image } from 'semantic-ui-react'
 
 const TopicCards = (props) => (
     <div>
-        <Card.Group centered itemsPerRow="4">
+        <Card.Group centered>
             { props.topics.map(function(topic){
                 return <Card key={ topic.name_id } className="card" as="a" href={ 'topics/' + topic.name_id }>
                     <Image src={ 'static/mc/images/' + topic.name_id + '.jpg' } />
