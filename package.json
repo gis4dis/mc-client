@@ -8,7 +8,8 @@
     "build": "next build",
     "export": "next export && mv -t out/static/mc/ out/index.html out/_next",
     "start": "NODE_ENV=production node server.js",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "postinstall": "rm -rf static/symbolization && cp -r node_modules/gis4dis-generalizer/static/symbolization static"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +17,7 @@
   "dependencies": {
     "@weco/next-plugin-transpile-modules": "0.0.2",
     "express": "4.16.3",
-    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#e879c4042e5d3cd55ca377e07af2af5dab31f74b",
+    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#6d92ba66794c8aa5f2dabad3e4d4ee735c646a75",
     "http-proxy-middleware": "0.18.0",
     "lodash": "4.17.11",
     "moment": "2.22.2",
