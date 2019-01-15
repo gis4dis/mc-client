@@ -5,13 +5,17 @@ import fetch from 'isomorphic-unfetch';
 
 class AboutPage extends React.PureComponent {
     static async getInitialProps(ctx) {
-        const req = ctx.req;
-        const baseUrl = req ?
-            req.protocol + '://' + req.get('Host') + '/' :
-            '';
+        let topics = ctx.query ? ctx.query.topics : null;
 
-        const res = await fetch(baseUrl + 'api/v2/topics?format=json');
-        const topics = await res.json();
+        if (!topics) {
+            const req = ctx.req;
+            const baseUrl = req && req.protocol && req.headers && req.headers.host ?
+                req.protocol + '://' + req.headers.host :
+                '';
+
+            const res = await fetch(baseUrl + '/api/v2/topics?format=json');
+            topics = await res.json();
+        }
 
         return {
             topics: topics

@@ -2,17 +2,22 @@ import React from 'react';
 import HeaderMenu from '../components/HeaderMenu';
 import MapApp from '../components/MapApp';
 import fetch from 'isomorphic-unfetch';
+import { Icon, Menu } from 'semantic-ui-react';
 
 class MapPage extends React.PureComponent {
     static async getInitialProps(ctx) {
         const topic = ctx.query.topic;
-        const req = ctx.req;
-        const baseUrl = req ?
-            req.protocol + '://' + req.get('Host') + '/' :
-            '';
+        let topics = ctx.query.topics;
 
-        const res = await fetch(baseUrl + 'api/v2/topics?format=json');
-        const topics = await res.json();
+        if (!topics) {
+            const req = ctx.req;
+            const baseUrl = req && req.protocol && req.headers && req.headers.host ?
+                req.protocol + '://' + req.headers.host :
+                '';
+
+            const res = await fetch(baseUrl + '/api/v2/topics?format=json');
+            topics = await res.json();
+        }
 
         return {
             topic: topic,
@@ -23,7 +28,6 @@ class MapPage extends React.PureComponent {
     constructor(props) {
         super(props);
     }
-
 
     render() {
         return (
