@@ -8,7 +8,7 @@ module.exports = withTM({
     const topics = [{"name_id":"drought","name":"drought"}];
     return {
       '/': { page: '/', query: { topics: topics }  },
-      '/about': { page: '/about', query: { topics: topics }  },
+      // '/about': { page: '/about', query: { topics: topics }  },
       '/topics/drought': { page: '/map', query: { topic: 'drought', topics: topics } }
     }
   }

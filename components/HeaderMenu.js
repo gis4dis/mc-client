@@ -12,7 +12,7 @@ class HeaderMenu extends React.Component {
                 return {
                     key: topic.name_id,
                     name: topic.name,
-                    href: 'topics/' + topic.name_id
+                    href: '/topics/' + topic.name_id
                 };
             });
         }
