@@ -264,7 +264,8 @@ class MapApp extends React.Component {
                         currentValues: {
                             from: from,
                             to: to,
-                            frequency: data.value_frequency
+                            frequency: data.value_frequency,
+                            valueDuration: data.value_duration
                         },
                         geojsonData: data,
                         isDataValid: from && to,

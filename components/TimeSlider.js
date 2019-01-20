@@ -6,12 +6,8 @@ class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
-        //REMOVE when implemented in server
-        let defaultInterval = 3600;
-
         this.state = {
             value: props.from || 0,
-            interval: props.interval || defaultInterval,
             isPlaying: false
         };
 
@@ -167,13 +163,21 @@ class TimeSlider extends React.Component {
     }
 
     render() {
-        const { isPlaying, interval } = this.state;
+        const { isPlaying } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to } = this.props;
-        const thumbWidth = interval && from && to ?
-            (interval / (to - from) * 100) + '%' :
-            '14px';
+        const { from, to, interval } = this.props;
+        let thumbWidth = interval && from && to ?
+            (interval / (to - from) * 100) :
+            null;
+        if (!thumbWidth) {
+            thumbWidth = '14px';
+        } else {
+            if (thumbWidth < 1) {
+                thumbWidth = 1;
+            }
+            thumbWidth += '%';
+        }
 
         return <div className="timeSlider">
             {this.props.from && this.props.to &&

@@ -40,6 +40,7 @@ class TimeControl extends React.Component {
                 <TimeSlider
                     from={ this.props.currentValues.from ? this.props.currentValues.from.unix() : null }
                     to={ currentTo }
+                    interval={ this.props.valueDuration }
                     timeZone={ this.props.timeZone }
                     frequency={ this.props.currentValues.frequency }
                     disabled={ this.props.currentValues.from == null || this.props.currentValues.to == null}
