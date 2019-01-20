@@ -347,29 +347,15 @@ class MapApp extends React.Component {
 
     render() {
         const { sidebarVisible, sidebarDirection } = this.state;
-        const sidebarWidth = 350;
-
-        let sidebarStyle;
-        if (sidebarDirection === 'right') {
-            sidebarStyle = {
-                width: sidebarWidth + 'px',
-                maxWidth: sidebarWidth + 'px'
-            };
-        } else {
-            sidebarStyle = {
-                height: sidebarWidth + 'px',
-                maxHeight: sidebarWidth + 'px'
-            };
-        }
 
         return <div className="content">
             <Sidebar.Pushable className={ this.getSidebarClass() }>
                 <Sidebar
                         as="div"
+                        className="control-panel"
                         animation="overlay"
                         direction={ sidebarDirection }
-                        visible={ sidebarVisible }
-                        style={ sidebarStyle }>
+                        visible={ sidebarVisible }>
 
                     <div style={ sidebarContentStyle }>
                         <MapControls
@@ -401,6 +387,7 @@ class MapApp extends React.Component {
                              index={ this.state.selection.timeValueIndex }/>
 
                         <Button
+                            className='sidebar-toggle'
                             icon={ getSidebarToggleIcon(sidebarDirection, sidebarVisible) }
                             onClick={ this.handleSidebarToggleClick }
                             style={ getSidebarToggleStyle(sidebarDirection, sidebarVisible) }/>
@@ -420,34 +407,6 @@ class MapApp extends React.Component {
                     position: absolute;
                     top: 40px;
                     width: 100%;
-                }
-
-                .main-wrapper {
-                    position: relative;
-                }
-
-                .right.main-wrapper {
-                    height: 100%;
-                }
-
-                .right.sidebar-visible.main-wrapper {
-                    width: calc(100% - 350px);
-                }
-
-                .right.sidebar-hidden.main-wrapper {
-                    width: 100%;
-                }
-
-                .bottom.main-wrapper {
-                    width: 100%;
-                }
-
-                .bottom.sidebar-visible.main-wrapper {
-                    height: calc(100% - 350px);
-                }
-
-                .bottom.sidebar-hidden.main-wrapper {
-                    height: 100%;
                 }
             `}</style>
         </div>

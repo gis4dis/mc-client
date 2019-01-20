@@ -4,7 +4,7 @@ import MapApp from '../components/MapApp';
 import fetch from 'isomorphic-unfetch';
 import { Icon, Menu } from 'semantic-ui-react';
 
-class MapPage extends React.PureComponent {
+class MapPage extends React.Component {
     static async getInitialProps(ctx) {
         const topic = ctx.query.topic;
         let topics = ctx.query.topics;
@@ -20,6 +20,7 @@ class MapPage extends React.PureComponent {
         }
 
         return {
+            mode: 'map',
             topic: topic,
             topics: topics
         };
@@ -27,13 +28,26 @@ class MapPage extends React.PureComponent {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+            mode: props.mode
+        };
+
+        this.handleModeClick = (e, { name }) => this.setState({ mode: name });
     }
 
     render() {
         return (
-            <div className="root">
-                <HeaderMenu topics={ this.props.topics } activeItem={ this.props.topic } />
-                <MapApp sidebarVisible topic={ this.props.topic } topics={ this.props.topics }/>
+            <div className={ 'map ' + this.state.mode + '-mode'}>
+                <HeaderMenu topics={ this.props.topics } activeItem={ this.props.topic }>
+                    <Menu.Item name='map' position='right' active={ this.state.mode === 'map' } color='blue' onClick={this.handleModeClick}>
+                        <Icon name='map' />
+                    </Menu.Item>
+                    <Menu.Item name='settings' position='right' active={ this.state.mode === 'settings' } color='blue' onClick={this.handleModeClick}>
+                        <Icon name='cogs' />
+                    </Menu.Item>
+                </HeaderMenu>
+                <MapApp sidebarVisible topic={ this.props.topic } topics={ this.props.topics } />
             </div>
         );
     }

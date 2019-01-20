@@ -37,7 +37,54 @@
     display: none;
 }
 
-@media screen and (max-width: 600px) {
+.mobile-menu {
+    display: none !important;
+}
+
+/* sidebar styles */
+.sidebar-visible.right .control-panel {
+    width: 350px !important;
+    max-width: 350px !important;
+}
+
+.sidebar-visible.bottom .control-panel {
+    height: 350px !important;
+    max-height: 350px !important;
+}
+/* sidebar styles */
+
+/* main wrapper */
+.main-wrapper {
+    position: relative;
+}
+
+.right.main-wrapper {
+    height: 100%;
+}
+
+.right.sidebar-visible.main-wrapper {
+    width: calc(100% - 350px);
+}
+
+.right.sidebar-hidden.main-wrapper {
+    width: 100%;
+}
+
+.bottom.main-wrapper {
+    width: 100%;
+}
+
+.bottom.sidebar-visible.main-wrapper {
+    height: calc(100% - 350px);
+}
+
+.bottom.sidebar-hidden.main-wrapper {
+    height: 100%;
+}
+/* main wrapper */
+
+@media screen and (max-width: 700px),
+screen and (max-height: 700px) {
     .mobile-homepage {
         display: block;
 
@@ -45,7 +92,70 @@
         --segment-top-bottom-padding: 2em;
     }
 
-    .desktop-homepage {
-        display: none;
+    .mobile-menu {
+        display: block !important;
     }
+
+    .mobile-menu > * {
+        display: inline-block !important;
+    }
+
+    .mobile-menu > .left {
+        float: left;
+    }
+
+    .mobile-menu > .right {
+        float: right;
+    }
+
+    .mobile-menu > .right > .item {
+        display: inline-block !important;
+    }
+
+    .desktop-homepage {
+        display: none !important;
+    }
+
+    .desktop-menu {
+        display: none !important;
+    }
+
+    /* sidebar */
+    .sidebar-visible.right .control-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .sidebar-visible.bottom .control-panel {
+        height: 100% !important;
+        max-height: 100% !important;
+    }
+
+    .map-mode .sidebar-visible.right .control-panel,
+    .map-mode .sidebar-visible.bottom .control-panel {
+        display: none !important;
+    }
+
+    .settings-mode .sidebar-visible.right .control-panel,
+    .settings-mode .sidebar-visible.bottom .control-panel {
+        display: block !important;
+    }
+
+    .sidebar-toggle {
+        display: none !important;
+    }
+    /* sidebar styles */
+
+    /* main wrapper */
+    .right.sidebar-visible.main-wrapper {
+        height: 100%;
+        width: 100%;
+    }
+
+    .bottom.sidebar-visible.main-wrapper {
+        height: 100%;
+        width: 100%;
+    }
+    /* main wrapper */
+
 }
