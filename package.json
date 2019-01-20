@@ -22,12 +22,12 @@
     "moment": "2.22.2",
     "next": "5.1.0",
     "ol": "jirik/ol3#19c2797513b5b3983ff186d24a60aaf81ac97e3c",
-    "react": "^16.3.1",
+    "react": "16.7.0",
     "react-datepicker": "1.7.0",
-    "react-dom": "16.3.1",
+    "react-dom": "16.7.0",
     "react-markdown": "3.3.0",
-    "recharts": "1.1.0",
-    "semantic-ui-react": "0.79.1"
+    "recharts": "1.4.2",
+    "semantic-ui-react": "0.84.0"
   },
   "devDependencies": {}
 }
