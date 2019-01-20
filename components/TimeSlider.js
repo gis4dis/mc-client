@@ -7,7 +7,7 @@ class TimeSlider extends React.Component {
         super(props);
 
         //REMOVE when implemented in server
-        let defaultInterval = 216000;
+        let defaultInterval = 3600;
 
         this.state = {
             value: props.from || 0,
