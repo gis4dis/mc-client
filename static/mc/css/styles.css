@@ -84,7 +84,7 @@
 /* main wrapper */
 
 @media screen and (max-width: 700px),
-screen and (max-height: 700px) {
+screen and (max-height: 700px) and (max-width: 400px) {
     .mobile-homepage {
         display: block;
 
