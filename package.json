@@ -7,6 +7,8 @@
     "dev": "node server.js",
     "build": "next build",
     "export": "next export && mv -t out/static/mc/ out/index.html out/_next out/topics",
+    "export-dev": "next export && mv out/_next out/static/mc/",
+    "serve-export-dev": "node server-export-dev.js",
     "test": "echo \"Error: no test specified\" && exit 0",
     "postinstall": "rm -rf static/symbolization && cp -r node_modules/gis4dis-generalizer/static/symbolization static"
   },
