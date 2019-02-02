@@ -236,6 +236,10 @@ class FeatureCharts extends React.Component {
             };
         }
 
+        let headerHeight = 54;
+        let height = (this.props.height || 286) - headerHeight;
+        let width = this.props.width || 500;
+
         return <div>
             {title && <div className="title">{ title }</div>}
             <div style={ {height: '36px'} }>
@@ -254,8 +258,8 @@ class FeatureCharts extends React.Component {
 
             {data &&
                 <AreaChart
-                        width={500}
-                        height={250}
+                        height={ height }
+                        width={ width }
                         data={ data }
                         onMouseDown = { this._onMouseDown.bind(this) }
                         onMouseMove = { this._onMouseMove.bind(this) }

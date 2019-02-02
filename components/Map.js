@@ -274,6 +274,14 @@ class Map extends React.Component {
     }
 
     render() {
+        let windowHeight = 286;
+        let windowWidth = 500;
+
+        if (typeof window !== 'undefined') {
+            windowHeight = window.innerHeight;
+            windowWidth = window.innerWidth;
+        }
+
         return (
             <div className="map-wrap">
                 <Dimmer active={ this.state.dimmerIsActive } page onClickOutside={ this._closeOverlay.bind(this) }>
@@ -281,6 +289,8 @@ class Map extends React.Component {
                         <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
 
                         <FeatureCharts
+                            height={ windowHeight - 50 }
+                            width={ windowWidth }
                             feature={ this.state.selectedFeature }
                             property={ this.props.primaryProperty }
                             timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
@@ -365,6 +375,7 @@ class Map extends React.Component {
                         left: 48px;
                         margin-left: -11px;
                     }
+
                     .popup-closer {
                         text-decoration: none;
                         position: absolute;
@@ -373,6 +384,11 @@ class Map extends React.Component {
                     }
                     .popup-closer:after {
                         content: "✖";
+                    }
+
+                    .popup.fullscreen .popup-closer {
+                        top: 8px;
+                        right: 8px;
                     }
 
                     .warning-wrap {
