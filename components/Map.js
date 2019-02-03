@@ -1,6 +1,7 @@
 import React from 'react';
 import generalize from 'gis4dis-generalizer'
 import FeatureCharts from "./FeatureCharts";
+import FullscreenFeatureCharts from "./FullscreenFeatureCharts";
 import { Dimmer, Loader } from 'semantic-ui-react';
 
 let ol_Map;
@@ -64,7 +65,7 @@ class Map extends React.Component {
 
         this.state = {
             map: null,
-            dimmerIsActive: false
+            fullscreenFeatureCharts: false
         };
     }
 
@@ -220,7 +221,7 @@ class Map extends React.Component {
         popup.style.display = visible && !this.props.isSmall ? 'block' : 'none';
 
         this.setState({
-            dimmerIsActive: visible && this.props.isSmall
+            fullscreenFeatureCharts: visible && this.props.isSmall
         });
     }
     /************************* overlay ***********************************************************/
@@ -284,18 +285,12 @@ class Map extends React.Component {
 
         return (
             <div className="map-wrap">
-                <Dimmer active={ this.state.dimmerIsActive } page onClickOutside={ this._closeOverlay.bind(this) }>
-                    <div className="popup fullscreen">
-                        <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
-
-                        <FeatureCharts
-                            height={ windowHeight - 50 }
-                            width={ windowWidth }
-                            feature={ this.state.selectedFeature }
-                            property={ this.props.primaryProperty }
-                            timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
-                    </div>
-                </Dimmer>
+                <FullscreenFeatureCharts
+                    active={ this.state.fullscreenFeatureCharts }
+                    feature={ this.state.selectedFeature }
+                    property={ this.props.primaryProperty }
+                    timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }
+                    onClose={ this._closeOverlay.bind(this) }></FullscreenFeatureCharts>
 
                 <div id="popup" className="popup ol-popup" style={{display: 'none'}}>
                     <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
@@ -335,13 +330,6 @@ class Map extends React.Component {
                         background-color: white;
                         color: #000;
                         padding: 15px;
-                    }
-
-                    .popup.fullscreen {
-                        overflow: hidden;
-                        padding: 25px 0;
-                        position: relative;
-                        width: 100%;
                     }
 
                     .ol-popup {
@@ -384,11 +372,6 @@ class Map extends React.Component {
                     }
                     .popup-closer:after {
                         content: "✖";
-                    }
-
-                    .popup.fullscreen .popup-closer {
-                        top: 8px;
-                        right: 8px;
                     }
 
                     .warning-wrap {
