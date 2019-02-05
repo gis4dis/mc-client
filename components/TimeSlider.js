@@ -6,6 +6,7 @@ class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
+        console.log('TimeSlider constructor - props.from: ', props.from);
         this.state = {
             value: props.from || 0,
             isPlaying: false
@@ -25,6 +26,7 @@ class TimeSlider extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
+            console.log('TimeSlider componentWillReceiveProps - from: ', nextProps.from);
             this.setState({
                 value: nextProps.from || 0
             });
@@ -167,6 +169,8 @@ class TimeSlider extends React.Component {
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
         const { from, to, interval } = this.props;
+        console.log('TimeSlider render - from: ', from);
+
         let thumbWidth = interval && from && to ?
             (interval / (to - from) * 100) :
             null;
@@ -181,8 +185,13 @@ class TimeSlider extends React.Component {
 
         return <div className="timeSlider">
             {this.props.from && this.props.to &&
-                <div className="currentValue">
-                    {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
+                <div>
+                    <div className="currentValue">
+                        {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
+                    </div>
+                    <div className="currentValue">
+                        {'from: ' + this.props.from}
+                    </div>
                 </div>
             }
 

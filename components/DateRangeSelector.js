@@ -33,6 +33,7 @@ class DateRangeSelector extends React.Component {
     handleFromChange(date) {
         date.utcOffset(this.props.timeZone);
 
+        console.log('DateRangeSelector handleFromChange - fromDate): ', date.clone().unix());
         this.setState({
             fromDate: date
         });
