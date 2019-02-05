@@ -11,6 +11,10 @@ class TimeControl extends React.Component {
     constructor(props) {
         super(props);
 
+        if (props.dateRange.from) {
+            console.log('TimeControl constructor - dateRange.from: ', props.dateRange.from.unix());
+        }
+
         this.state = {
             from: props.dateRange ? props.dateRange.from : null,
             to: props.dateRange ? props.dateRange.to : null
@@ -20,6 +24,7 @@ class TimeControl extends React.Component {
     }
 
     handleDateRangeChange(from, to) {
+        console.log('TimeControl handleDateRangeChange - from: ', from.clone().unix());
         if (this.props.handleDateRangeChange) {
             this.props.handleDateRangeChange(from, to);
         }
@@ -34,6 +39,10 @@ class TimeControl extends React.Component {
         let currentTo = this.props.currentValues.to ?
             this.props.currentValues.to.clone().subtract(this.props.currentValues.frequency, 'seconds').unix() :
             null;
+
+        if (this.props.currentValues.from) {
+            console.log('TimeControl render - currentValues.from: ', this.props.currentValues.from.unix());
+        }
 
         return <div>
             <div style={ controlPartStyle }>
