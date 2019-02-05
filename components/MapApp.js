@@ -294,6 +294,7 @@ class MapApp extends React.Component {
     };
 
     handleDateRangeChange(from, to) {
+        console.log('MapApp handleDateRangeChange - from: ', from.clone().unix());
         this.setState((prevState, props) => {
             let isPropertyChosen = prevState.selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
