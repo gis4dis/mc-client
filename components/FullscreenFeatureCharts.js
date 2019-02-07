@@ -34,6 +34,7 @@ class FullscreenFeatureCharts extends Component {
                 <a href="#" className="popup-closer" onClick={ this.props.onClose }></a>
 
                 <FeatureCharts
+                    chartId={ this.props.chartId }
                     height={ this.state.height - 50 }
                     width={ this.state.width }
                     feature={ this.props.feature }

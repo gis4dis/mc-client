@@ -286,6 +286,7 @@ class Map extends React.Component {
         return (
             <div className="map-wrap">
                 <FullscreenFeatureCharts
+                    chartId='1'
                     active={ this.state.fullscreenFeatureCharts }
                     feature={ this.state.selectedFeature }
                     property={ this.props.primaryProperty }
@@ -296,6 +297,7 @@ class Map extends React.Component {
                     <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
 
                     <FeatureCharts
+                        chartId='2'
                         feature={ this.state.selectedFeature }
                         property={ this.props.primaryProperty }
                         timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>

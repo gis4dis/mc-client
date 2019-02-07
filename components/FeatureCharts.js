@@ -240,6 +240,8 @@ class FeatureCharts extends React.Component {
         let height = (this.props.height || 286) - headerHeight;
         let width = this.props.width || 500;
 
+        let id = this.props.chartId;
+
         return <div>
             {title && <div className="title">{ title }</div>}
             <div style={ {height: '36px'} }>
@@ -266,11 +268,11 @@ class FeatureCharts extends React.Component {
                         onMouseUp = { this.zoomIn.bind(this) }
                         margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                     <defs>
-                        <linearGradient id="colorValues" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id={ 'colorValues' + id } x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#0000ff" stopOpacity={0.8}/>
                             <stop offset="95%" stopColor="#0000ff" stopOpacity={0}/>
                         </linearGradient>
-                        <linearGradient id="colorAnomalies" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id={ 'colorAnomalies' + id } x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#ff0000" stopOpacity={0.8}/>
                             <stop offset="95%" stopColor="#ff0000" stopOpacity={0}/>
                         </linearGradient>
@@ -293,13 +295,13 @@ class FeatureCharts extends React.Component {
                             dataKey="value"
                             stroke="#0000ff"
                             fillOpacity={1}
-                            fill="url(#colorValues)" />
+                            fill={ 'url(#colorValues' + id + ')' } />
                     <Area yAxisId="anomalies"
                             type="monotone"
                             dataKey="anomaly_rate"
                             stroke="#ff0000"
                             fillOpacity={1}
-                            fill="url(#colorAnomalies)" />
+                            fill={ 'url(#colorAnomalies' + id + ')' } />
 
                     {(refAreaLeft && refAreaRight) &&
                         <ReferenceArea

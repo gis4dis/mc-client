@@ -5,3 +5,4 @@ build
 static/symbolization
 out
 *.zip
+server-export-dev.js
