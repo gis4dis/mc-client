@@ -7,6 +7,10 @@ import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
 
 /************************ styles ***************************************/
+const INITIAL_RANGE_LENGTH = {
+    weeks: 1
+};
+
 const narrowWidth = 700;
 
 const sidebarContentStyle = {
@@ -68,7 +72,7 @@ class MapApp extends React.Component {
 
         let now = moment().utcOffset(timeZone);
 
-        let from = now.clone().startOf('day').subtract(1, 'months');
+        let from = now.clone().startOf('day').subtract(INITIAL_RANGE_LENGTH);
         let to = now.clone().startOf('day').subtract(1, 'days');
 
         this.state = {
