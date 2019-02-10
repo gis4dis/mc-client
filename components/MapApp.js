@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import HeaderMenu from './HeaderMenu';
 import Map from './Map';
 import MapControls from './MapControls';
@@ -169,7 +170,13 @@ class MapApp extends React.Component {
             sidebarVisible: !this.state.sidebarVisible
         });
 
-        setTimeout(() => { this.mapRef.current.updateMapSize(); }, 100);
+        setTimeout(() => { 
+            this.mapRef.current.updateMapSize();
+
+            this.setState({
+                mapSize: this._getMapSize()
+            });
+        }, 100);
     }
 
     getSidebarClass() {
@@ -191,8 +198,22 @@ class MapApp extends React.Component {
         this.updateSidebarDirection();
 
         this.setState({
-           isSmall: window.innerWidth <= narrowWidth ? true : false
+           isSmall: window.innerWidth <= narrowWidth ? true : false,
+           mapSize: this._getMapSize()
         });
+    }
+
+    _getMapSize() {
+        if (this.mapRef && this.mapRef.current) {
+            let mapElement = this.mapRef.current.mapElement; 
+            let height = mapElement.clientHeight;
+            let width = mapElement.clientWidth;
+    
+            return {
+                height: height,
+                width: width
+            };
+        }
     }
 
     /**
@@ -387,6 +408,7 @@ class MapApp extends React.Component {
                              timeZone={ timeZone }
                              data={ this.state.geojsonData }
                              isSmall={ this.state.isSmall }
+                             mapSize={ this.state.mapSize }
                              isDataValid={ this.state.isDataValid }
                              loading={ this.state.loading }
                              index={ this.state.selection.timeValueIndex }/>

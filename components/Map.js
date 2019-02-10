@@ -218,11 +218,20 @@ class Map extends React.Component {
 
     _setOverlayVisible(visible) {
         var popup = document.getElementById('popup');
-        popup.style.display = visible && !this.props.isSmall ? 'block' : 'none';
+        popup.style.display = visible && !this._isSmallMap() ? 'block' : 'none';
 
         this.setState({
-            fullscreenFeatureCharts: visible && this.props.isSmall
+            fullscreenFeatureCharts: visible && this._isSmallMap()
         });
+    }
+
+    _isSmallMap() {
+        let isSmall = this.props.isSmall;
+        if (!isSmall) {
+            let { height, width } = this.props.mapSize;
+            isSmall = height < 323 || width < 532;
+        }
+        return isSmall;
     }
     /************************* overlay ***********************************************************/
 
