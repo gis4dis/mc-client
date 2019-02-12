@@ -9,8 +9,6 @@ class TimeSlider extends React.Component {
         console.log('TimeSlider constructor - props.from: ', props.from);
         this.state = {
             value: props.from || 0,
-            from: props.from || 0,
-            to: props.to || 100,
             isPlaying: false
         };
 
@@ -30,9 +28,7 @@ class TimeSlider extends React.Component {
         if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
             console.log('TimeSlider componentWillReceiveProps - from: ', nextProps.from);
             this.setState({
-                value: nextProps.from || 0,
-                from: nextProps.from,
-                to: nextProps.to
+                value: nextProps.from || 0
             });
         }
     }
