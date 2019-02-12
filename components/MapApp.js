@@ -73,7 +73,7 @@ class MapApp extends React.Component {
 
         let now = moment().utcOffset(timeZone);
 
-        let from = now.clone().startOf('day').subtract(INITIAL_RANGE_LENGTH);
+        let from = now.clone().subtract(INITIAL_RANGE_LENGTH);
         let to = now.clone().startOf('day').subtract(1, 'days');
 
         this.state = {

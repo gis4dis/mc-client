@@ -9,8 +9,6 @@ class TimeSlider extends React.Component {
         console.log('TimeSlider constructor - props.from: ', props.from);
         this.state = {
             value: props.from || 0,
-            from: props.from || 0,
-            to: props.to || 100,
             isPlaying: false
         };
 
@@ -30,9 +28,7 @@ class TimeSlider extends React.Component {
         if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
             console.log('TimeSlider componentWillReceiveProps - from: ', nextProps.from);
             this.setState({
-                value: nextProps.from || 0,
-                from: nextProps.from,
-                to: nextProps.to
+                value: nextProps.from || 0
             });
         }
     }
@@ -174,6 +170,10 @@ class TimeSlider extends React.Component {
 
         const { from, to, interval } = this.props;
         console.log('TimeSlider render - from: ', from);
+        let min = from || 0;
+        let max = to || 100;
+        console.log('TimeSlider render - min: ', min);
+        console.log('TimeSlider render - max: ', max);
 
         let thumbWidth = interval && from && to ?
             (interval / (to - from) * 100) :
@@ -188,13 +188,13 @@ class TimeSlider extends React.Component {
         }
 
         return <div className="timeSlider">
-            {this.props.from && this.props.to &&
+            {from && to &&
                 <div>
                     <div className="currentValue">
                         {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
                     </div>
                     <div className="currentValue">
-                        {'from: ' + this.props.from}
+                        {'min: ' + min + ' max: ' + max}
                     </div>
                 </div>
             }
@@ -202,8 +202,8 @@ class TimeSlider extends React.Component {
             <div className="sliderContainer">
                 <input type="range"
                         className="slider"
-                        min={ this.state.from || 0 }
-                        max={ this.state.to || 100 }
+                        min={ min }
+                        max={ max }
                         step={ this.props.frequency }
                         value={ this.state.value }
                         disabled={ this.props.disabled }
