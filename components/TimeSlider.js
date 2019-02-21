@@ -9,6 +9,7 @@ class TimeSlider extends React.Component {
         console.log('TimeSlider constructor - props.from: ', props.from);
         this.state = {
             value: props.from || 0,
+            min: props.from || 0,
             isPlaying: false
         };
 
@@ -28,8 +29,14 @@ class TimeSlider extends React.Component {
         if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
             console.log('TimeSlider componentWillReceiveProps - from: ', nextProps.from);
             this.setState({
-                value: nextProps.from || 0
+                min: nextProps.from || 0
             });
+            
+            setTimeout(() => {
+                this.setState({
+                    value: nextProps.from || 0
+                });
+            }, 500);
         }
     }
 
@@ -170,7 +177,7 @@ class TimeSlider extends React.Component {
 
         const { from, to, interval } = this.props;
         console.log('TimeSlider render - from: ', from);
-        let min = from || 0;
+        let min = this.state.min;
         let max = to || 100;
         console.log('TimeSlider render - min: ', min);
         console.log('TimeSlider render - max: ', max);
