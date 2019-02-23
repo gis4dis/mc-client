@@ -3,6 +3,10 @@ import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 import { Area, AreaChart, LineChart, Line, ReferenceArea, Tooltip, XAxis, YAxis, linearGradient } from 'recharts';
 
+const DEFAULT_CHART_HEIGHT = 286;
+const DEFAULT_CHART_WIDTH = 500;
+const HEADER_HEIGHT = 54;
+
 const getTime = (timeSettings, i) => {
     let from = timeSettings.from;
     let frequency = timeSettings.frequency;
@@ -236,9 +240,8 @@ class FeatureCharts extends React.Component {
             };
         }
 
-        let headerHeight = 54;
-        let height = (this.props.height || 286) - headerHeight;
-        let width = this.props.width || 500;
+        let height = (this.props.height || DEFAULT_CHART_HEIGHT) - HEADER_HEIGHT;
+        let width = this.props.width || DEFAULT_CHART_WIDTH;
 
         let id = this.props.chartId;
 
