@@ -10,7 +10,8 @@
     "export-dev": "next export && mv out/_next out/static/mc/",
     "serve-export-dev": "node server-export-dev.js",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "postinstall": "rm -rf static/symbolization && cp -r node_modules/gis4dis-generalizer/static/symbolization static"
+    "postinstall": "rm -rf static/symbolization && cp -r node_modules/gis4dis-generalizer/static/symbolization static",
+    "lint": "eslint --fix components/** pages/**"
   },
   "keywords": [],
   "author": "",
@@ -21,15 +22,28 @@
     "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#fa63199fa580a6a57b5207fea0786b441ad81155",
     "http-proxy-middleware": "0.18.0",
     "lodash": "4.17.11",
+    "isomorphic-unfetch": "3.0.0",
     "moment": "2.22.2",
     "next": "5.1.0",
     "ol": "jirik/ol3#19c2797513b5b3983ff186d24a60aaf81ac97e3c",
+    "prop-types": "^15.7.2",
     "react": "16.7.0",
     "react-datepicker": "1.7.0",
     "react-dom": "16.7.0",
     "react-markdown": "3.3.0",
+    "react-moment-proptypes": "^1.6.0",
     "recharts": "1.4.2",
     "semantic-ui-react": "0.84.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.12.4",
+    "prettier": "^1.16.4"
+  }
 }

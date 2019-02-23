@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 
@@ -8,7 +9,7 @@ class TimeSlider extends React.Component {
 
         this.state = {
             value: props.from || 0,
-            isPlaying: false
+            isPlaying: false,
         };
 
         this.onChange = this.onChange.bind(this);
@@ -24,37 +25,60 @@ class TimeSlider extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
+        const { from, to } = this.props;
+        if (nextProps.from !== from || nextProps.to !== to) {
             this.setState({
-                value: nextProps.from || 0
+                value: nextProps.from || 0,
             });
         }
     }
 
     onChange(event) {
-        let time = parseInt(event.target.value);
+        const time = parseInt(event.target.value, 10);
         this.setState({
-            value: time
+            value: time,
         });
 
-        if (this.props.callback) {
-            let timeDate = moment.unix(time).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
+        const { callback, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(time).utcOffset(timeZone);
+            callback(timeDate);
         }
+    }
+
+    setValueToMin() {
+        const { callback, from, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(from).utcOffset(timeZone);
+            callback(timeDate);
+        }
+
+        this.setState({
+            value: from,
+        });
+    }
+
+    setValueToMax() {
+        const { callback, to, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(to).utcOffset(timeZone);
+            callback(timeDate);
+        }
+
+        this.setState({
+            value: to,
+        });
     }
 
     togglePlay() {
         if (this.timerId) {
             this._clearTimer();
         } else {
-            this.timerId = setInterval(
-                () => this.moveStepForward(),
-                1000
-            );
+            this.timerId = setInterval(() => this.moveStepForward(), 1000);
         }
 
-        this.setState((prevState, props) => ({
-            isPlaying: !prevState.isPlaying
+        this.setState(prevState => ({
+            isPlaying: !prevState.isPlaying,
         }));
     }
 
@@ -63,14 +87,15 @@ class TimeSlider extends React.Component {
             this._clearTimer();
         }
 
-        if (this.props.callback) {
-            let timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
+        const { callback, from, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(from).utcOffset(timeZone);
+            callback(timeDate);
         }
 
         this.setState({
             isPlaying: false,
-            value: this.props.from
+            value: from,
         });
     }
 
@@ -81,95 +106,77 @@ class TimeSlider extends React.Component {
 
     moveStepBack() {
         this.setState((prevState, props) => {
-            let time = parseInt(prevState.value);
-            let step = parseInt(props.frequency || 1);
+            const { callback, from, frequency, timeZone } = props;
+            const time = parseInt(prevState.value, 10);
+            const step = parseInt(frequency || 1, 10);
             let newValue = time - step;
 
-            if (newValue < props.from) {
-                newValue = props.from;
+            if (newValue < from) {
+                newValue = from;
             }
 
             if (time !== newValue) {
-                if (props.callback) {
-                    let timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
-                    props.callback(timeDate);
+                if (callback) {
+                    const timeDate = moment.unix(newValue).utcOffset(timeZone);
+                    callback(timeDate);
                 }
             }
 
             return {
-                value: newValue
+                value: newValue,
             };
         });
     }
 
     moveStepForward() {
         this.setState((prevState, props) => {
-            let time = parseInt(prevState.value);
-            let step = parseInt(props.frequency || 1);
+            const { frequency, callback, timeZone, to } = props;
+            const time = parseInt(prevState.value, 10);
+            const step = parseInt(frequency || 1, 10);
             let newValue = time + step;
 
-            if (newValue > props.to) {
-                newValue = props.to;
+            if (newValue > to) {
+                newValue = to;
             }
 
             let stopPlaying;
-            if (this.timerId && newValue === props.to) {
+            if (this.timerId && newValue === to) {
                 this._clearTimer();
                 stopPlaying = true;
             }
 
             if (time !== newValue) {
-                if (props.callback) {
-                    let timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
-                    props.callback(timeDate);
+                if (callback) {
+                    const timeDate = moment.unix(newValue).utcOffset(timeZone);
+                    callback(timeDate);
                 }
             }
 
             return {
                 isPlaying: stopPlaying ? false : prevState.isPlaying,
-                value: newValue
+                value: newValue,
             };
         });
     }
 
-    setValueToMin() {
-        if (this.props.callback) {
-            let timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
-        }
-
-        this.setState({
-            value: this.props.from
-        });
-    }
-
-    setValueToMax() {
-        if (this.props.callback) {
-            let timeDate = moment.unix(this.props.to).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
-        }
-
-        this.setState({
-            value: this.props.to
-        });
-    }
-
     _isMin() {
-        return this.state.value === this.props.from;
+        const { from } = this.props;
+        const { value } = this.state;
+        return value === from;
     }
 
     _isMax() {
-        return this.state.value === this.props.to;
+        const { to } = this.props;
+        const { value } = this.state;
+        return value === to;
     }
 
     render() {
-        const { isPlaying } = this.state;
+        const { isPlaying, value } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to, interval } = this.props;
-        let thumbWidth = interval && from && to ?
-            (interval / (to - from) * 100) :
-            null;
+        const { from, to, disabled, frequency, interval, timeZone } = this.props;
+        let thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
         if (!thumbWidth) {
             thumbWidth = '14px';
         } else {
@@ -179,113 +186,152 @@ class TimeSlider extends React.Component {
             thumbWidth += '%';
         }
 
-        return <div className="timeSlider">
-            {this.props.from && this.props.to &&
-                <div className="currentValue">
-                    {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
-                </div>
-            }
+        return (
+            <div className="timeSlider">
+                {from && to && (
+                    <div className="currentValue">
+                        {moment
+                            .unix(value)
+                            .utcOffset(timeZone)
+                            .format('L LT Z')}
+                    </div>
+                )}
 
-            <div className="sliderContainer">
-                <input type="range"
+                <div className="sliderContainer">
+                    <input
+                        type="range"
                         className="slider"
-                        min={ this.props.from || 0 }
-                        max={ this.props.to || 100 }
-                        step={ this.props.frequency }
-                        value={ this.state.value }
-                        disabled={ this.props.disabled }
-                        onChange={ this.onChange }
-                        style={ {'--slider-thumb-width': thumbWidth} }/>
+                        min={from || 0}
+                        max={to || 100}
+                        step={frequency}
+                        value={value}
+                        disabled={disabled}
+                        onChange={this.onChange}
+                        style={{ '--slider-thumb-width': thumbWidth }}
+                    />
+                </div>
+
+                <div className="controlButtons">
+                    <Button
+                        icon={playPauseIcon}
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.togglePlay}
+                        disabled={disabled || this._isMax()}
+                    />
+                    <Button
+                        icon="fast backward"
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.setValueToMin}
+                        disabled={disabled || this._isMin()}
+                    />
+                    <Button
+                        icon="step backward"
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.moveStepBack}
+                        disabled={disabled || this._isMin()}
+                    />
+                    <Button
+                        icon="step forward"
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.moveStepForward}
+                        disabled={disabled || this._isMax()}
+                    />
+                    <Button
+                        icon="fast forward"
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.setValueToMax}
+                        disabled={disabled || this._isMax()}
+                    />
+                    <Button
+                        icon="stop"
+                        color="teal"
+                        circular
+                        inverted
+                        onClick={this.stopButtonClick}
+                        disabled={disabled || !isPlaying}
+                    />
+                </div>
+
+                <style jsx>
+                    {`
+                        .timeSlider {
+                            padding: 8px 0;
+                        }
+
+                        .currentValue {
+                            color: #54ffff;
+                            text-align: right;
+                        }
+
+                        .sliderContainer {
+                            margin: 8px 0 8px;
+                        }
+
+                        .slider {
+                            -webkit-appearance: none;
+                            width: 100%;
+                            height: 8px;
+                            border-radius: 5px;
+                            background: #ddd;
+                            outline: none;
+                            -webkit-transition: 0.2s;
+                            transition: opacity 0.2s;
+                        }
+
+                        .slider::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            appearance: none;
+                            height: 14px;
+                            width: var(--slider-thumb-width, 14px);
+                            border-radius: 50%;
+                            background: #54ffff;
+                            cursor: pointer;
+                        }
+
+                        .slider::-moz-range-thumb {
+                            height: 14px;
+                            width: var(--slider-thumb-width, 14px);
+                            border-radius: 50%;
+                            background: #4caf50;
+                            cursor: pointer;
+                        }
+
+                        .controlButtons {
+                            text-align: center;
+                        }
+                    `}
+                </style>
             </div>
-
-            <div className="controlButtons">
-                <Button icon={ playPauseIcon }
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.togglePlay }
-                        disabled={ this.props.disabled || this._isMax() } />
-                <Button icon='fast backward'
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.setValueToMin }
-                        disabled={ this.props.disabled || this._isMin() } />
-                <Button icon='step backward'
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.moveStepBack }
-                        disabled={ this.props.disabled || this._isMin() } />
-                <Button icon='step forward'
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.moveStepForward }
-                        disabled={ this.props.disabled || this._isMax() } />
-                <Button icon='fast forward'
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.setValueToMax }
-                        disabled={ this.props.disabled || this._isMax() } />
-                <Button icon='stop'
-                        color="teal"
-                        circular
-                        inverted
-                        onClick={ this.stopButtonClick }
-                        disabled={ this.props.disabled || !this.state.isPlaying } />
-            </div>
-
-            <style jsx>{`
-                .timeSlider {
-                    padding: 8px 0;
-                }
-
-                .currentValue {
-                    color: #54ffff;
-                    text-align: right;
-                }
-
-                .sliderContainer {
-                    margin: 8px 0 8px;
-                }
-
-                .slider {
-                    -webkit-appearance: none;
-                    width: 100%;
-                    height: 8px;
-                    border-radius: 5px;
-                    background: #ddd;
-                    outline: none;
-                    -webkit-transition: .2s;
-                    transition: opacity .2s;
-                }
-
-                .slider::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    appearance: none;
-                    height: 14px;
-                    width: var(--slider-thumb-width, 14px);
-                    border-radius: 50%;
-                    background: #54ffff;
-                    cursor: pointer;
-                }
-
-                .slider::-moz-range-thumb {
-                    height: 14px;
-                    width: var(--slider-thumb-width, 14px);
-                    border-radius: 50%;
-                    background: #4CAF50;
-                    cursor: pointer;
-                }
-
-                .controlButtons {
-                    text-align: center;
-                }
-            `}</style>
-        </div>
+        );
     }
 }
+
+TimeSlider.defaultProps = {
+    from: 0,
+    to: 100,
+    callback: null,
+    frequency: null,
+    interval: null,
+};
+
+TimeSlider.propTypes = {
+    from: PropTypes.number,
+    to: PropTypes.number,
+    callback: PropTypes.func,
+    disabled: PropTypes.bool.isRequired,
+    frequency: PropTypes.number,
+    interval: PropTypes.number,
+    timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default TimeSlider;

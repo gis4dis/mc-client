@@ -1,50 +1,86 @@
 import React from 'react';
-import { Button, Container, Dropdown} from 'semantic-ui-react'
-import TimeControl from "./TimeControl";
+import PropTypes from 'prop-types';
+import momentPropTypes from 'react-moment-proptypes';
+import { Dropdown } from 'semantic-ui-react';
+import TimeControl from './TimeControl';
 
-/************************ styles ***************************************/
+/** ********************** styles ************************************** */
 const partStyle = {
-    margin: '8px 0'
+    margin: '8px 0',
 };
-/************************ styles ***************************************/
+/** ********************** styles ************************************** */
 
-const processProperty = (property) => {
+const processProperty = property => {
     return {
         value: property.name_id,
         text: property.name,
-        description: property.unit
+        description: property.unit,
     };
 };
 
-class MapControls extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+const MapControls = props => {
+    const {
+        currentValues,
+        notifyUser,
+        onDateRangeChange,
+        onPropertyChange,
+        onTimeValueChange,
+        properties,
+        selection,
+        timeZone,
+    } = props;
 
-    render() {
-        return <div>
+    return (
+        <div>
             <Dropdown
-                    placeholder='Property'
-                    fluid
-                    onChange={ this.props.onPropertyChange }
-                    search
-                    selection
-                    options={ this.props.properties.map(processProperty) }
-                    value={ this.props.selection.primaryPropertyId }
-                    style={ partStyle } />
+                placeholder="Property"
+                fluid
+                onChange={onPropertyChange}
+                search
+                selection
+                options={properties.map(processProperty)}
+                value={selection.primaryPropertyId}
+                style={partStyle}
+            />
 
             <TimeControl
-                    dateRange={ {from: this.props.selection.from, to: this.props.selection.to} }
-                    currentValues={ this.props.currentValues }
-                    timeZone={ this.props.timeZone }
-                    handleDateRangeChange={ this.props.onDateRangeChange }
-                    handleTimeValueChange={ this.props.onTimeValueChange }
-                    notifyUser={ this.props.notifyUser }
-                    style={ partStyle } />
+                dateRange={{ from: selection.from, to: selection.to }}
+                currentValues={currentValues}
+                timeZone={timeZone}
+                handleDateRangeChange={onDateRangeChange}
+                handleTimeValueChange={onTimeValueChange}
+                notifyUser={notifyUser}
+                style={partStyle}
+            />
         </div>
-    }
+    );
+};
 
+MapControls.propTypes = {
+    currentValues: PropTypes.shape({
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
+        frequency: PropTypes.number,
+    }).isRequired,
+    notifyUser: PropTypes.func.isRequired,
+    onDateRangeChange: PropTypes.func.isRequired,
+    onPropertyChange: PropTypes.func.isRequired,
+    onTimeValueChange: PropTypes.func.isRequired,
+    properties: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+            unit: PropTypes.string,
+        })
+    ).isRequired,
+    selection: PropTypes.shape({
+        primaryPropertyId: PropTypes.string,
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
+        timeValueIndex: PropTypes.number,
+        bbox: PropTypes.array,
+    }).isRequired,
+    timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
 export default MapControls;
-

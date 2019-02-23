@@ -1,35 +1,48 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import fetch from 'isomorphic-unfetch';
 import SimpleLayout from '../components/SimpleLayout';
 import HeaderMenu from '../components/HeaderMenu';
-import fetch from 'isomorphic-unfetch';
 
 class AboutPage extends React.PureComponent {
-    static async getInitialProps(ctx) {
-        let topics = ctx.query ? ctx.query.topics : null;
+    static async getInitialProps({ query, req }) {
+        let { topics } = query;
 
         if (!topics) {
-            const req = ctx.req;
-            const baseUrl = req && req.protocol && req.headers && req.headers.host ?
-                req.protocol + '://' + req.headers.host :
-                '';
+            let baseUrl = '';
+            if (req && req.protocol && req.headers && req.headers.host) {
+                baseUrl = `${req.protocol}://${req.headers.host}`;
+            }
 
-            const res = await fetch(baseUrl + '/api/v2/topics?format=json');
+            const res = await fetch(`${baseUrl}/api/v2/topics?format=json`);
             topics = await res.json();
         }
 
         return {
-            topics: topics
+            topics,
         };
     }
 
     render() {
-        return <div>
-            <HeaderMenu topics={ this.props.topics } activeItem='about'/>
-            <SimpleLayout>
-                <p>This is the about page</p>
-            </SimpleLayout>
-        </div>
+        const { topics } = this.props;
+        return (
+            <div>
+                <HeaderMenu topics={topics} activeItem="about" />
+                <SimpleLayout>
+                    <p>This is the about page</p>
+                </SimpleLayout>
+            </div>
+        );
     }
 }
+
+AboutPage.propTypes = {
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        }).isRequired
+    ).isRequired,
+};
 
 export default AboutPage;

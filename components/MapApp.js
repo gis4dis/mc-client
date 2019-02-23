@@ -1,51 +1,46 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import HeaderMenu from './HeaderMenu';
-import Map from './Map';
-import MapControls from './MapControls';
-import NotificationPopup from './NotificationPopup'
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
+import Map from './Map';
+import MapControls from './MapControls';
+import NotificationPopup from './NotificationPopup';
 
-/************************ styles ***************************************/
-const INITIAL_RANGE_LENGTH = {
-    weeks: 1
-};
-
-const narrowWidth = 700;
+/** ********************** styles ************************************** */
+const NARROW_WIDTH = 700;
 
 const sidebarContentStyle = {
     background: '#000',
     height: '100%',
     overflow: 'auto',
-    padding: '16px'
+    padding: '16px',
 };
 
 const pusherStyle = {
     height: '100%',
     position: 'relative',
-    width: '100%'
+    width: '100%',
 };
 
 const sidebarToggleStyle = {
     background: '#000',
     color: '#fff',
     position: 'absolute',
-    zIndex: 1
+    zIndex: 1,
 };
 
-const getSidebarToggleStyle = (direction, visible) => {
-    let style = Object.assign({}, sidebarToggleStyle);
+const getSidebarToggleStyle = direction => {
+    const style = Object.assign({}, sidebarToggleStyle);
 
     if (direction === 'right') {
         Object.assign(style, {
             right: 0,
-            top: '50%'
+            top: '50%',
         });
     } else if (direction === 'bottom') {
         Object.assign(style, {
             bottom: 0,
-            left: '50%'
+            left: '50%',
         });
     }
     return style;
@@ -54,50 +49,75 @@ const getSidebarToggleStyle = (direction, visible) => {
 const getSidebarToggleIcon = (direction, visible) => {
     if (direction === 'right') {
         return visible ? 'angle double right' : 'angle double left';
-    } else if (direction === 'bottom') {
+    }
+    if (direction === 'bottom') {
         return visible ? 'angle double down' : 'angle double up';
     }
+    return null;
 };
-/************************ styles ***************************************/
+/** ********************** styles ************************************** */
 
-const defaultTopic_ = 'drought';
+const INITIAL_RANGE_LENGTH = {
+    weeks: 1,
+};
+const DEFAULT_TOPIC = 'drought';
+const TIME_ZONE = '+01:00';
 
-const propertiesRequestPath = '/api/v2/properties/';
-const timeSeriesRequestPath = '/api/v2/timeseries/';
+const PROPERTIES_REQUEST_PATH = '/api/v2/properties/';
+const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
 
-const timeZone = '+01:00';
+/**
+ * @param params
+ */
+const sendTimeSeriesRequest = params => {
+    const paramParts = [];
+    Object.keys(params).forEach(key => {
+        if (params[key] != null) {
+            paramParts.push(`${key}=${params[key]}`);
+        }
+    });
+
+    const requestUrl = `${TIME_SERIES_REQUEST_PATH}?${paramParts.join('&')}`;
+    return fetch(requestUrl);
+};
 
 class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
-        let now = moment().utcOffset(timeZone);
+        const now = moment().utcOffset(TIME_ZONE);
 
-        let from = now.clone().startOf('day').subtract(INITIAL_RANGE_LENGTH);
-        let to = now.clone().startOf('day').subtract(1, 'days');
+        const from = now
+            .clone()
+            .startOf('day')
+            .subtract(INITIAL_RANGE_LENGTH);
+        const to = now
+            .clone()
+            .startOf('day')
+            .subtract(1, 'days');
 
         this.state = {
             isSmall: false,
-            topic: props.topic || defaultTopic_,
+            topic: props.topic || DEFAULT_TOPIC,
             properties: [],
             selection: {
                 primaryPropertyId: null,
-                from: from,
-                to: to,
+                from,
+                to,
                 timeValueIndex: 0,
-                bbox: null
+                bbox: null,
             },
             currentValues: {
-                from: from,
-                to: to,
-                frequency: 3600
+                from,
+                to,
+                frequency: 3600,
             },
             geojsonData: null,
             loading: false,
             sidebarVisible: props.sidebarVisible,
             sidebarDirection: 'right',
             popupOpen: false,
-            popupMessage: null
+            popupMessage: null,
         };
 
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
@@ -114,28 +134,30 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en-gb');
 
-        let propertiesRequestUrl = propertiesRequestPath +
-                '?topic=' + this.state.topic + '&format=json';
-        fetch(propertiesRequestUrl)
-            .then((results) => {
-                return results.json();
-            }).then((data) => {
-                let primaryPropertyId = data.length ? data[0].name_id : null;
+        const { topic } = this.state;
 
-                this.setState((prevState,props) => {
-                    let selection = prevState.selection;
+        const propertiesRequestUrl = `${PROPERTIES_REQUEST_PATH}?topic=${topic}&format=json`;
+        fetch(propertiesRequestUrl)
+            .then(results => {
+                return results.json();
+            })
+            .then(data => {
+                const primaryPropertyId = data.length ? data[0].name_id : null;
+
+                this.setState(prevState => {
+                    const { selection } = prevState;
                     selection.primaryPropertyId = primaryPropertyId;
 
                     this.handleAppStateChange({
                         from: selection.from,
                         to: selection.to,
-                        properties: data
+                        properties: data,
                     });
 
                     return {
                         loading: true,
                         properties: data,
-                        selection: selection
+                        selection,
                     };
                 });
             });
@@ -148,88 +170,84 @@ class MapApp extends React.Component {
         window.removeEventListener('resize', this.resizeApp.bind(this));
     }
 
-    /**************************** sidebar handlers *********************************/
+    getPropertyById(propertyId) {
+        const { properties } = this.state;
+        const property = properties.find(prop => prop.name_id === propertyId);
+
+        return property;
+    }
+
+    /** ************************** sidebar handlers ******************************** */
+    getSidebarClass() {
+        let classes = '';
+        const { sidebarDirection, sidebarVisible } = this.state;
+
+        if (sidebarVisible) {
+            classes += 'sidebar-visible';
+        } else {
+            classes += 'sidebar-hidden';
+        }
+
+        classes += ` ${sidebarDirection}`;
+        return classes;
+    }
+
     updateSidebarDirection() {
         let direction;
 
-        if (window.innerWidth <= narrowWidth) {
+        if (window.innerWidth <= NARROW_WIDTH) {
             direction = 'bottom';
         } else {
             direction = 'right';
         }
 
         this.setState({
-            sidebarDirection: direction
+            sidebarDirection: direction,
         });
 
-        setTimeout(() => { this.mapRef.current.updateMapSize(); }, 100);
-    }
-
-    handleSidebarToggleClick() {
-        this.setState({
-            sidebarVisible: !this.state.sidebarVisible
-        });
-
-        setTimeout(() => { 
+        setTimeout(() => {
             this.mapRef.current.updateMapSize();
-
-            this.setState({
-                mapSize: this._getMapSize()
-            });
         }, 100);
     }
 
-    getSidebarClass() {
-        let classes = '';
+    handleSidebarToggleClick() {
+        const { sidebarVisible } = this.state;
+        this.setState({
+            sidebarVisible: !sidebarVisible,
+        });
 
-        if (this.state.sidebarVisible) {
-            classes += 'sidebar-visible';
-        } else {
-            classes += 'sidebar-hidden';
-        }
+        setTimeout(() => {
+            this.mapRef.current.updateMapSize();
 
-        classes += ' ' + this.state.sidebarDirection;
-        return classes;
+            this.setState({
+                mapSize: this._getMapSize(),
+            });
+        }, 100);
     }
-    /**************************** sidebar handlers *********************************/
+    /** ************************** sidebar handlers ******************************** */
 
-    /******************************** app handlers *********************************/
+    /** ****************************** app handlers ******************************** */
     resizeApp() {
         this.updateSidebarDirection();
 
         this.setState({
-           isSmall: window.innerWidth <= narrowWidth ? true : false,
-           mapSize: this._getMapSize()
+            isSmall: window.innerWidth <= NARROW_WIDTH,
+            mapSize: this._getMapSize(),
         });
     }
 
     _getMapSize() {
         if (this.mapRef && this.mapRef.current) {
-            let mapElement = this.mapRef.current.mapElement; 
-            let height = mapElement.clientHeight;
-            let width = mapElement.clientWidth;
-    
+            const { mapElement } = this.mapRef.current;
+            const height = mapElement.clientHeight;
+            const width = mapElement.clientWidth;
+
             return {
-                height: height,
-                width: width
+                height,
+                width,
             };
         }
-    }
-
-    /**
-     * @param params
-     * @private
-     */
-    _sendTimeSeriesRequest(params) {
-        let paramParts = [];
-        for (let key in params) {
-            if (params[key] != null) {
-                paramParts.push(key + '=' + params[key]);
-            }
-        }
-
-        let requestUrl = timeSeriesRequestPath + '?' + paramParts.join('&');
-        return fetch(requestUrl);
+        return null;
     }
 
     /**
@@ -240,204 +258,226 @@ class MapApp extends React.Component {
      * bbox
      */
     handleAppStateChange(options) {
-        let requestParameters = {
-            topic: this.state.topic,
+        const { properties, topic } = this.state;
+        const requestParameters = {
+            topic,
             phenomenon_date_from: options.from.format('YYYY-MM-DD'),
             phenomenon_date_to: options.to.format('YYYY-MM-DD'),
-            bbox: options.bbox
+            bbox: options.bbox,
         };
 
-        let properties = options.properties || this.state.properties;
-        if (properties.length) {
-            let nameIds = properties.map((property) => property.name_id);
-            requestParameters.properties = nameIds.join(',');
+        const props = options.properties || properties;
+        if (props.length) {
+            const nameIds = props.map(property => property.name_id);
+            requestParameters.props = nameIds.join(',');
         }
 
-        this._sendTimeSeriesRequest(requestParameters)
-            .then((response) => {
+        sendTimeSeriesRequest(requestParameters)
+            .then(response => {
                 if (response.status !== 200) {
-                    let message = 'Looks like there was a problem. Status Code: ' +
-                        response.status;
+                    const message = `Looks like there was a problem. Status Code: ${
+                        response.status
+                    }`;
                     console.log(message);
                     this.notifyUser({
                         text: message,
-                        color: 'red'
+                        color: 'red',
                     });
 
                     this.setState({
                         currentValues: {
                             from: null,
                             to: null,
-                            frequency: null
+                            frequency: null,
                         },
                         geojsonData: null,
                         isDataValid: false,
-                        loading: false
+                        loading: false,
                     });
                     return;
                 }
 
-                response.json().then((data) => {
-                    let from = data.phenomenon_time_from ?
-                        moment(data.phenomenon_time_from).utcOffset(timeZone) :
-                        null;
-                    let to = data.phenomenon_time_to ?
-                        moment(data.phenomenon_time_to).utcOffset(timeZone) :
-                        null;
+                response.json().then(data => {
+                    const from = data.phenomenon_time_from
+                        ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
+                        : null;
+                    const to = data.phenomenon_time_to
+                        ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
+                        : null;
 
                     this.setState({
                         currentValues: {
-                            from: from,
-                            to: to,
+                            from,
+                            to,
                             frequency: data.value_frequency,
-                            valueDuration: data.value_duration
+                            valueDuration: data.value_duration,
                         },
                         geojsonData: data,
-                        isDataValid: from && to,
-                        loading: false
+                        isDataValid: Boolean(from && to),
+                        loading: false,
                     });
                 });
             })
-            .catch((error) => console.log(error));
+            .catch(error => console.log(error));
     }
 
     handlePropertyChange(event, data) {
-        let primaryPropertyId = data.value;
+        const primaryPropertyId = data.value;
 
-        this.setState((prevState, props) => {
-            let selection = prevState.selection;
+        this.setState(prevState => {
+            const { selection } = prevState;
             selection.primaryPropertyId = primaryPropertyId;
 
             return {
-                selection: selection
+                selection,
             };
         });
-    };
+    }
 
     handleDateRangeChange(from, to) {
-        this.setState((prevState, props) => {
-            let isPropertyChosen = prevState.selection.primaryPropertyId !== null;
+        this.setState(prevState => {
+            const isPropertyChosen = prevState.selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
-                    from: from,
-                    to: to
+                    from,
+                    to,
                 });
             }
 
-            let selection = prevState.selection;
+            const { selection } = prevState;
             selection.from = from;
             selection.to = to;
 
             return {
                 loading: isPropertyChosen,
-                selection: selection
+                selection,
             };
         });
-    };
+    }
 
     handleTimeValueChange(time) {
-        this.setState((prevState, props) => {
-            let from = prevState.currentValues.from.unix();
-            let index = (time.unix() - from) / prevState.currentValues.frequency;
+        this.setState(prevState => {
+            const from = prevState.currentValues.from.unix();
+            const index = (time.unix() - from) / prevState.currentValues.frequency;
 
-            let selection = prevState.selection;
+            const { selection } = prevState;
             selection.timeValueIndex = index;
 
             return {
-                selection: selection
+                selection,
             };
         });
-    };
+    }
 
     notifyUser(message) {
         this.setState({
             popupOpen: true,
             popupMessage: message.text,
-            popupColor: message.color
+            popupColor: message.color,
         });
 
-        setTimeout(function() {
+        setTimeout(() => {
             this.setState({
-                popupOpen: false
+                popupOpen: false,
             });
-        }.bind(this), 5000);
-
+        }, 5000);
     }
-    /******************************** app handlers *********************************/
-
-    getPropertyById(propertyId) {
-        let property = this.state.properties.find((property) => (property.name_id === propertyId));
-
-        return property;
-    }
+    /** ****************************** app handlers ******************************** */
 
     render() {
-        const { sidebarVisible, sidebarDirection } = this.state;
+        const {
+            currentValues,
+            geojsonData,
+            isDataValid,
+            isSmall,
+            loading,
+            mapSize,
+            popupColor,
+            popupMessage,
+            popupOpen,
+            properties,
+            selection,
+            sidebarVisible,
+            sidebarDirection,
+            topic,
+        } = this.state;
 
-        return <div className="content">
-            <Sidebar.Pushable className={ this.getSidebarClass() }>
-                <Sidebar
+        return (
+            <div className="content">
+                <Sidebar.Pushable className={this.getSidebarClass()}>
+                    <Sidebar
                         as="div"
                         className="control-panel"
                         animation="overlay"
-                        direction={ sidebarDirection }
-                        visible={ sidebarVisible }>
+                        direction={sidebarDirection}
+                        visible={sidebarVisible}
+                    >
+                        <div style={sidebarContentStyle}>
+                            <MapControls
+                                properties={properties}
+                                selection={selection}
+                                currentValues={currentValues}
+                                timeZone={TIME_ZONE}
+                                onPropertyChange={this.handlePropertyChange}
+                                onDateRangeChange={this.handleDateRangeChange}
+                                onTimeValueChange={this.handleTimeValueChange}
+                                notifyUser={this.notifyUser}
+                            />
+                        </div>
+                    </Sidebar>
 
-                    <div style={ sidebarContentStyle }>
-                        <MapControls
-                                properties={ this.state.properties }
-                                selection={ this.state.selection }
-                                currentValues={ this.state.currentValues }
-                                timeZone={ timeZone }
-                                onPropertyChange={ this.handlePropertyChange }
-                                onDateRangeChange={ this.handleDateRangeChange }
-                                onTimeValueChange={ this.handleTimeValueChange }
-                                notifyUser={ this.notifyUser }
-                        />
-                    </div>
-                </Sidebar>
+                    <Sidebar.Pusher style={pusherStyle}>
+                        <div className={`${this.getSidebarClass()} main-wrapper`}>
+                            <Map
+                                className="map"
+                                ref={this.mapRef}
+                                topic={topic}
+                                properties={properties}
+                                primaryProperty={this.getPropertyById(selection.primaryPropertyId)}
+                                currentValues={currentValues}
+                                timeZone={TIME_ZONE}
+                                data={geojsonData}
+                                isSmall={isSmall}
+                                mapSize={mapSize}
+                                isDataValid={isDataValid}
+                                loading={loading}
+                                index={selection.timeValueIndex}
+                            />
 
-                <Sidebar.Pusher style={ pusherStyle }>
-                    <div className={ this.getSidebarClass() + ' main-wrapper'}>
-                        <Map className="map"
-                             ref={ this.mapRef }
-                             topic={ this.state.topic }
-                             properties={ this.state.properties }
-                             primaryProperty={ this.getPropertyById(this.state.selection.primaryPropertyId) }
-                             currentValues={ this.state.currentValues }
-                             timeZone={ timeZone }
-                             data={ this.state.geojsonData }
-                             isSmall={ this.state.isSmall }
-                             mapSize={ this.state.mapSize }
-                             isDataValid={ this.state.isDataValid }
-                             loading={ this.state.loading }
-                             index={ this.state.selection.timeValueIndex }/>
+                            <Button
+                                className="sidebar-toggle"
+                                icon={getSidebarToggleIcon(sidebarDirection, sidebarVisible)}
+                                onClick={this.handleSidebarToggleClick}
+                                style={getSidebarToggleStyle(sidebarDirection, sidebarVisible)}
+                            />
+                        </div>
+                    </Sidebar.Pusher>
+                </Sidebar.Pushable>
 
-                        <Button
-                            className='sidebar-toggle'
-                            icon={ getSidebarToggleIcon(sidebarDirection, sidebarVisible) }
-                            onClick={ this.handleSidebarToggleClick }
-                            style={ getSidebarToggleStyle(sidebarDirection, sidebarVisible) }/>
-                    </div>
+                <NotificationPopup open={popupOpen} message={popupMessage} color={popupColor} />
 
-                </Sidebar.Pusher>
-            </Sidebar.Pushable>
-
-            <NotificationPopup
-                    open={ this.state.popupOpen }
-                    message={ this.state.popupMessage }
-                    color={ this.state.popupColor } />
-
-            <style jsx>{`
-                .content {
-                    height: calc(100vh - 40px);
-                    position: absolute;
-                    top: 40px;
-                    width: 100%;
-                }
-            `}</style>
-        </div>
+                <style jsx>
+                    {`
+                        .content {
+                            height: calc(100vh - 40px);
+                            position: absolute;
+                            top: 40px;
+                            width: 100%;
+                        }
+                    `}
+                </style>
+            </div>
+        );
     }
 }
+
+MapApp.defaultProps = {
+    topic: DEFAULT_TOPIC,
+};
+
+MapApp.propTypes = {
+    sidebarVisible: PropTypes.bool.isRequired,
+    topic: PropTypes.string,
+};
 
 export default MapApp;
