@@ -13,12 +13,12 @@ class NotificationPopup extends React.Component {
             padding: '8px',
             left: '10px',
             transition: 'bottom 10s ease 0s, height 10s ease-out 0s',
-            zIndex: 1
+            zIndex: 1,
         };
     }
 
     _getStyle(open, color) {
-        let style = this._getBaseStyle(color);
+        const style = this._getBaseStyle(color);
 
         if (open) {
             style.display = 'block';
@@ -33,10 +33,12 @@ class NotificationPopup extends React.Component {
     }
 
     render() {
-        return <div style={ this._getStyle(this.props.open, this.props.color) }>
-            <span>{ this.props.message }</span>
-        </div>
+        return (
+            <div style={this._getStyle(this.props.open, this.props.color)}>
+                <span>{this.props.message}</span>
+            </div>
+        );
     }
-};
+}
 
 export default NotificationPopup;

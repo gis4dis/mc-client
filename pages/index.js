@@ -1,7 +1,6 @@
-import HomepageLayout from '../components/HomepageLayout'
 import React from 'react';
 import fetch from 'isomorphic-unfetch';
-
+import HomepageLayout from '../components/HomepageLayout';
 
 class HomePage extends React.PureComponent {
     static async getInitialProps(ctx) {
@@ -9,17 +8,18 @@ class HomePage extends React.PureComponent {
 
         if (!topics) {
             const req = ctx.req;
-            const baseUrl = req && req.protocol && req.headers && req.headers.host ?
-                req.protocol + '://' + req.headers.host :
-                '';
+            const baseUrl =
+                req && req.protocol && req.headers && req.headers.host ?
+                    req.protocol + '://' + req.headers.host :
+                    '';
 
             console.log(baseUrl);
-            const res = await fetch(baseUrl + '/api/v2/topics?format=json');
+            const res = await fetch(`${baseUrl}/api/v2/topics?format=json`);
             topics = await res.json();
         }
 
         return {
-            topics: topics
+            topics,
         };
     }
 
@@ -27,12 +27,8 @@ class HomePage extends React.PureComponent {
         super(props);
     }
 
-
     render() {
-
-        return (
-            <HomepageLayout topics={ this.props.topics }/>
-        );
+        return <HomepageLayout topics={this.props.topics} />;
     }
 }
 

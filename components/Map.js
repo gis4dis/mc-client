@@ -1,8 +1,8 @@
 import React from 'react';
-import generalize from 'gis4dis-generalizer'
-import FeatureCharts from "./FeatureCharts";
-import FullscreenFeatureCharts from "./FullscreenFeatureCharts";
+import generalize from 'gis4dis-generalizer';
 import { Dimmer, Loader } from 'semantic-ui-react';
+import FeatureCharts from './FeatureCharts';
+import FullscreenFeatureCharts from './FullscreenFeatureCharts';
 
 let ol_Map;
 let ol_View;
@@ -22,12 +22,12 @@ let ol_Overlay;
 let projection;
 
 const configuration = {
-    projection: 'EPSG:3857'
+    projection: 'EPSG:3857',
 };
 
 const getBaseLayer = () => {
     const baseLayer = new ol_layer_Tile({
-        source: new ol_source_OSM()
+        source: new ol_source_OSM(),
     });
 
     baseLayer.on('precompose', function(evt) {
@@ -47,11 +47,11 @@ const getBaseLayer = () => {
     return baseLayer;
 };
 
-const getGeojsonLayer = (geojson) => {
+const getGeojsonLayer = geojson => {
     const geojsonLayer = new ol_layer_Vector({
         source: new ol_source_Vector({
-            projection : 'EPSG:4326'
-        })
+            projection: 'EPSG:4326',
+        }),
     });
 
     return geojsonLayer;
@@ -65,7 +65,7 @@ class Map extends React.Component {
 
         this.state = {
             map: null,
-            fullscreenFeatureCharts: false
+            fullscreenFeatureCharts: false,
         };
     }
 
@@ -88,9 +88,9 @@ class Map extends React.Component {
         projection = ol_proj.get(configuration.projection);
 
         const view = new ol_View({
-            projection: projection,
+            projection,
             center: ol_proj.transform([16.62, 49.2], 'EPSG:4326', projection),
-            zoom: 13
+            zoom: 13,
         });
 
         const baseLayer = getBaseLayer();
@@ -99,65 +99,65 @@ class Map extends React.Component {
 
         const map = new ol_Map({
             target: this.mapElement,
-            layers: [
-                baseLayer,
-                this.geojsonLayer
-            ],
-            view: view
+            layers: [baseLayer, this.geojsonLayer],
+            view,
         });
 
-        let overlay = this.createOverlay();
+        const overlay = this.createOverlay();
         map.addOverlay(overlay);
 
-        let selectInteraction = new ol_interaction_Select({
+        const selectInteraction = new ol_interaction_Select({
             style: function(feature, resolution) {
-                let style = this.geojsonLayer.getStyle();
+                const style = this.geojsonLayer.getStyle();
                 return style(feature, resolution);
-            }.bind(this)
+            }.bind(this),
         });
-        selectInteraction.on('select', function(evt) {
-            let coordinate = evt.mapBrowserEvent.coordinate;
+        selectInteraction.on(
+            'select',
+            function(evt) {
+                const coordinate = evt.mapBrowserEvent.coordinate;
 
-            let feature = evt.target.getFeatures().item(0);
-            this.setState({
-                selectedFeature: feature
-            });
+                const feature = evt.target.getFeatures().item(0);
+                this.setState({
+                    selectedFeature: feature,
+                });
 
-            overlay.setPosition(feature && !this.props.isSmall ? coordinate : undefined);
-            this._setOverlayVisible(!!feature);
-        }.bind(this));
+                overlay.setPosition(feature && !this.props.isSmall ? coordinate : undefined);
+                this._setOverlayVisible(!!feature);
+            }.bind(this)
+        );
         map.addInteraction(selectInteraction);
         this._selectInteraction = selectInteraction;
 
         this.setState({
-            map
+            map,
         });
     }
 
     componentWillUnmount() {
-        var popup = document.getElementById('popup');
+        const popup = document.getElementById('popup');
         popup.removeEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
         popup.removeEventListener('mouseout', this._onOverlayMouseLeave.bind(this));
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.isDataValid) {
-            let view = this.state.map.getView();
-            let resolution = view.getResolution();
-            let featureCollection = nextProps.data.feature_collection;
-            let options = {
+            const view = this.state.map.getView();
+            const resolution = view.getResolution();
+            const featureCollection = nextProps.data.feature_collection;
+            const options = {
                 topic: nextProps.topic,
                 properties: nextProps.properties,
                 primary_property: nextProps.primaryProperty.name_id,
                 features: featureCollection,
                 value_idx: nextProps.index,
-                resolution: resolution
+                resolution,
             };
-            let generalization = generalize(options);
+            const generalization = generalize(options);
 
             if (generalization && this.geojsonLayer) {
-                let isDataChange = this.props.data !== nextProps.data;
-                let isPropertyChange = this.props.primaryProperty !== nextProps.primaryProperty;
+                const isDataChange = this.props.data !== nextProps.data;
+                const isPropertyChange = this.props.primaryProperty !== nextProps.primaryProperty;
                 this._updateFeatures(generalization.features, isDataChange || isPropertyChange);
 
                 this.geojsonLayer.setStyle(generalization.style);
@@ -168,36 +168,36 @@ class Map extends React.Component {
     }
 
     updateMapSize() {
-        let map = this.state.map;
+        const map = this.state.map;
         if (map) {
             map.updateSize();
         }
     }
 
-    /************************* overlay ***********************************************************/
+    /** *********************** overlay ********************************************************** */
     createOverlay() {
-        var popup = document.getElementById('popup');
+        const popup = document.getElementById('popup');
         popup.style.display = 'none';
         popup.addEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
         popup.addEventListener('mouseleave', this._onOverlayMouseLeave.bind(this));
 
-        var overlay = new ol_Overlay({
+        const overlay = new ol_Overlay({
             id: 'featurePopup',
             element: popup,
             autoPan: true,
             autoPanAnimation: {
-                duration: 250
+                duration: 250,
             },
-            stopEvent: false
+            stopEvent: false,
         });
 
         return overlay;
     }
 
     _closeOverlay(event) {
-        var map = this.state.map;
+        const map = this.state.map;
         if (map) {
-            var overlay = map.getOverlayById('featurePopup');
+            const overlay = map.getOverlayById('featurePopup');
 
             overlay.setPosition(undefined);
 
@@ -217,51 +217,50 @@ class Map extends React.Component {
     }
 
     _setOverlayVisible(visible) {
-        var popup = document.getElementById('popup');
+        const popup = document.getElementById('popup');
         popup.style.display = visible && !this._isSmallMap() ? 'block' : 'none';
 
         this.setState({
-            fullscreenFeatureCharts: visible && this._isSmallMap()
+            fullscreenFeatureCharts: visible && this._isSmallMap(),
         });
     }
 
     _isSmallMap() {
         let isSmall = this.props.isSmall;
         if (!isSmall) {
-            let { height, width } = this.props.mapSize;
+            const { height, width } = this.props.mapSize;
             isSmall = height < 323 || width < 532;
         }
         return isSmall;
     }
-    /************************* overlay ***********************************************************/
+    /** *********************** overlay ********************************************************** */
 
     _setMapInteractionsActive(active) {
-        let map = this.state.map;
+        const map = this.state.map;
         if (map) {
             // deactivating all interactions may cause problems
-            map.getInteractions().forEach((interaction) => {
+            map.getInteractions().forEach(interaction => {
                 interaction.setActive(active);
             });
         }
     }
-
 
     _handleResolutionChange(event) {
         console.log(event);
     }
 
     _updateFeatures(newFeatures, isDataChange) {
-        let source = this.geojsonLayer.getSource();
+        const source = this.geojsonLayer.getSource();
 
         if (isDataChange) {
             source.clear();
             source.addFeatures(newFeatures);
         } else {
-            let currentFeatures = source.getFeatures();
-            let newIds = newFeatures.map((feature) => (feature.get('id')));
-            let matchingIds = [];
-            currentFeatures.forEach((feature) => {
-                let fid = feature.get('id');
+            const currentFeatures = source.getFeatures();
+            const newIds = newFeatures.map(feature => feature.get('id'));
+            const matchingIds = [];
+            currentFeatures.forEach(feature => {
+                const fid = feature.get('id');
                 if (!newIds.includes(fid)) {
                     source.removeFeature(feature);
                 } else {
@@ -269,7 +268,7 @@ class Map extends React.Component {
                 }
             });
 
-            let featuresToAdd = newFeatures.filter((feature) => {
+            const featuresToAdd = newFeatures.filter(feature => {
                 return !matchingIds.includes(feature.get('id'));
             });
             if (featuresToAdd.length) {
@@ -279,7 +278,7 @@ class Map extends React.Component {
     }
 
     _clearFeatures() {
-        let source = this.geojsonLayer.getSource();
+        const source = this.geojsonLayer.getSource();
         source.clear();
     }
 
@@ -295,128 +294,139 @@ class Map extends React.Component {
         return (
             <div className="map-wrap">
                 <FullscreenFeatureCharts
-                    chartId='1'
-                    active={ this.state.fullscreenFeatureCharts }
-                    feature={ this.state.selectedFeature }
-                    property={ this.props.primaryProperty }
-                    timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }
-                    onClose={ this._closeOverlay.bind(this) }></FullscreenFeatureCharts>
+                    chartId="1"
+                    active={this.state.fullscreenFeatureCharts}
+                    feature={this.state.selectedFeature}
+                    property={this.props.primaryProperty}
+                    timeSettings={Object.assign(this.props.currentValues, {
+                        timeZone: this.props.timeZone,
+                    })}
+                    onClose={this._closeOverlay.bind(this)}
+                />
 
-                <div id="popup" className="popup ol-popup" style={{display: 'none'}}>
-                    <a href="#" className="popup-closer" onClick={ this._closeOverlay.bind(this) }></a>
+                <div id="popup" className="popup ol-popup" style={{ display: 'none' }}>
+                    <a href="#" className="popup-closer" onClick={this._closeOverlay.bind(this)} />
 
                     <FeatureCharts
-                        chartId='2'
-                        feature={ this.state.selectedFeature }
-                        property={ this.props.primaryProperty }
-                        timeSettings={ Object.assign(this.props.currentValues, {timeZone: this.props.timeZone}) }/>
+                        chartId="2"
+                        feature={this.state.selectedFeature}
+                        property={this.props.primaryProperty}
+                        timeSettings={Object.assign(this.props.currentValues, {
+                            timeZone: this.props.timeZone,
+                        })}
+                    />
                 </div>
 
-                <Dimmer active={ this.props.loading } inverted>
-                    <Loader>
-                        Loading data...
-                    </Loader>
+                <Dimmer active={this.props.loading} inverted>
+                    <Loader>Loading data...</Loader>
                 </Dimmer>
 
-                <div className="map" ref={(d) => this.mapElement = d}> </div>
+                <div className="map" ref={d => (this.mapElement = d)}>
+                    {' '}
+                </div>
 
-                { !this.props.loading && !this.props.isDataValid &&
+                {!this.props.loading && !this.props.isDataValid && (
                     <div className="warning-wrap">
                         <div>No data to display</div>
                     </div>
-                }
+                )}
 
-                <style jsx>{`
-                    .map-wrap, .map {
-                        height: 100%;
-                        width: 100%;
-                    }
-                    @media (max-width:600px) {
-                        .map-wrap {
+                <style jsx>
+                    {`
+                        .map-wrap,
+                        .map {
                             height: 100%;
+                            width: 100%;
                         }
-                    }
+                        @media (max-width: 600px) {
+                            .map-wrap {
+                                height: 100%;
+                            }
+                        }
 
-                    .popup {
-                        background-color: white;
-                        color: #000;
-                        padding: 15px;
-                    }
+                        .popup {
+                            background-color: white;
+                            color: #000;
+                            padding: 15px;
+                        }
 
-                    .ol-popup {
-                        position: absolute;
-                        -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-                        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-                        border-radius: 10px;
-                        border: 1px solid #cccccc;
-                        bottom: 12px;
-                        left: -50px;
-                        min-width: 280px;
-                    }
-                    .ol-popup:after, .ol-popup:before {
-                        top: 100%;
-                        border: solid transparent;
-                        content: " ";
-                        height: 0;
-                        width: 0;
-                        position: absolute;
-                        pointer-events: none;
-                    }
-                    .ol-popup:after {
-                        border-top-color: white;
-                        border-width: 10px;
-                        left: 48px;
-                        margin-left: -10px;
-                    }
-                    .ol-popup:before {
-                        border-top-color: #cccccc;
-                        border-width: 11px;
-                        left: 48px;
-                        margin-left: -11px;
-                    }
+                        .ol-popup {
+                            position: absolute;
+                            -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+                            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+                            border-radius: 10px;
+                            border: 1px solid #cccccc;
+                            bottom: 12px;
+                            left: -50px;
+                            min-width: 280px;
+                        }
+                        .ol-popup:after,
+                        .ol-popup:before {
+                            top: 100%;
+                            border: solid transparent;
+                            content: ' ';
+                            height: 0;
+                            width: 0;
+                            position: absolute;
+                            pointer-events: none;
+                        }
+                        .ol-popup:after {
+                            border-top-color: white;
+                            border-width: 10px;
+                            left: 48px;
+                            margin-left: -10px;
+                        }
+                        .ol-popup:before {
+                            border-top-color: #cccccc;
+                            border-width: 11px;
+                            left: 48px;
+                            margin-left: -11px;
+                        }
 
-                    .popup-closer {
-                        text-decoration: none;
-                        position: absolute;
-                        top: 2px;
-                        right: 8px;
-                    }
-                    .popup-closer:after {
-                        content: "✖";
-                    }
+                        .popup-closer {
+                            text-decoration: none;
+                            position: absolute;
+                            top: 2px;
+                            right: 8px;
+                        }
+                        .popup-closer:after {
+                            content: '✖';
+                        }
 
-                    .warning-wrap {
-                        background-color: rgba(255, 255, 255, 0.8);
-                        border: solid 3px rgba(0, 0, 0, 0.2);
-                        border-radius: 10px;
-                        color: rgba(0, 0, 0, 0.6);
-                        font-weight: bolder;
-                        text-transform: uppercase;
-                        padding: 10px;
-                        text-align: center;
+                        .warning-wrap {
+                            background-color: rgba(255, 255, 255, 0.8);
+                            border: solid 3px rgba(0, 0, 0, 0.2);
+                            border-radius: 10px;
+                            color: rgba(0, 0, 0, 0.6);
+                            font-weight: bolder;
+                            text-transform: uppercase;
+                            padding: 10px;
+                            text-align: center;
 
-                        height: 46px;
-                        width: 30%;
+                            height: 46px;
+                            width: 30%;
 
-                        position: absolute;
-                        top:0;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
 
-                        margin: auto;
-                    }
-                    .warning-wrap > * {
-                        vertical-align: middle;
-                    }
-                    `}</style>
+                            margin: auto;
+                        }
+                        .warning-wrap > * {
+                            vertical-align: middle;
+                        }
+                    `}
+                </style>
 
-                <style jsx global>{`
-                    .map-wrap .ui.blue.buttons.zoom .button:focus {
-                        background-color: #2185d0;
-                    }
-                `}</style>
-
+                <style jsx global>
+                    {`
+                        .map-wrap .ui.blue.buttons.zoom .button:focus {
+                            background-color: #2185d0;
+                        }
+                    `}
+                </style>
             </div>
         );
     }

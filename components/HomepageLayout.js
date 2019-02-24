@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import {
     Button,
     Container,
@@ -13,14 +13,14 @@ import {
     Sidebar,
     Visibility,
 } from 'semantic-ui-react';
-import HeaderMenu from "./HeaderMenu";
-import TopicCards from "./TopicCards";
+import HeaderMenu from './HeaderMenu';
+import TopicCards from './TopicCards';
 
 const HomepageHeading = ({ mobile }) => (
     <Container text>
         <Header
-            as='h1'
-            content='GIS4DIS'
+            as="h1"
+            content="GIS4DIS"
             inverted
             style={{
                 fontSize: mobile ? '2em' : '4em',
@@ -30,8 +30,8 @@ const HomepageHeading = ({ mobile }) => (
             }}
         />
         <Header
-            as='h2'
-            content='Dynamic mapping methods oriented to risk and disaster management in the era of big data'
+            as="h2"
+            content="Dynamic mapping methods oriented to risk and disaster management in the era of big data"
             inverted
             style={{
                 fontSize: mobile ? '1.5em' : '1.7em',
@@ -43,7 +43,7 @@ const HomepageHeading = ({ mobile }) => (
     </Container>
 );
 
-class DesktopContainer extends Component {
+class DesktopContainer extends PureComponent {
     render() {
         const { children, topics } = this.props;
 
@@ -51,22 +51,22 @@ class DesktopContainer extends Component {
             <div className="desktop-homepage">
                 <Segment
                     inverted
-                    color='blue'
-                    textAlign='center'
+                    color="blue"
+                    textAlign="center"
                     style={{ padding: '1em 0em' }}
                     vertical
                 >
-                    <HeaderMenu topics={ topics }/>
+                    <HeaderMenu topics={topics} />
                     <HomepageHeading />
                 </Segment>
 
-            {children}
+                {children}
             </div>
         );
     }
 }
 
-class MobileContainer extends Component {
+class MobileContainer extends PureComponent {
     render() {
         const { children, topics } = this.props;
 
@@ -74,11 +74,12 @@ class MobileContainer extends Component {
             <div className="mobile-homepage">
                 <Segment
                     inverted
-                    color='blue'
-                    textAlign='center'
+                    color="blue"
+                    textAlign="center"
                     style={{ padding: '1em 0em' }}
-                    vertical>
-                    <HeaderMenu topics={ topics }/>
+                    vertical
+                >
+                    <HeaderMenu topics={topics} />
                     <HomepageHeading mobile />
                 </Segment>
 
@@ -88,30 +89,41 @@ class MobileContainer extends Component {
     }
 }
 
-const ResponsiveContainer = (props) => (
+const ResponsiveContainer = props => (
     <div>
-        <DesktopContainer topics={ props.topics }>{props.children}</DesktopContainer>
-        <MobileContainer topics={ props.topics }>{props.children}</MobileContainer>
+        <DesktopContainer topics={props.topics}>{props.children}</DesktopContainer>
+        <MobileContainer topics={props.topics}>{props.children}</MobileContainer>
     </div>
 );
 
-const HomepageLayout = (props) => (
-    <ResponsiveContainer topics={ props.topics }>
-        <Segment style={{ padding: 'var(--segment-top-bottom-padding, 4em) var(--segment-side-padding, 0em)' }} vertical>
-            <Grid container stackable verticalAlign='top' divided>
+const HomepageLayout = props => (
+    <ResponsiveContainer topics={props.topics}>
+        <Segment
+            style={{
+                padding: 'var(--segment-top-bottom-padding, 4em) var(--segment-side-padding, 0em)',
+            }}
+            vertical
+        >
+            <Grid container stackable verticalAlign="top" divided>
                 <Grid.Column width={8} style={{ padding: '1em' }}>
-                    <Header as='h3' style={{ fontSize: '2em' }}>
+                    <Header as="h3" style={{ fontSize: '2em' }}>
                         Project goals
                     </Header>
                     <List bulleted style={{ fontSize: '1.33em' }}>
-                        <List.Item>efficient methods for gathering, processing, integration and sharing of spatial data</List.Item>
+                        <List.Item>
+                            efficient methods for gathering, processing, integration and sharing of
+                            spatial data
+                        </List.Item>
                         <List.Item>collecting and processing data from different sources</List.Item>
-                        <List.Item>cartographic presentation in real time (ie. rapid mapping) for crisis management</List.Item>
+                        <List.Item>
+                            cartographic presentation in real time (ie. rapid mapping) for crisis
+                            management
+                        </List.Item>
                     </List>
-                    <Container textAlign='center'>
-                        <Button primary size='huge' href='http://geogr.muni.cz/gis4dis'>
+                    <Container textAlign="center">
+                        <Button primary size="huge" href="http://geogr.muni.cz/gis4dis">
                             Find out more
-                            <Icon name='right arrow' />
+                            <Icon name="right arrow" />
                         </Button>
                     </Container>
                 </Grid.Column>
@@ -133,10 +145,13 @@ const HomepageLayout = (props) => (
                             Code and investor of project:
                             <List.List style={{ fontSize: '1.33em', color: 'blue' }}>
                                 <List.Item>LTACH-17002</List.Item>
-                                <List.Item>Ministry of Education, Youth and Sports (Czech Republic)</List.Item>
+                                <List.Item>
+                                    Ministry of Education, Youth and Sports (Czech Republic)
+                                </List.Item>
                             </List.List>
                         </List.Item>
-                        <List.Item>Programme:
+                        <List.Item>
+                            Programme:
                             <List.List style={{ fontSize: '1.33em', color: 'blue' }}>
                                 <List.Item>INTER-EXCELLENCE, INTER-ACTION</List.Item>
                             </List.List>
@@ -148,37 +163,50 @@ const HomepageLayout = (props) => (
 
         <Segment style={{ padding: '2em var(--segment-side-padding, 0em)' }} vertical>
             <Container>
-                <Header as='h3' style={{ fontSize: '2em' }}>
+                <Header as="h3" style={{ fontSize: '2em' }}>
                     Topics
                 </Header>
-                <TopicCards topics={ props.topics }/>
+                <TopicCards topics={props.topics} />
             </Container>
         </Segment>
 
         <Segment style={{ padding: '2em var(--segment-side-padding, 0em)' }} vertical>
             <Container>
-                <Header as='h3' style={{ fontSize: '2em' }}>
+                <Header as="h3" style={{ fontSize: '2em' }}>
                     Partners
                 </Header>
 
-                <Grid container stackable verticalAlign='top'>
+                <Grid container stackable verticalAlign="top">
                     <Grid.Column width={8}>
-                        <Grid container verticalAlign='top'>
+                        <Grid container verticalAlign="top">
                             <Grid.Column mobile={16} tablet={6} computer={6}>
-                                <Image src='static/mc/logo/muni-lg-white.png' style={ {background: 'rgb(0, 0, 200)'} }/>
+                                <Image
+                                    src="static/mc/logo/muni-lg-white.png"
+                                    style={{ background: 'rgb(0, 0, 200)' }}
+                                />
                             </Grid.Column>
                             <Grid.Column mobile={16} tablet={10} computer={10}>
                                 <List style={{ fontSize: '1.33em', fontWeight: 'bold' }}>
                                     <List.Item>
-                                        <a href='https://www.muni.cz/en'>Masaryk university</a>
-                                        <List.List style={{ fontSize: '1em', fontWeight: 'normal' }}>
-                                            <List.Item >
-                                                <a href='http://geogr.muni.cz/lgc'>Laboratory on Geoinformatics and Cartography</a>
+                                        <a href="https://www.muni.cz/en">Masaryk university</a>
+                                        <List.List
+                                            style={{ fontSize: '1em', fontWeight: 'normal' }}
+                                        >
+                                            <List.Item>
+                                                <a href="http://geogr.muni.cz/lgc">
+                                                    Laboratory on Geoinformatics and Cartography
+                                                </a>
                                                 <List.List style={{ fontSize: '0.8em' }}>
-                                                    <List.Item as='a' href='http://geogr.muni.cz/about-institute'>
+                                                    <List.Item
+                                                        as="a"
+                                                        href="http://geogr.muni.cz/about-institute"
+                                                    >
                                                         Department of Geography
                                                     </List.Item>
-                                                    <List.Item as='a' href='http://www.sci.muni.cz/en/SCI/'>
+                                                    <List.Item
+                                                        as="a"
+                                                        href="http://www.sci.muni.cz/en/SCI/"
+                                                    >
                                                         Faculty of Science
                                                     </List.Item>
                                                 </List.List>
@@ -191,21 +219,28 @@ const HomepageLayout = (props) => (
                     </Grid.Column>
 
                     <Grid.Column width={8}>
-                        <Grid container verticalAlign='top'>
+                        <Grid container verticalAlign="top">
                             <Grid.Column mobile={16} tablet={6} computer={6}>
-                                <Image src='static/mc/logo/Nanjing_Normal_University_logo.png' />
+                                <Image src="static/mc/logo/Nanjing_Normal_University_logo.png" />
                             </Grid.Column>
                             <Grid.Column mobile={16} tablet={10} computer={10}>
                                 <List style={{ fontSize: '1.33em', fontWeight: 'bold' }}>
                                     <List.Item>
-                                        <a href='http://en.njnu.edu.cn/'>Nanjing Normal University</a>
-                                        <List.List style={{ fontSize: '1em', fontWeight: 'normal' }}>
+                                        <a href="http://en.njnu.edu.cn/">
+                                            Nanjing Normal University
+                                        </a>
+                                        <List.List
+                                            style={{ fontSize: '1em', fontWeight: 'normal' }}
+                                        >
                                             <List.Item>
-                                                <a href='http://schools.njnu.edu.cn/geog/research/key-laboratory-of-virtual-geographic-environment-nanjing-normal-university-ministry-of'>
+                                                <a href="http://schools.njnu.edu.cn/geog/research/key-laboratory-of-virtual-geographic-environment-nanjing-normal-university-ministry-of">
                                                     Key Laboratory of Virtual Geographic Environment
                                                 </a>
                                                 <List.List style={{ fontSize: '0.8em' }}>
-                                                    <List.Item as='a' href='http://schools.njnu.edu.cn/geog/'>
+                                                    <List.Item
+                                                        as="a"
+                                                        href="http://schools.njnu.edu.cn/geog/"
+                                                    >
                                                         School of Geography Science
                                                     </List.Item>
                                                 </List.List>
@@ -225,17 +260,20 @@ const HomepageLayout = (props) => (
                 <Grid divided inverted stackable>
                     <Grid.Row>
                         <Grid.Column width={4}>
-                            <Header inverted as='h4' content='About' />
+                            <Header inverted as="h4" content="About" />
                             <List link inverted>
-                                <List.Item as='a' href='http://geogr.muni.cz/gis4dis'>Project site on MUNI</List.Item>
+                                <List.Item as="a" href="http://geogr.muni.cz/gis4dis">
+                                    Project site on MUNI
+                                </List.Item>
                             </List>
                         </Grid.Column>
                         <Grid.Column width={12}>
-                            <Header as='h4' inverted>
+                            <Header as="h4" inverted>
                                 GIS4DIS
                             </Header>
                             <p>
-                                Dynamic mapping methods oriented to risk and disaster management in the era of big data
+                                Dynamic mapping methods oriented to risk and disaster management in
+                                the era of big data
                             </p>
                         </Grid.Column>
                     </Grid.Row>
