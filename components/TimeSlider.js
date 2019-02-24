@@ -7,9 +7,10 @@ class TimeSlider extends React.Component {
         super(props);
 
         console.log('TimeSlider constructor - props.from: ', props.from);
+        let min = props.from || 0;
+
         this.state = {
-            value: props.from || 0,
-            min: props.from || 0,
+            min: min,
             isPlaying: false
         };
 
@@ -26,17 +27,27 @@ class TimeSlider extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
-            console.log('TimeSlider componentWillReceiveProps - from: ', nextProps.from);
+        let min = nextProps.from || 0;
+        
+        if (nextProps.from !== this.props.from) {
+            console.log('TimeSlider componentWillReceiveProps from changed - from: ', nextProps.from);
+            console.log('TimeSlider componentWillReceiveProps from changed - min: ', min);
+            
             this.setState({
-                min: nextProps.from || 0
+                min: min
             });
             
             setTimeout(() => {
+                console.log('TimeSlider componentWillReceiveProps after timeout - value: ', min);
                 this.setState({
-                    value: nextProps.from || 0
+                    value: min
                 });
             }, 500);
+        } else if (nextProps.to !== this.props.to) {
+            console.log('TimeSlider componentWillReceiveProps from NOT changed - min: ', min);
+            this.setState({
+                value: min
+            });
         }
     }
 
