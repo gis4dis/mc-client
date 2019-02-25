@@ -208,9 +208,11 @@ class TimeSlider extends React.Component {
         return <div className="timeSlider">
             {from && to &&
                 <div>
-                    <div className="currentValue">
-                        {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
-                    </div>
+                    {this.state.value &&
+                        <div className="currentValue">
+                            {moment.unix(this.state.value).utcOffset(this.props.timeZone).format('L LT Z')}
+                        </div>
+                    }
                     <div className="currentValue">
                         {'min: ' + min + ' max: ' + max}
                     </div>
