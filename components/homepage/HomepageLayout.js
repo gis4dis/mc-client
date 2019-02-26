@@ -1,103 +1,27 @@
-import React, { Component, PureComponent } from 'react';
-import {
-    Button,
-    Container,
-    Divider,
-    Grid,
-    Header,
-    Icon,
-    Image,
-    List,
-    Responsive,
-    Segment,
-    Sidebar,
-    Visibility,
-} from 'semantic-ui-react';
-import HeaderMenu from './HeaderMenu';
-import TopicCards from './TopicCards';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Button, Container, Grid, Header, Icon, Image, List, Segment } from 'semantic-ui-react';
+import TopicCards from '../TopicCards';
+import DesktopContainer from './DesktopContainer';
+import MobileContainer from './MobileContainer';
 
-const HomepageHeading = ({ mobile }) => (
-    <Container text>
-        <Header
-            as="h1"
-            content="GIS4DIS"
-            inverted
-            style={{
-                fontSize: mobile ? '2em' : '4em',
-                fontWeight: 'bold',
-                marginBottom: 0,
-                marginTop: mobile ? '2em' : '3em',
-            }}
-        />
-        <Header
-            as="h2"
-            content="Dynamic mapping methods oriented to risk and disaster management in the era of big data"
-            inverted
-            style={{
-                fontSize: mobile ? '1.5em' : '1.7em',
-                fontWeight: 'normal',
-                marginTop: mobile ? '0.5em' : '1.5em',
-                marginBottom: mobile ? '0.5em' : '1.5em',
-            }}
-        />
-    </Container>
-);
-
-class DesktopContainer extends PureComponent {
-    render() {
-        const { children, topics } = this.props;
-
-        return (
-            <div className="desktop-homepage">
-                <Segment
-                    inverted
-                    color="blue"
-                    textAlign="center"
-                    style={{ padding: '1em 0em' }}
-                    vertical
-                >
-                    <HeaderMenu topics={topics} />
-                    <HomepageHeading />
-                </Segment>
-
-                {children}
-            </div>
-        );
-    }
-}
-
-class MobileContainer extends PureComponent {
-    render() {
-        const { children, topics } = this.props;
-
-        return (
-            <div className="mobile-homepage">
-                <Segment
-                    inverted
-                    color="blue"
-                    textAlign="center"
-                    style={{ padding: '1em 0em' }}
-                    vertical
-                >
-                    <HeaderMenu topics={topics} />
-                    <HomepageHeading mobile />
-                </Segment>
-
-                {children}
-            </div>
-        );
-    }
-}
-
-const ResponsiveContainer = props => (
+const ResponsiveContainer = ({ topics, children }) => (
     <div>
-        <DesktopContainer topics={props.topics}>{props.children}</DesktopContainer>
-        <MobileContainer topics={props.topics}>{props.children}</MobileContainer>
+        <DesktopContainer topics={topics}>{children}</DesktopContainer>
+        <MobileContainer topics={topics}>{children}</MobileContainer>
     </div>
 );
 
-const HomepageLayout = props => (
-    <ResponsiveContainer topics={props.topics}>
+ResponsiveContainer.propTypes = {
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+    topics: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+    }).isRequired,
+};
+
+const HomepageLayout = ({ topics }) => (
+    <ResponsiveContainer topics={topics}>
         <Segment
             style={{
                 padding: 'var(--segment-top-bottom-padding, 4em) var(--segment-side-padding, 0em)',
@@ -166,7 +90,7 @@ const HomepageLayout = props => (
                 <Header as="h3" style={{ fontSize: '2em' }}>
                     Topics
                 </Header>
-                <TopicCards topics={props.topics} />
+                <TopicCards topics={topics} />
             </Container>
         </Segment>
 
@@ -282,5 +206,12 @@ const HomepageLayout = props => (
         </Segment>
     </ResponsiveContainer>
 );
+
+HomepageLayout.propTypes = {
+    topics: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+    }).isRequired,
+};
 
 export default HomepageLayout;

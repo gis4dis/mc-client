@@ -1,6 +1,6 @@
 import React from 'react';
 import fetch from 'isomorphic-unfetch';
-import HomepageLayout from '../components/HomepageLayout';
+import HomepageLayout from '../components/homepage/HomepageLayout';
 
 class HomePage extends React.PureComponent {
     static async getInitialProps(ctx) {
@@ -10,7 +10,7 @@ class HomePage extends React.PureComponent {
             const req = ctx.req;
             const baseUrl =
                 req && req.protocol && req.headers && req.headers.host ?
-                    req.protocol + '://' + req.headers.host :
+                    `${req.protocol  }://${  req.headers.host}` :
                     '';
 
             console.log(baseUrl);

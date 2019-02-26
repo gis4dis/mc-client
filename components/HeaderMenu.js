@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dropdown, Icon, Menu } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { Dropdown, Menu } from 'semantic-ui-react';
 
 const dropdownStyle = {
     background: 'black !important',
@@ -11,9 +12,11 @@ class HeaderMenu extends React.Component {
     constructor(props) {
         super(props);
 
-        let topics = [];
-        if (props.topics) {
-            topics = props.topics.map(topic => {
+        const { activeItem, addItems, topics } = props;
+
+        let topicItems = [];
+        if (topics) {
+            topicItems = topics.map(topic => {
                 return {
                     key: topic.name_id,
                     name: topic.name,
@@ -24,27 +27,27 @@ class HeaderMenu extends React.Component {
 
         const homeTab = { key: 'home', name: 'Home', as: 'a', href: '/' };
         // let aboutTab = {key: 'about', name: 'about', as: 'a', href: '/about'};
-        let items = [homeTab].concat(...topics);
+        let items = [homeTab].concat(...topicItems);
 
-        if (props.addItems) {
-            items = items.concat(props.addItems);
+        if (addItems) {
+            items = items.concat(addItems);
         }
 
         let activeIndex;
-        if (props.activeItem) {
+        if (activeItem) {
             const keys = items.map(item => item.key);
-            activeIndex = keys.indexOf(props.activeItem);
+            activeIndex = keys.indexOf(activeItem);
         }
 
         this.state = {
             activeIndex: activeIndex || 0,
             items,
-            topics,
         };
     }
 
     render() {
         const { children } = this.props;
+        const { items, activeIndex } = this.state;
 
         return (
             <div>
@@ -53,15 +56,15 @@ class HeaderMenu extends React.Component {
                     fixed="top"
                     inverted
                     pointing
-                    items={this.state.items}
-                    activeIndex={this.state.activeIndex}
+                    items={items}
+                    activeIndex={activeIndex}
                 />
 
                 <Menu className="mobile-menu" fixed="top" inverted icon>
                     <Dropdown item icon="bars" className="left" style={dropdownStyle}>
                         <Dropdown.Menu style={dropdownStyle}>
-                            {this.state.items.map((item, index) => {
-                                if (this.state.activeIndex !== index) {
+                            {items.map((item, index) => {
+                                if (activeIndex !== index) {
                                     return (
                                         <Dropdown.Item
                                             key={item.key}
@@ -72,6 +75,7 @@ class HeaderMenu extends React.Component {
                                         />
                                     );
                                 }
+                                return null;
                             })}
                         </Dropdown.Menu>
                     </Dropdown>
@@ -84,5 +88,31 @@ class HeaderMenu extends React.Component {
         );
     }
 }
+
+HeaderMenu.defaultProps = {
+    activeItem: null,
+    addItems: null,
+    topics: null,
+};
+
+HeaderMenu.propTypes = {
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+    activeItem: PropTypes.shape({
+        key: PropTypes.string,
+        name: PropTypes.string,
+        href: PropTypes.string,
+    }),
+    addItems: PropTypes.arrayOf(
+        PropTypes.shape({
+            key: PropTypes.string,
+            name: PropTypes.string,
+            href: PropTypes.string,
+        })
+    ),
+    topics: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+    }),
+};
 
 export default HeaderMenu;
