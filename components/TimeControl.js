@@ -36,6 +36,9 @@ class TimeControl extends React.Component {
     }
 
     render() {
+        let currentFrom = this.props.currentValues.from ?
+            this.props.currentValues.from.unix() :
+            null;
         let currentTo = this.props.currentValues.to ?
             this.props.currentValues.to.clone().subtract(this.props.currentValues.frequency, 'seconds').unix() :
             null;
@@ -45,16 +48,18 @@ class TimeControl extends React.Component {
         }
 
         return <div>
-            <div style={ controlPartStyle }>
-                <TimeSlider
-                    from={ this.props.currentValues.from ? this.props.currentValues.from.unix() : null }
-                    to={ currentTo }
-                    interval={ this.props.valueDuration }
-                    timeZone={ this.props.timeZone }
-                    frequency={ this.props.currentValues.frequency }
-                    disabled={ this.props.currentValues.from == null || this.props.currentValues.to == null}
-                    callback={ this.props.handleTimeValueChange } />
-            </div>
+            {currentFrom && currentTo && (
+                <div style={controlPartStyle}>
+                    <TimeSlider
+                        from={currentFrom}
+                        to={currentTo}
+                        interval={this.props.valueDuration}
+                        timeZone={this.props.timeZone}
+                        frequency={this.props.currentValues.frequency}
+                        disabled={this.props.currentValues.from == null || this.props.currentValues.to == null}
+                        callback={this.props.handleTimeValueChange} />
+                </div>
+            )}
             <div style={ controlPartStyle }>
                 <DateRangeSelector
                     from={ this.state.from }

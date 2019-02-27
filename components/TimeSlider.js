@@ -11,6 +11,7 @@ class TimeSlider extends React.Component {
 
         this.state = {
             min: min,
+            value: min,
             isPlaying: false
         };
 
@@ -54,14 +55,6 @@ class TimeSlider extends React.Component {
                 console.log('reset min after timeout anyway');
                 this.setState({
                     min: min
-                });
-            }, 500);
-        } else {
-            setTimeout(() => {
-                console.log('TimeSlider componentWillReceiveProps after timeout (from/to NOT changed) - min: ', min);
-                console.log('reset min after timeout anyway');
-                this.setState({
-                    value: min
                 });
             }, 500);
         }
