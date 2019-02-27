@@ -22,6 +22,7 @@
     "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#fa63199fa580a6a57b5207fea0786b441ad81155",
     "http-proxy-middleware": "0.18.0",
     "lodash": "4.17.11",
+    "isomorphic-unfetch": "3.0.0",
     "moment": "2.22.2",
     "next": "5.1.0",
     "ol": "jirik/ol3#19c2797513b5b3983ff186d24a60aaf81ac97e3c",

@@ -351,13 +351,17 @@ FeatureCharts.defaultProps = {
 };
 
 FeatureCharts.propTypes = {
-    chartId: PropTypes.number.isRequired,
+    chartId: PropTypes.string.isRequired,
     feature: PropTypes.instanceOf(),
     height: PropTypes.number,
-    property: PropTypes.string,
+    property: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+        unit: PropTypes.string,
+    }),
     timeSettings: PropTypes.shape({
-        from: PropTypes.instanceOf(Date),
-        to: PropTypes.instanceOf(Date),
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
         timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
     width: PropTypes.number,

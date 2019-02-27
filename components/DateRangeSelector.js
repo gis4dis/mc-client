@@ -513,12 +513,12 @@ DateRangeSelector.defaultProps = {
 };
 
 DateRangeSelector.propTypes = {
-    from: PropTypes.instanceOf(Date).isRequired,
-    to: PropTypes.instanceOf(Date).isRequired,
+    from: PropTypes.instanceOf(moment.Moment).isRequired,
+    to: PropTypes.instanceOf(moment.Moment).isRequired,
     timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     currentValues: PropTypes.shape({
-        from: PropTypes.instanceOf(Date),
-        to: PropTypes.instanceOf(Date),
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
         frequency: PropTypes.number,
     }).isRequired,
     callback: PropTypes.func,

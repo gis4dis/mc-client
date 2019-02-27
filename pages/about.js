@@ -37,7 +37,12 @@ class AboutPage extends React.PureComponent {
 }
 
 AboutPage.propTypes = {
-    topics: PropTypes.arrayOf(PropTypes.string).isRequired,
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        }).isRequired
+    ).isRequired,
 };
 
 export default AboutPage;

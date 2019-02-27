@@ -27,9 +27,10 @@ class MapPage extends React.Component {
         };
     }
 
-    constructor({ mode }) {
-        super({ mode });
+    constructor(props) {
+        super(props);
 
+        const { mode } = props;
         this.state = {
             mode,
         };
@@ -71,7 +72,12 @@ class MapPage extends React.Component {
 MapPage.propTypes = {
     mode: PropTypes.string.isRequired,
     topic: PropTypes.string.isRequired,
-    topics: PropTypes.arrayOf(PropTypes.string).isRequired,
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        }).isRequired
+    ).isRequired,
 };
 
 export default MapPage;

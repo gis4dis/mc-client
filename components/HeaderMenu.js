@@ -97,11 +97,7 @@ HeaderMenu.defaultProps = {
 
 HeaderMenu.propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    activeItem: PropTypes.shape({
-        key: PropTypes.string,
-        name: PropTypes.string,
-        href: PropTypes.string,
-    }),
+    activeItem: PropTypes.string,
     addItems: PropTypes.arrayOf(
         PropTypes.shape({
             key: PropTypes.string,
@@ -109,10 +105,12 @@ HeaderMenu.propTypes = {
             href: PropTypes.string,
         })
     ),
-    topics: PropTypes.shape({
-        name: PropTypes.string,
-        name_id: PropTypes.string,
-    }),
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ),
 };
 
 export default HeaderMenu;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Dimmer } from 'semantic-ui-react';
+import moment from 'moment';
+import { Dimmer, Button } from 'semantic-ui-react';
 import FeatureCharts from './FeatureCharts';
 
 const DEFAULT_CHART_HEIGHT = 286;
@@ -77,7 +78,7 @@ class FullscreenFeatureCharts extends Component {
         return (
             <Dimmer active={active} page onClickOutside={onClose}>
                 <div className="popup fullscreen">
-                    <a href="#" className="popup-closer" onClick={onClose} />
+                    <Button className="popup-closer" onClick={onClose} />
 
                     <FeatureCharts
                         chartId={chartId}
@@ -132,13 +133,17 @@ FullscreenFeatureCharts.defaultProps = {
 
 FullscreenFeatureCharts.propTypes = {
     active: PropTypes.bool,
-    chartId: PropTypes.number.isRequired,
+    chartId: PropTypes.string.isRequired,
     feature: PropTypes.instanceOf(),
     onClose: PropTypes.func.isRequired,
-    property: PropTypes.string,
+    property: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+        unit: PropTypes.string,
+    }),
     timeSettings: PropTypes.shape({
-        from: PropTypes.instanceOf(Date),
-        to: PropTypes.instanceOf(Date),
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
         timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
 };
