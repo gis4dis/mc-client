@@ -137,6 +137,10 @@ class FeatureCharts extends React.Component {
             subtitle,
             timeFormatter,
         });
+
+        this.zoomIn = this.zoomIn.bind(this);
+        this._onMouseDown = this._onMouseDown.bind(this);
+        this._onMouseMove = this._onMouseMove.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {

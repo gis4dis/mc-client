@@ -1,23 +1,20 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import moment from 'moment';
 import generalize from 'gis4dis-generalizer';
-import { Dimmer, Loader } from 'semantic-ui-react';
+import { Button, Dimmer, Loader } from 'semantic-ui-react';
 import FeatureCharts from './FeatureCharts';
 import FullscreenFeatureCharts from './FullscreenFeatureCharts';
 
-let ol_Map;
-let ol_View;
-let ol_layer_Tile;
-let ol_layer_Vector;
-let ol_source_Vector;
-let ol_format_GeoJSON;
-let ol_proj;
-let ol_source_OSM;
-let ol_style_Circle;
-let ol_style_Fill;
-let ol_style_Stroke;
-let ol_style_Style;
-let ol_interaction_Select;
-let ol_Overlay;
+let OLMap;
+let OLView;
+let OLLayerTile;
+let OLLayerVector;
+let OLSourceVector;
+let olProj;
+let OLSourceOSM;
+let OLInteractionSelect;
+let OLOverlay;
 
 let projection;
 
@@ -26,30 +23,30 @@ const configuration = {
 };
 
 const getBaseLayer = () => {
-    const baseLayer = new ol_layer_Tile({
-        source: new ol_source_OSM(),
+    const baseLayer = new OLLayerTile({
+        source: new OLSourceOSM(),
     });
 
-    baseLayer.on('precompose', function(evt) {
+    baseLayer.on('precompose', evt => {
         const ctx = evt.context;
         ctx.fillStyle = '#dddddd';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     });
 
-    baseLayer.on('postcompose', function(evt) {
+    baseLayer.on('postcompose', evt => {
         const ctx = evt.context;
-        evt.context.globalCompositeOperation = 'color';
+        ctx.globalCompositeOperation = 'color';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        evt.fillStyle = '#000000';
-        evt.context.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#000000';
+        ctx.globalCompositeOperation = 'source-over';
     });
 
     return baseLayer;
 };
 
-const getGeojsonLayer = geojson => {
-    const geojsonLayer = new ol_layer_Vector({
-        source: new ol_source_Vector({
+const getGeojsonLayer = () => {
+    const geojsonLayer = new OLLayerVector({
+        source: new OLSourceVector({
             projection: 'EPSG:4326',
         }),
     });
@@ -58,8 +55,6 @@ const getGeojsonLayer = geojson => {
 };
 
 class Map extends React.Component {
-    mapElement;
-
     constructor(props) {
         super(props);
 
@@ -70,26 +65,21 @@ class Map extends React.Component {
     }
 
     componentDidMount() {
-        ol_Map = require('ol/map').default;
-        ol_View = require('ol/view').default;
-        ol_layer_Tile = require('ol/layer/tile').default;
-        ol_layer_Vector = require('ol/layer/vector').default;
-        ol_source_Vector = require('ol/source/vector').default;
-        ol_format_GeoJSON = require('ol/format/geojson').default;
-        ol_proj = require('ol/proj').default;
-        ol_source_OSM = require('ol/source/osm').default;
-        ol_style_Circle = require('ol/style/circle').default;
-        ol_style_Fill = require('ol/style/fill').default;
-        ol_style_Stroke = require('ol/style/stroke').default;
-        ol_style_Style = require('ol/style/style').default;
-        ol_interaction_Select = require('ol/interaction/select').default;
-        ol_Overlay = require('ol/overlay').default;
+        OLMap = require('ol/map').default;
+        OLView = require('ol/view').default;
+        OLLayerTile = require('ol/layer/tile').default;
+        OLLayerVector = require('ol/layer/vector').default;
+        OLSourceVector = require('ol/source/vector').default;
+        olProj = require('ol/proj').default;
+        OLSourceOSM = require('ol/source/osm').default;
+        OLInteractionSelect = require('ol/interaction/select').default;
+        OLOverlay = require('ol/overlay').default;
 
-        projection = ol_proj.get(configuration.projection);
+        projection = olProj.get(configuration.projection);
 
-        const view = new ol_View({
+        const view = new OLView({
             projection,
-            center: ol_proj.transform([16.62, 49.2], 'EPSG:4326', projection),
+            center: olProj.transform([16.62, 49.2], 'EPSG:4326', projection),
             zoom: 13,
         });
 
@@ -97,7 +87,7 @@ class Map extends React.Component {
 
         this.geojsonLayer = getGeojsonLayer();
 
-        const map = new ol_Map({
+        const map = new OLMap({
             target: this.mapElement,
             layers: [baseLayer, this.geojsonLayer],
             view,
@@ -106,58 +96,55 @@ class Map extends React.Component {
         const overlay = this.createOverlay();
         map.addOverlay(overlay);
 
-        const selectInteraction = new ol_interaction_Select({
-            style: function(feature, resolution) {
+        const selectInteraction = new OLInteractionSelect({
+            style: (feature, resolution) => {
                 const style = this.geojsonLayer.getStyle();
                 return style(feature, resolution);
-            }.bind(this),
+            },
         });
-        selectInteraction.on(
-            'select',
-            function(evt) {
-                const coordinate = evt.mapBrowserEvent.coordinate;
+        selectInteraction.on('select', evt => {
+            const { coordinate } = evt.mapBrowserEvent;
 
-                const feature = evt.target.getFeatures().item(0);
-                this.setState({
-                    selectedFeature: feature,
-                });
+            const feature = evt.target.getFeatures().item(0);
+            this.setState({
+                selectedFeature: feature,
+            });
 
-                overlay.setPosition(feature && !this.props.isSmall ? coordinate : undefined);
-                this._setOverlayVisible(!!feature);
-            }.bind(this)
-        );
+            const { isSmall } = this.props;
+            overlay.setPosition(feature && !isSmall ? coordinate : undefined);
+            this._setOverlayVisible(!!feature);
+        });
         map.addInteraction(selectInteraction);
         this._selectInteraction = selectInteraction;
 
         this.setState({
             map,
         });
-    }
 
-    componentWillUnmount() {
-        const popup = document.getElementById('popup');
-        popup.removeEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
-        popup.removeEventListener('mouseout', this._onOverlayMouseLeave.bind(this));
+        this._closeOverlay = this._closeOverlay.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.isDataValid) {
-            const view = this.state.map.getView();
+        const { data, index, isDataValid, primaryProperty, properties, topic } = nextProps;
+        const { map } = this.state;
+        if (isDataValid) {
+            const view = map.getView();
             const resolution = view.getResolution();
-            const featureCollection = nextProps.data.feature_collection;
+            const featureCollection = data.feature_collection;
             const options = {
-                topic: nextProps.topic,
-                properties: nextProps.properties,
-                primary_property: nextProps.primaryProperty.name_id,
+                topic,
+                properties,
+                primary_property: primaryProperty.name_id,
                 features: featureCollection,
-                value_idx: nextProps.index,
+                value_idx: index,
                 resolution,
             };
             const generalization = generalize(options);
+            const { data: prevData, primaryProperty: prevPrimaryProperty } = this.props;
 
             if (generalization && this.geojsonLayer) {
-                const isDataChange = this.props.data !== nextProps.data;
-                const isPropertyChange = this.props.primaryProperty !== nextProps.primaryProperty;
+                const isDataChange = prevData !== data;
+                const isPropertyChange = prevPrimaryProperty !== primaryProperty;
                 this._updateFeatures(generalization.features, isDataChange || isPropertyChange);
 
                 this.geojsonLayer.setStyle(generalization.style);
@@ -167,8 +154,16 @@ class Map extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        const popup = document.getElementById('popup');
+        popup.removeEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
+        popup.removeEventListener('mouseout', this._onOverlayMouseLeave.bind(this));
+    }
+
+    mapElement;
+
     updateMapSize() {
-        const map = this.state.map;
+        const { map } = this.state;
         if (map) {
             map.updateSize();
         }
@@ -181,7 +176,7 @@ class Map extends React.Component {
         popup.addEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
         popup.addEventListener('mouseleave', this._onOverlayMouseLeave.bind(this));
 
-        const overlay = new ol_Overlay({
+        const overlay = new OLOverlay({
             id: 'featurePopup',
             element: popup,
             autoPan: true,
@@ -195,7 +190,7 @@ class Map extends React.Component {
     }
 
     _closeOverlay(event) {
-        const map = this.state.map;
+        const { map } = this.state;
         if (map) {
             const overlay = map.getOverlayById('featurePopup');
 
@@ -226,9 +221,10 @@ class Map extends React.Component {
     }
 
     _isSmallMap() {
-        let isSmall = this.props.isSmall;
+        const { mapSize } = this.props;
+        let { isSmall } = this.props;
         if (!isSmall) {
-            const { height, width } = this.props.mapSize;
+            const { height, width } = mapSize;
             isSmall = height < 323 || width < 532;
         }
         return isSmall;
@@ -236,7 +232,7 @@ class Map extends React.Component {
     /** *********************** overlay ********************************************************** */
 
     _setMapInteractionsActive(active) {
-        const map = this.state.map;
+        const { map } = this.state;
         if (map) {
             // deactivating all interactions may cause problems
             map.getInteractions().forEach(interaction => {
@@ -245,9 +241,11 @@ class Map extends React.Component {
         }
     }
 
+    /*
     _handleResolutionChange(event) {
         console.log(event);
     }
+    */
 
     _updateFeatures(newFeatures, isDataChange) {
         const source = this.geojsonLayer.getSource();
@@ -283,49 +281,47 @@ class Map extends React.Component {
     }
 
     render() {
-        let windowHeight = 286;
-        let windowWidth = 500;
-
-        if (typeof window !== 'undefined') {
-            windowHeight = window.innerHeight;
-            windowWidth = window.innerWidth;
-        }
+        const { fullscreenFeatureCharts, selectedFeature } = this.state;
+        const { currentValues, loading, isDataValid, primaryProperty, timeZone } = this.props;
 
         return (
             <div className="map-wrap">
                 <FullscreenFeatureCharts
                     chartId="1"
-                    active={this.state.fullscreenFeatureCharts}
-                    feature={this.state.selectedFeature}
-                    property={this.props.primaryProperty}
-                    timeSettings={Object.assign(this.props.currentValues, {
-                        timeZone: this.props.timeZone,
-                    })}
-                    onClose={this._closeOverlay.bind(this)}
+                    active={fullscreenFeatureCharts}
+                    feature={selectedFeature}
+                    property={primaryProperty}
+                    timeSettings={Object.assign(currentValues, { timeZone })}
+                    onClose={this._closeOverlay}
                 />
 
                 <div id="popup" className="popup ol-popup" style={{ display: 'none' }}>
-                    <a href="#" className="popup-closer" onClick={this._closeOverlay.bind(this)} />
+                    <Button className="popup-closer" onClick={this._closeOverlay} />
 
                     <FeatureCharts
                         chartId="2"
-                        feature={this.state.selectedFeature}
-                        property={this.props.primaryProperty}
-                        timeSettings={Object.assign(this.props.currentValues, {
-                            timeZone: this.props.timeZone,
+                        feature={selectedFeature}
+                        property={primaryProperty}
+                        timeSettings={Object.assign(currentValues, {
+                            timeZone,
                         })}
                     />
                 </div>
 
-                <Dimmer active={this.props.loading} inverted>
+                <Dimmer active={loading} inverted>
                     <Loader>Loading data...</Loader>
                 </Dimmer>
 
-                <div className="map" ref={d => (this.mapElement = d)}>
+                <div
+                    className="map"
+                    ref={d => {
+                        this.mapElement = d;
+                    }}
+                >
                     {' '}
                 </div>
 
-                {!this.props.loading && !this.props.isDataValid && (
+                {!loading && !isDataValid && (
                     <div className="warning-wrap">
                         <div>No data to display</div>
                     </div>
@@ -431,5 +427,50 @@ class Map extends React.Component {
         );
     }
 }
+
+Map.defaultProps = {
+    data: null,
+    index: 0,
+    isDataValid: false,
+    mapSize: null,
+    primaryProperty: null,
+};
+
+Map.propTypes = {
+    currentValues: PropTypes.shape({
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
+        frequency: PropTypes.number,
+    }).isRequired,
+    data: PropTypes.shape({
+        feature_collection: PropTypes.object,
+        phenomenon_time_from: PropTypes.string,
+        phenomenon_time_to: PropTypes.string,
+        properties: PropTypes.arrayOf(PropTypes.string),
+        value_frequency: PropTypes.number,
+    }),
+    index: PropTypes.number,
+    isDataValid: PropTypes.bool,
+    isSmall: PropTypes.bool.isRequired,
+    loading: PropTypes.bool.isRequired,
+    mapSize: PropTypes.shape({
+        height: PropTypes.number,
+        width: PropTypes.number,
+    }),
+    primaryProperty: PropTypes.shape({
+        name: PropTypes.string,
+        name_id: PropTypes.string,
+        unit: PropTypes.string,
+    }),
+    properties: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+            unit: PropTypes.string,
+        })
+    ).isRequired,
+    timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    topic: PropTypes.string.isRequired,
+};
 
 export default Map;
