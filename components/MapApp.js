@@ -1,18 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
-import HeaderMenu from './HeaderMenu';
 import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup';
 
 /** ********************** styles ************************************** */
-const INITIAL_RANGE_LENGTH = {
-    weeks: 1,
-};
-
-const narrowWidth = 700;
+const NARROW_WIDTH = 700;
 
 const sidebarContentStyle = {
     background: '#000',
@@ -34,7 +29,7 @@ const sidebarToggleStyle = {
     zIndex: 1,
 };
 
-const getSidebarToggleStyle = (direction, visible) => {
+const getSidebarToggleStyle = direction => {
     const style = Object.assign({}, sidebarToggleStyle);
 
     if (direction === 'right') {
@@ -58,21 +53,39 @@ const getSidebarToggleIcon = (direction, visible) => {
     if (direction === 'bottom') {
         return visible ? 'angle double down' : 'angle double up';
     }
+    return null;
 };
 /** ********************** styles ************************************** */
 
-const defaultTopic_ = 'drought';
+const INITIAL_RANGE_LENGTH = {
+    weeks: 1,
+};
+const DEFAULT_TOPIC = 'drought';
+const TIME_ZONE = '+01:00';
 
-const propertiesRequestPath = '/api/v2/properties/';
-const timeSeriesRequestPath = '/api/v2/timeseries/';
+const PROPERTIES_REQUEST_PATH = '/api/v2/properties/';
+const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
 
-const timeZone = '+01:00';
+/**
+ * @param params
+ */
+const sendTimeSeriesRequest = params => {
+    const paramParts = [];
+    Object.keys(params).forEach(key => {
+        if (params[key] != null) {
+            paramParts.push(`${key}=${params[key]}`);
+        }
+    });
+
+    const requestUrl = `${TIME_SERIES_REQUEST_PATH}?${paramParts.join('&')}`;
+    return fetch(requestUrl);
+};
 
 class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
-        const now = moment().utcOffset(timeZone);
+        const now = moment().utcOffset(TIME_ZONE);
 
         const from = now
             .clone()
@@ -85,7 +98,7 @@ class MapApp extends React.Component {
 
         this.state = {
             isSmall: false,
-            topic: props.topic || defaultTopic_,
+            topic: props.topic || DEFAULT_TOPIC,
             properties: [],
             selection: {
                 primaryPropertyId: null,
@@ -121,9 +134,9 @@ class MapApp extends React.Component {
     componentDidMount() {
         moment.locale('en-gb');
 
-        const propertiesRequestUrl = `${propertiesRequestPath}?topic=${
-            this.state.topic
-        }&format=json`;
+        const { topic } = this.state;
+
+        const propertiesRequestUrl = `${PROPERTIES_REQUEST_PATH}?topic=${topic}&format=json`;
         fetch(propertiesRequestUrl)
             .then(results => {
                 return results.json();
@@ -131,8 +144,8 @@ class MapApp extends React.Component {
             .then(data => {
                 const primaryPropertyId = data.length ? data[0].name_id : null;
 
-                this.setState((prevState, props) => {
-                    const selection = prevState.selection;
+                this.setState(prevState => {
+                    const { selection } = prevState;
                     selection.primaryPropertyId = primaryPropertyId;
 
                     this.handleAppStateChange({
@@ -157,11 +170,32 @@ class MapApp extends React.Component {
         window.removeEventListener('resize', this.resizeApp.bind(this));
     }
 
+    getPropertyById(propertyId) {
+        const { properties } = this.state;
+        const property = properties.find(prop => prop.name_id === propertyId);
+
+        return property;
+    }
+
     /** ************************** sidebar handlers ******************************** */
+    getSidebarClass() {
+        let classes = '';
+        const { sidebarDirection, sidebarVisible } = this.state;
+
+        if (sidebarVisible) {
+            classes += 'sidebar-visible';
+        } else {
+            classes += 'sidebar-hidden';
+        }
+
+        classes += ` ${sidebarDirection}`;
+        return classes;
+    }
+
     updateSidebarDirection() {
         let direction;
 
-        if (window.innerWidth <= narrowWidth) {
+        if (window.innerWidth <= NARROW_WIDTH) {
             direction = 'bottom';
         } else {
             direction = 'right';
@@ -177,8 +211,9 @@ class MapApp extends React.Component {
     }
 
     handleSidebarToggleClick() {
+        const { sidebarVisible } = this.state;
         this.setState({
-            sidebarVisible: !this.state.sidebarVisible,
+            sidebarVisible: !sidebarVisible,
         });
 
         setTimeout(() => {
@@ -189,19 +224,6 @@ class MapApp extends React.Component {
             });
         }, 100);
     }
-
-    getSidebarClass() {
-        let classes = '';
-
-        if (this.state.sidebarVisible) {
-            classes += 'sidebar-visible';
-        } else {
-            classes += 'sidebar-hidden';
-        }
-
-        classes += ` ${this.state.sidebarDirection}`;
-        return classes;
-    }
     /** ************************** sidebar handlers ******************************** */
 
     /** ****************************** app handlers ******************************** */
@@ -209,14 +231,14 @@ class MapApp extends React.Component {
         this.updateSidebarDirection();
 
         this.setState({
-            isSmall: window.innerWidth <= narrowWidth,
+            isSmall: window.innerWidth <= NARROW_WIDTH,
             mapSize: this._getMapSize(),
         });
     }
 
     _getMapSize() {
         if (this.mapRef && this.mapRef.current) {
-            const mapElement = this.mapRef.current.mapElement;
+            const { mapElement } = this.mapRef.current;
             const height = mapElement.clientHeight;
             const width = mapElement.clientWidth;
 
@@ -225,22 +247,7 @@ class MapApp extends React.Component {
                 width,
             };
         }
-    }
-
-    /**
-     * @param params
-     * @private
-     */
-    _sendTimeSeriesRequest(params) {
-        const paramParts = [];
-        for (const key in params) {
-            if (params[key] != null) {
-                paramParts.push(`${key}=${params[key]}`);
-            }
-        }
-
-        const requestUrl = `${timeSeriesRequestPath}?${paramParts.join('&')}`;
-        return fetch(requestUrl);
+        return null;
     }
 
     /**
@@ -251,20 +258,21 @@ class MapApp extends React.Component {
      * bbox
      */
     handleAppStateChange(options) {
+        const { properties, topic } = this.state;
         const requestParameters = {
-            topic: this.state.topic,
+            topic,
             phenomenon_date_from: options.from.format('YYYY-MM-DD'),
             phenomenon_date_to: options.to.format('YYYY-MM-DD'),
             bbox: options.bbox,
         };
 
-        const properties = options.properties || this.state.properties;
-        if (properties.length) {
-            const nameIds = properties.map(property => property.name_id);
-            requestParameters.properties = nameIds.join(',');
+        const props = options.properties || properties;
+        if (props.length) {
+            const nameIds = props.map(property => property.name_id);
+            requestParameters.props = nameIds.join(',');
         }
 
-        this._sendTimeSeriesRequest(requestParameters)
+        sendTimeSeriesRequest(requestParameters)
             .then(response => {
                 if (response.status !== 200) {
                     const message = `Looks like there was a problem. Status Code: ${
@@ -291,10 +299,10 @@ class MapApp extends React.Component {
 
                 response.json().then(data => {
                     const from = data.phenomenon_time_from
-                        ? moment(data.phenomenon_time_from).utcOffset(timeZone)
+                        ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
                         : null;
                     const to = data.phenomenon_time_to
-                        ? moment(data.phenomenon_time_to).utcOffset(timeZone)
+                        ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
                         : null;
 
                     this.setState({
@@ -305,7 +313,7 @@ class MapApp extends React.Component {
                             valueDuration: data.value_duration,
                         },
                         geojsonData: data,
-                        isDataValid: from && to,
+                        isDataValid: Boolean(from && to),
                         loading: false,
                     });
                 });
@@ -316,8 +324,8 @@ class MapApp extends React.Component {
     handlePropertyChange(event, data) {
         const primaryPropertyId = data.value;
 
-        this.setState((prevState, props) => {
-            const selection = prevState.selection;
+        this.setState(prevState => {
+            const { selection } = prevState;
             selection.primaryPropertyId = primaryPropertyId;
 
             return {
@@ -327,7 +335,7 @@ class MapApp extends React.Component {
     }
 
     handleDateRangeChange(from, to) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
             const isPropertyChosen = prevState.selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
@@ -336,7 +344,7 @@ class MapApp extends React.Component {
                 });
             }
 
-            const selection = prevState.selection;
+            const { selection } = prevState;
             selection.from = from;
             selection.to = to;
 
@@ -348,11 +356,11 @@ class MapApp extends React.Component {
     }
 
     handleTimeValueChange(time) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
             const from = prevState.currentValues.from.unix();
             const index = (time.unix() - from) / prevState.currentValues.frequency;
 
-            const selection = prevState.selection;
+            const { selection } = prevState;
             selection.timeValueIndex = index;
 
             return {
@@ -368,25 +376,31 @@ class MapApp extends React.Component {
             popupColor: message.color,
         });
 
-        setTimeout(
-            function() {
-                this.setState({
-                    popupOpen: false,
-                });
-            }.bind(this),
-            5000
-        );
+        setTimeout(() => {
+            this.setState({
+                popupOpen: false,
+            });
+        }, 5000);
     }
     /** ****************************** app handlers ******************************** */
 
-    getPropertyById(propertyId) {
-        const property = this.state.properties.find(property => property.name_id === propertyId);
-
-        return property;
-    }
-
     render() {
-        const { sidebarVisible, sidebarDirection } = this.state;
+        const {
+            currentValues,
+            geojsonData,
+            isDataValid,
+            isSmall,
+            loading,
+            mapSize,
+            popupColor,
+            popupMessage,
+            popupOpen,
+            properties,
+            selection,
+            sidebarVisible,
+            sidebarDirection,
+            topic,
+        } = this.state;
 
         return (
             <div className="content">
@@ -400,10 +414,10 @@ class MapApp extends React.Component {
                     >
                         <div style={sidebarContentStyle}>
                             <MapControls
-                                properties={this.state.properties}
-                                selection={this.state.selection}
-                                currentValues={this.state.currentValues}
-                                timeZone={timeZone}
+                                properties={properties}
+                                selection={selection}
+                                currentValues={currentValues}
+                                timeZone={TIME_ZONE}
                                 onPropertyChange={this.handlePropertyChange}
                                 onDateRangeChange={this.handleDateRangeChange}
                                 onTimeValueChange={this.handleTimeValueChange}
@@ -417,19 +431,17 @@ class MapApp extends React.Component {
                             <Map
                                 className="map"
                                 ref={this.mapRef}
-                                topic={this.state.topic}
-                                properties={this.state.properties}
-                                primaryProperty={this.getPropertyById(
-                                    this.state.selection.primaryPropertyId
-                                )}
-                                currentValues={this.state.currentValues}
-                                timeZone={timeZone}
-                                data={this.state.geojsonData}
-                                isSmall={this.state.isSmall}
-                                mapSize={this.state.mapSize}
-                                isDataValid={this.state.isDataValid}
-                                loading={this.state.loading}
-                                index={this.state.selection.timeValueIndex}
+                                topic={topic}
+                                properties={properties}
+                                primaryProperty={this.getPropertyById(selection.primaryPropertyId)}
+                                currentValues={currentValues}
+                                timeZone={TIME_ZONE}
+                                data={geojsonData}
+                                isSmall={isSmall}
+                                mapSize={mapSize}
+                                isDataValid={isDataValid}
+                                loading={loading}
+                                index={selection.timeValueIndex}
                             />
 
                             <Button
@@ -442,11 +454,7 @@ class MapApp extends React.Component {
                     </Sidebar.Pusher>
                 </Sidebar.Pushable>
 
-                <NotificationPopup
-                    open={this.state.popupOpen}
-                    message={this.state.popupMessage}
-                    color={this.state.popupColor}
-                />
+                <NotificationPopup open={popupOpen} message={popupMessage} color={popupColor} />
 
                 <style jsx>
                     {`
@@ -462,5 +470,14 @@ class MapApp extends React.Component {
         );
     }
 }
+
+MapApp.defaultProps = {
+    topic: DEFAULT_TOPIC,
+};
+
+MapApp.propTypes = {
+    sidebarVisible: PropTypes.bool.isRequired,
+    topic: PropTypes.string,
+};
 
 export default MapApp;
