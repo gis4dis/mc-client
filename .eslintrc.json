@@ -19,7 +19,6 @@
         "prettier/prettier": ["error"],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": ["error", { "allowAfterThis": true }],
-        "operator-linebreak": ["error", "after"],
         "react/jsx-filename-extension": ["error", { "extensions": [".js", ".jsx"] }],
         "react/jsx-indent": ["error", 4],
         "react/jsx-indent-props": ["error", 4]
