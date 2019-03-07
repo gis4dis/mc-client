@@ -12,12 +12,18 @@ const ResponsiveContainer = ({ topics, children }) => (
     </div>
 );
 
+ResponsiveContainer.defaultProps = {
+    children: undefined,
+};
+
 ResponsiveContainer.propTypes = {
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    topics: PropTypes.shape({
-        name: PropTypes.string,
-        name_id: PropTypes.string,
-    }).isRequired,
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
 };
 
 const HomepageLayout = ({ topics }) => (
@@ -208,10 +214,12 @@ const HomepageLayout = ({ topics }) => (
 );
 
 HomepageLayout.propTypes = {
-    topics: PropTypes.shape({
-        name: PropTypes.string,
-        name_id: PropTypes.string,
-    }).isRequired,
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
 };
 
 export default HomepageLayout;

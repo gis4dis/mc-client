@@ -29,10 +29,12 @@ class MobileContainer extends PureComponent {
 
 MobileContainer.propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    topics: PropTypes.shape({
-        name: PropTypes.string,
-        name_id: PropTypes.string,
-    }).isRequired,
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
 };
 
 export default MobileContainer;

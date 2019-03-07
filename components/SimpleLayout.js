@@ -1,3 +1,5 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Container } from 'semantic-ui-react';
 
 const containerStyle = {
@@ -5,10 +7,14 @@ const containerStyle = {
     top: '40px',
 };
 
-const SimpleLayout = props => (
+const SimpleLayout = ({ children }) => (
     <div>
-        <Container style={containerStyle}>{props.children}</Container>
+        <Container style={containerStyle}>{children}</Container>
     </div>
 );
+
+SimpleLayout.propTypes = {
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+};
 
 export default SimpleLayout;

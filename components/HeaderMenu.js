@@ -92,11 +92,11 @@ class HeaderMenu extends React.Component {
 HeaderMenu.defaultProps = {
     activeItem: null,
     addItems: null,
+    children: undefined,
     topics: null,
 };
 
 HeaderMenu.propTypes = {
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
     activeItem: PropTypes.string,
     addItems: PropTypes.arrayOf(
         PropTypes.shape({
@@ -105,6 +105,7 @@ HeaderMenu.propTypes = {
             href: PropTypes.string,
         })
     ),
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     topics: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string,

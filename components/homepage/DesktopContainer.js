@@ -27,12 +27,18 @@ class DesktopContainer extends PureComponent {
     }
 }
 
+DesktopContainer.defaultProps = {
+    children: undefined,
+};
+
 DesktopContainer.propTypes = {
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    topics: PropTypes.shape({
-        name: PropTypes.string,
-        name_id: PropTypes.string,
-    }).isRequired,
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
 };
 
 export default DesktopContainer;

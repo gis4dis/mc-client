@@ -1,9 +1,11 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Card, Image } from 'semantic-ui-react';
 
-const TopicCards = props => (
+const TopicCards = ({ topics }) => (
     <div>
         <Card.Group centered>
-            {props.topics.map(function(topic) {
+            {topics.map(topic => {
                 return (
                     <Card
                         key={topic.name_id}
@@ -25,5 +27,14 @@ const TopicCards = props => (
         </Card.Group>
     </div>
 );
+
+TopicCards.propTypes = {
+    topics: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
+};
 
 export default TopicCards;

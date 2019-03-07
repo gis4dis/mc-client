@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 
@@ -24,7 +25,8 @@ class TimeSlider extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.from !== this.props.from || nextProps.to !== this.props.to) {
+        const { from, to } = this.props;
+        if (nextProps.from !== from || nextProps.to !== to) {
             this.setState({
                 value: nextProps.from || 0,
             });
@@ -32,15 +34,40 @@ class TimeSlider extends React.Component {
     }
 
     onChange(event) {
-        const time = parseInt(event.target.value);
+        const time = parseInt(event.target.value, 10);
         this.setState({
             value: time,
         });
 
-        if (this.props.callback) {
-            const timeDate = moment.unix(time).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
+        const { callback, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(time).utcOffset(timeZone);
+            callback(timeDate);
         }
+    }
+
+    setValueToMin() {
+        const { callback, from, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(from).utcOffset(timeZone);
+            callback(timeDate);
+        }
+
+        this.setState({
+            value: from,
+        });
+    }
+
+    setValueToMax() {
+        const { callback, to, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(to).utcOffset(timeZone);
+            callback(timeDate);
+        }
+
+        this.setState({
+            value: to,
+        });
     }
 
     togglePlay() {
@@ -50,7 +77,7 @@ class TimeSlider extends React.Component {
             this.timerId = setInterval(() => this.moveStepForward(), 1000);
         }
 
-        this.setState((prevState, props) => ({
+        this.setState(prevState => ({
             isPlaying: !prevState.isPlaying,
         }));
     }
@@ -60,14 +87,15 @@ class TimeSlider extends React.Component {
             this._clearTimer();
         }
 
-        if (this.props.callback) {
-            const timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
+        const { callback, from, timeZone } = this.props;
+        if (callback) {
+            const timeDate = moment.unix(from).utcOffset(timeZone);
+            callback(timeDate);
         }
 
         this.setState({
             isPlaying: false,
-            value: this.props.from,
+            value: from,
         });
     }
 
@@ -78,18 +106,19 @@ class TimeSlider extends React.Component {
 
     moveStepBack() {
         this.setState((prevState, props) => {
-            const time = parseInt(prevState.value);
-            const step = parseInt(props.frequency || 1);
+            const { callback, from, frequency, timeZone } = props;
+            const time = parseInt(prevState.value, 10);
+            const step = parseInt(frequency || 1, 10);
             let newValue = time - step;
 
-            if (newValue < props.from) {
-                newValue = props.from;
+            if (newValue < from) {
+                newValue = from;
             }
 
             if (time !== newValue) {
-                if (props.callback) {
-                    const timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
-                    props.callback(timeDate);
+                if (callback) {
+                    const timeDate = moment.unix(newValue).utcOffset(timeZone);
+                    callback(timeDate);
                 }
             }
 
@@ -101,24 +130,25 @@ class TimeSlider extends React.Component {
 
     moveStepForward() {
         this.setState((prevState, props) => {
-            const time = parseInt(prevState.value);
-            const step = parseInt(props.frequency || 1);
+            const { frequency, callback, timeZone, to } = props;
+            const time = parseInt(prevState.value, 10);
+            const step = parseInt(frequency || 1, 10);
             let newValue = time + step;
 
-            if (newValue > props.to) {
-                newValue = props.to;
+            if (newValue > to) {
+                newValue = to;
             }
 
             let stopPlaying;
-            if (this.timerId && newValue === props.to) {
+            if (this.timerId && newValue === to) {
                 this._clearTimer();
                 stopPlaying = true;
             }
 
             if (time !== newValue) {
-                if (props.callback) {
-                    const timeDate = moment.unix(newValue).utcOffset(this.props.timeZone);
-                    props.callback(timeDate);
+                if (callback) {
+                    const timeDate = moment.unix(newValue).utcOffset(timeZone);
+                    callback(timeDate);
                 }
             }
 
@@ -129,41 +159,23 @@ class TimeSlider extends React.Component {
         });
     }
 
-    setValueToMin() {
-        if (this.props.callback) {
-            const timeDate = moment.unix(this.props.from).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
-        }
-
-        this.setState({
-            value: this.props.from,
-        });
-    }
-
-    setValueToMax() {
-        if (this.props.callback) {
-            const timeDate = moment.unix(this.props.to).utcOffset(this.props.timeZone);
-            this.props.callback(timeDate);
-        }
-
-        this.setState({
-            value: this.props.to,
-        });
-    }
-
     _isMin() {
-        return this.state.value === this.props.from;
+        const { from } = this.props;
+        const { value } = this.state;
+        return value === from;
     }
 
     _isMax() {
-        return this.state.value === this.props.to;
+        const { to } = this.props;
+        const { value } = this.state;
+        return value === to;
     }
 
     render() {
-        const { isPlaying } = this.state;
+        const { isPlaying, value } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to, interval } = this.props;
+        const { from, to, disabled, frequency, interval, timeZone } = this.props;
         let thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
         if (!thumbWidth) {
             thumbWidth = '14px';
@@ -176,11 +188,11 @@ class TimeSlider extends React.Component {
 
         return (
             <div className="timeSlider">
-                {this.props.from && this.props.to && (
+                {from && to && (
                     <div className="currentValue">
                         {moment
-                            .unix(this.state.value)
-                            .utcOffset(this.props.timeZone)
+                            .unix(value)
+                            .utcOffset(timeZone)
                             .format('L LT Z')}
                     </div>
                 )}
@@ -189,11 +201,11 @@ class TimeSlider extends React.Component {
                     <input
                         type="range"
                         className="slider"
-                        min={this.props.from || 0}
-                        max={this.props.to || 100}
-                        step={this.props.frequency}
-                        value={this.state.value}
-                        disabled={this.props.disabled}
+                        min={from || 0}
+                        max={to || 100}
+                        step={frequency}
+                        value={value}
+                        disabled={disabled}
                         onChange={this.onChange}
                         style={{ '--slider-thumb-width': thumbWidth }}
                     />
@@ -206,7 +218,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.togglePlay}
-                        disabled={this.props.disabled || this._isMax()}
+                        disabled={disabled || this._isMax()}
                     />
                     <Button
                         icon="fast backward"
@@ -214,7 +226,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.setValueToMin}
-                        disabled={this.props.disabled || this._isMin()}
+                        disabled={disabled || this._isMin()}
                     />
                     <Button
                         icon="step backward"
@@ -222,7 +234,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.moveStepBack}
-                        disabled={this.props.disabled || this._isMin()}
+                        disabled={disabled || this._isMin()}
                     />
                     <Button
                         icon="step forward"
@@ -230,7 +242,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.moveStepForward}
-                        disabled={this.props.disabled || this._isMax()}
+                        disabled={disabled || this._isMax()}
                     />
                     <Button
                         icon="fast forward"
@@ -238,7 +250,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.setValueToMax}
-                        disabled={this.props.disabled || this._isMax()}
+                        disabled={disabled || this._isMax()}
                     />
                     <Button
                         icon="stop"
@@ -246,7 +258,7 @@ class TimeSlider extends React.Component {
                         circular
                         inverted
                         onClick={this.stopButtonClick}
-                        disabled={this.props.disabled || !this.state.isPlaying}
+                        disabled={disabled || !isPlaying}
                     />
                 </div>
 
@@ -303,5 +315,23 @@ class TimeSlider extends React.Component {
         );
     }
 }
+
+TimeSlider.defaultProps = {
+    from: 0,
+    to: 100,
+    callback: null,
+    frequency: null,
+    interval: null,
+};
+
+TimeSlider.propTypes = {
+    from: PropTypes.number,
+    to: PropTypes.number,
+    callback: PropTypes.func,
+    disabled: PropTypes.bool.isRequired,
+    frequency: PropTypes.number,
+    interval: PropTypes.number,
+    timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default TimeSlider;

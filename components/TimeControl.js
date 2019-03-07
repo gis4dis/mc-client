@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import DateRangeSelector from './DateRangeSelector';
 import TimeSlider from './TimeSlider';
@@ -11,17 +12,20 @@ class TimeControl extends React.Component {
     constructor(props) {
         super(props);
 
+        const { dateRange } = props;
+
         this.state = {
-            from: props.dateRange ? props.dateRange.from : null,
-            to: props.dateRange ? props.dateRange.to : null,
+            from: dateRange ? dateRange.from : null,
+            to: dateRange ? dateRange.to : null,
         };
 
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
     }
 
     handleDateRangeChange(from, to) {
-        if (this.props.handleDateRangeChange) {
-            this.props.handleDateRangeChange(from, to);
+        const { handleDateRangeChange } = this.props;
+        if (handleDateRangeChange) {
+            handleDateRangeChange(from, to);
         }
 
         this.setState({
@@ -31,41 +35,38 @@ class TimeControl extends React.Component {
     }
 
     render() {
-        const currentTo = this.props.currentValues.to ?
-            this.props.currentValues.to
+        const { currentValues, handleTimeValueChange, notifyUser, timeZone } = this.props;
+
+        const { from, to } = this.state;
+
+        const currentTo = currentValues.to
+            ? currentValues.to
                   .clone()
-                  .subtract(this.props.currentValues.frequency, 'seconds')
-                  .unix() :
-            null;
+                  .subtract(currentValues.frequency, 'seconds')
+                  .unix()
+            : null;
 
         return (
             <div>
                 <div style={controlPartStyle}>
                     <TimeSlider
-                        from={
-                            this.props.currentValues.from ?
-                                this.props.currentValues.from.unix() :
-                                null
-                        }
+                        from={currentValues.from ? currentValues.from.unix() : null}
                         to={currentTo}
-                        interval={this.props.valueDuration}
-                        timeZone={this.props.timeZone}
-                        frequency={this.props.currentValues.frequency}
-                        disabled={
-                            this.props.currentValues.from == null ||
-                            this.props.currentValues.to == null
-                        }
-                        callback={this.props.handleTimeValueChange}
+                        interval={currentValues.valueDuration}
+                        timeZone={timeZone}
+                        frequency={currentValues.frequency}
+                        disabled={currentValues.from == null || currentValues.to == null}
+                        callback={handleTimeValueChange}
                     />
                 </div>
                 <div style={controlPartStyle}>
                     <DateRangeSelector
-                        from={this.state.from}
-                        to={this.state.to}
-                        timeZone={this.props.timeZone}
-                        currentValues={this.props.currentValues}
+                        from={from}
+                        to={to}
+                        timeZone={timeZone}
+                        currentValues={currentValues}
                         callback={this.handleDateRangeChange}
-                        notifyUser={this.props.notifyUser}
+                        notifyUser={notifyUser}
                         style={controlPartStyle}
                     />
                 </div>
@@ -73,5 +74,22 @@ class TimeControl extends React.Component {
         );
     }
 }
+
+TimeControl.propTypes = {
+    currentValues: PropTypes.shape({
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
+        frequency: PropTypes.number,
+        valueDuration: PropTypes.number,
+    }).isRequired,
+    dateRange: PropTypes.shape({
+        from: PropTypes.instanceOf(moment.Moment),
+        to: PropTypes.instanceOf(moment.Moment),
+    }).isRequired,
+    handleDateRangeChange: PropTypes.func.isRequired,
+    handleTimeValueChange: PropTypes.func.isRequired,
+    notifyUser: PropTypes.func.isRequired,
+    timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default TimeControl;
