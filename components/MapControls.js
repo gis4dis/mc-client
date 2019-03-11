@@ -18,45 +18,43 @@ const processProperty = property => {
     };
 };
 
-class MapControls extends React.PureComponent {
-    render() {
-        const {
-            currentValues,
-            notifyUser,
-            onDateRangeChange,
-            onPropertyChange,
-            onTimeValueChange,
-            properties,
-            selection,
-            timeZone,
-        } = this.props;
+const MapControls = props => {
+    const {
+        currentValues,
+        notifyUser,
+        onDateRangeChange,
+        onPropertyChange,
+        onTimeValueChange,
+        properties,
+        selection,
+        timeZone,
+    } = props;
 
-        return (
-            <div>
-                <Dropdown
-                    placeholder="Property"
-                    fluid
-                    onChange={onPropertyChange}
-                    search
-                    selection
-                    options={properties.map(processProperty)}
-                    value={selection.primaryPropertyId}
-                    style={partStyle}
-                />
+    return (
+        <div>
+            <Dropdown
+                placeholder="Property"
+                fluid
+                onChange={onPropertyChange}
+                search
+                selection
+                options={properties.map(processProperty)}
+                value={selection.primaryPropertyId}
+                style={partStyle}
+            />
 
-                <TimeControl
-                    dateRange={{ from: selection.from, to: selection.to }}
-                    currentValues={currentValues}
-                    timeZone={timeZone}
-                    handleDateRangeChange={onDateRangeChange}
-                    handleTimeValueChange={onTimeValueChange}
-                    notifyUser={notifyUser}
-                    style={partStyle}
-                />
-            </div>
-        );
-    }
-}
+            <TimeControl
+                dateRange={{ from: selection.from, to: selection.to }}
+                currentValues={currentValues}
+                timeZone={timeZone}
+                handleDateRangeChange={onDateRangeChange}
+                handleTimeValueChange={onTimeValueChange}
+                notifyUser={notifyUser}
+                style={partStyle}
+            />
+        </div>
+    );
+};
 
 MapControls.propTypes = {
     currentValues: PropTypes.shape({
