@@ -179,6 +179,14 @@ class DateRangeSelector extends React.Component {
 
         this.handleFromChange = this.handleFromChange.bind(this);
         this.handleToChange = this.handleToChange.bind(this);
+
+        this._setPrevious = this._setPrevious.bind(this);
+        this._setNext = this._setNext.bind(this);
+
+        this._setLastMonth = this._setLastMonth.bind(this);
+        this._setLastWeek = this._setLastWeek.bind(this);
+        this._setThisMonth = this._setThisMonth.bind(this);
+        this._setThisWeek = this._setThisWeek.bind(this);
     }
 
     handleFromChange(date) {
