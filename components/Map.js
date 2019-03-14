@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import momentPropTypes from 'react-moment-proptypes';
 import generalize from 'gis4dis-generalizer';
 import { Button, Dimmer, Loader } from 'semantic-ui-react';
 import FeatureCharts from './FeatureCharts';
@@ -438,8 +438,8 @@ Map.defaultProps = {
 
 Map.propTypes = {
     currentValues: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
     }).isRequired,
     data: PropTypes.shape({

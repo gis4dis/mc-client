@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import momentPropTypes from 'react-moment-proptypes';
 import DateRangeSelector from './DateRangeSelector';
 import TimeSlider from './TimeSlider';
 
@@ -77,14 +77,14 @@ class TimeControl extends React.Component {
 
 TimeControl.propTypes = {
     currentValues: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
         valueDuration: PropTypes.number,
     }).isRequired,
     dateRange: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
     }).isRequired,
     handleDateRangeChange: PropTypes.func.isRequired,
     handleTimeValueChange: PropTypes.func.isRequired,

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import momentPropTypes from 'react-moment-proptypes';
 import { Dimmer, Button } from 'semantic-ui-react';
 import FeatureCharts from './FeatureCharts';
 
@@ -142,8 +142,8 @@ FullscreenFeatureCharts.propTypes = {
         unit: PropTypes.string,
     }),
     timeSettings: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
 };

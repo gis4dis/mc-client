@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import range from 'lodash/range';
 import DatePicker from 'react-datepicker';
@@ -521,12 +522,12 @@ DateRangeSelector.defaultProps = {
 };
 
 DateRangeSelector.propTypes = {
-    from: PropTypes.instanceOf(moment.Moment).isRequired,
-    to: PropTypes.instanceOf(moment.Moment).isRequired,
+    from: momentPropTypes.momentObj.isRequired,
+    to: momentPropTypes.momentObj.isRequired,
     timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     currentValues: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
     }).isRequired,
     callback: PropTypes.func,

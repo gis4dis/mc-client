@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import momentPropTypes from 'react-moment-proptypes';
 import { Dropdown } from 'semantic-ui-react';
 import TimeControl from './TimeControl';
 
@@ -58,8 +58,8 @@ const MapControls = props => {
 
 MapControls.propTypes = {
     currentValues: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
     }).isRequired,
     notifyUser: PropTypes.func.isRequired,
@@ -75,8 +75,8 @@ MapControls.propTypes = {
     ).isRequired,
     selection: PropTypes.shape({
         primaryPropertyId: PropTypes.string,
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         timeValueIndex: PropTypes.number,
         bbox: PropTypes.array,
     }).isRequired,

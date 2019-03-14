@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from 'recharts';
@@ -364,8 +365,8 @@ FeatureCharts.propTypes = {
         unit: PropTypes.string,
     }),
     timeSettings: PropTypes.shape({
-        from: PropTypes.instanceOf(moment.Moment),
-        to: PropTypes.instanceOf(moment.Moment),
+        from: momentPropTypes.momentObj,
+        to: momentPropTypes.momentObj,
         timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
     width: PropTypes.number,

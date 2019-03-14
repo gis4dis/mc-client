@@ -31,6 +31,7 @@
     "react-datepicker": "1.7.0",
     "react-dom": "16.7.0",
     "react-markdown": "3.3.0",
+    "react-moment-proptypes": "^1.6.0",
     "recharts": "1.4.2",
     "semantic-ui-react": "0.84.0"
   },
