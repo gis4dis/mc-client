@@ -296,7 +296,7 @@ class Map extends React.Component {
                 />
 
                 <div id="popup" className="popup ol-popup" style={{ display: 'none' }}>
-                    <Button className="popup-closer" onClick={this._closeOverlay} />
+                    <Button icon="close" basic floated="right" onClick={this._closeOverlay} />
 
                     <FeatureCharts
                         chartId="2"
@@ -377,16 +377,6 @@ class Map extends React.Component {
                             border-width: 11px;
                             left: 48px;
                             margin-left: -11px;
-                        }
-
-                        .popup-closer {
-                            text-decoration: none;
-                            position: absolute;
-                            top: 2px;
-                            right: 8px;
-                        }
-                        .popup-closer:after {
-                            content: '✖';
                         }
 
                         .warning-wrap {
