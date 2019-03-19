@@ -35,7 +35,7 @@ class TimeControl extends React.Component {
     }
 
     render() {
-        const { currentValues, handleTimeValueChange, notifyUser, timeZone } = this.props;
+        const { currentValues, handleTimeValueChange, loading, notifyUser, timeZone } = this.props;
 
         const { from, to } = this.state;
 
@@ -53,6 +53,7 @@ class TimeControl extends React.Component {
                         from={currentValues.from ? currentValues.from.unix() : null}
                         to={currentTo}
                         interval={currentValues.valueDuration}
+                        loading={loading}
                         timeZone={timeZone}
                         frequency={currentValues.frequency}
                         disabled={currentValues.from == null || currentValues.to == null}
@@ -86,6 +87,7 @@ TimeControl.propTypes = {
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
     }).isRequired,
+    loading: PropTypes.bool.isRequired,
     handleDateRangeChange: PropTypes.func.isRequired,
     handleTimeValueChange: PropTypes.func.isRequired,
     notifyUser: PropTypes.func.isRequired,

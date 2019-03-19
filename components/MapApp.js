@@ -417,6 +417,7 @@ class MapApp extends React.Component {
                                 properties={properties}
                                 selection={selection}
                                 currentValues={currentValues}
+                                loading={loading}
                                 timeZone={TIME_ZONE}
                                 onPropertyChange={this.handlePropertyChange}
                                 onDateRangeChange={this.handleDateRangeChange}

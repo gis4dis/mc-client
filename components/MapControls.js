@@ -21,6 +21,7 @@ const processProperty = property => {
 const MapControls = props => {
     const {
         currentValues,
+        loading,
         notifyUser,
         onDateRangeChange,
         onPropertyChange,
@@ -46,6 +47,7 @@ const MapControls = props => {
             <TimeControl
                 dateRange={{ from: selection.from, to: selection.to }}
                 currentValues={currentValues}
+                loading={loading}
                 timeZone={timeZone}
                 handleDateRangeChange={onDateRangeChange}
                 handleTimeValueChange={onTimeValueChange}
@@ -62,6 +64,7 @@ MapControls.propTypes = {
         to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
     }).isRequired,
+    loading: PropTypes.bool.isRequired,
     notifyUser: PropTypes.func.isRequired,
     onDateRangeChange: PropTypes.func.isRequired,
     onPropertyChange: PropTypes.func.isRequired,
