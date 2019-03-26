@@ -65,6 +65,7 @@ const TIME_ZONE = '+01:00';
 
 const PROPERTIES_REQUEST_PATH = '/api/v2/properties/';
 const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
+const VGI_OBSERVATIONS_REQUEST_PATH = '/api/v2/vgi_observations/';
 
 /**
  * @param params
@@ -78,6 +79,21 @@ const sendTimeSeriesRequest = params => {
     });
 
     const requestUrl = `${TIME_SERIES_REQUEST_PATH}?${paramParts.join('&')}`;
+    return fetch(requestUrl);
+};
+
+/**
+ * @param params
+ */
+const sendVGIObservationsRequest = params => {
+    const paramParts = [];
+    Object.keys(params).forEach(key => {
+        if (params[key] != null) {
+            paramParts.push(`${key}=${params[key]}`);
+        }
+    });
+
+    const requestUrl = `${VGI_OBSERVATIONS_REQUEST_PATH}?${paramParts.join('&')}`;
     return fetch(requestUrl);
 };
 
@@ -272,11 +288,15 @@ class MapApp extends React.Component {
             requestParameters.props = nameIds.join(',');
         }
 
-        sendTimeSeriesRequest(requestParameters)
-            .then(response => {
-                if (response.status !== 200) {
+        Promise.all([
+            sendTimeSeriesRequest(requestParameters),
+            sendVGIObservationsRequest(requestParameters),
+        ])
+            .then(responses => {
+                const notOkResponse = responses.find(response => response.status !== 200);
+                if (notOkResponse) {
                     const message = `Looks like there was a problem. Status Code: ${
-                        response.status
+                        notOkResponse.status
                     }`;
                     console.log(message);
                     this.notifyUser({
@@ -294,29 +314,31 @@ class MapApp extends React.Component {
                         isDataValid: false,
                         loading: false,
                     });
-                    return;
-                }
+                } else {
+                    const [timeSeriesResponse, vgiResponse] = responses;
+                    Promise.all([timeSeriesResponse.json(), vgiResponse.json()]).then(jsons => {
+                        const [data, vgiData] = jsons;
+                        const from = data.phenomenon_time_from
+                            ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
+                            : null;
+                        const to = data.phenomenon_time_to
+                            ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
+                            : null;
 
-                response.json().then(data => {
-                    const from = data.phenomenon_time_from
-                        ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
-                        : null;
-                    const to = data.phenomenon_time_to
-                        ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
-                        : null;
-
-                    this.setState({
-                        currentValues: {
-                            from,
-                            to,
-                            frequency: data.value_frequency,
-                            valueDuration: data.value_duration,
-                        },
-                        geojsonData: data,
-                        isDataValid: Boolean(from && to),
-                        loading: false,
+                        this.setState({
+                            currentValues: {
+                                from,
+                                to,
+                                frequency: data.value_frequency,
+                                valueDuration: data.value_duration,
+                            },
+                            geojsonData: data,
+                            vgiData,
+                            isDataValid: Boolean(from && to),
+                            loading: false,
+                        });
                     });
-                });
+                }
             })
             .catch(error => console.log(error));
     }
@@ -388,6 +410,7 @@ class MapApp extends React.Component {
         const {
             currentValues,
             geojsonData,
+            vgiData,
             isDataValid,
             isSmall,
             loading,
@@ -438,6 +461,7 @@ class MapApp extends React.Component {
                                 currentValues={currentValues}
                                 timeZone={TIME_ZONE}
                                 data={geojsonData}
+                                vgiData={vgiData}
                                 isSmall={isSmall}
                                 mapSize={mapSize}
                                 isDataValid={isDataValid}

@@ -125,7 +125,7 @@ class Map extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { data, index, isDataValid, primaryProperty, properties, topic } = nextProps;
+        const { data, vgiData, index, isDataValid, primaryProperty, properties, topic } = nextProps;
         const { map } = this.state;
         if (isDataValid) {
             const view = map.getView();
@@ -136,6 +136,7 @@ class Map extends React.Component {
                 properties,
                 primary_property: primaryProperty.name_id,
                 features: featureCollection,
+                vgi_features: vgiData,
                 value_idx: index,
                 resolution,
             };
@@ -424,6 +425,7 @@ Map.defaultProps = {
     isDataValid: false,
     mapSize: null,
     primaryProperty: null,
+    vgiData: null,
 };
 
 Map.propTypes = {
@@ -438,6 +440,10 @@ Map.propTypes = {
         phenomenon_time_to: PropTypes.string,
         properties: PropTypes.arrayOf(PropTypes.string),
         value_frequency: PropTypes.number,
+    }),
+    vgiData: PropTypes.shape({
+        feature: PropTypes.array,
+        type: PropTypes.string,
     }),
     index: PropTypes.number,
     isDataValid: PropTypes.bool,
