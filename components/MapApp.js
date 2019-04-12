@@ -5,6 +5,7 @@ import { Button, Sidebar } from 'semantic-ui-react';
 import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup';
+import TimeSliderCollapsible from './timeControls/TimeSliderCollapsible';
 
 /** ********************** styles ************************************** */
 const NARROW_WIDTH = 700;
@@ -127,6 +128,7 @@ class MapApp extends React.Component {
                 from,
                 to,
                 frequency: 3600,
+                time: null,
             },
             geojsonData: null,
             loading: false,
@@ -139,6 +141,7 @@ class MapApp extends React.Component {
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
         this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
+        this.handleSliderCollapsedChange = this.handleSliderCollapsedChange.bind(this);
 
         this.notifyUser = this.notifyUser.bind(this);
 
@@ -308,6 +311,7 @@ class MapApp extends React.Component {
                         currentValues: {
                             from: null,
                             to: null,
+                            time: null,
                             frequency: null,
                         },
                         geojsonData: null,
@@ -329,6 +333,7 @@ class MapApp extends React.Component {
                             currentValues: {
                                 from,
                                 to,
+                                time: from,
                                 frequency: data.value_frequency,
                                 valueDuration: data.value_duration,
                             },
@@ -382,12 +387,20 @@ class MapApp extends React.Component {
             const from = prevState.currentValues.from.unix();
             const index = (time.unix() - from) / prevState.currentValues.frequency;
 
-            const { selection } = prevState;
+            const { currentValues, selection } = prevState;
+            currentValues.time = time;
             selection.timeValueIndex = index;
 
             return {
+                currentValues,
                 selection,
             };
+        });
+    }
+
+    handleSliderCollapsedChange(collapsed) {
+        this.setState({
+            sliderCollapsed: collapsed,
         });
     }
 
@@ -422,8 +435,14 @@ class MapApp extends React.Component {
             selection,
             sidebarVisible,
             sidebarDirection,
+            sliderCollapsed,
             topic,
         } = this.state;
+
+        let sliderHeight = 0;
+        if (isDataValid && isSmall && !loading) {
+            sliderHeight = sliderCollapsed ? 35 : 113;
+        }
 
         return (
             <div className="content">
@@ -442,32 +461,49 @@ class MapApp extends React.Component {
                                 currentValues={currentValues}
                                 loading={loading}
                                 timeZone={TIME_ZONE}
-                                onPropertyChange={this.handlePropertyChange}
                                 onDateRangeChange={this.handleDateRangeChange}
+                                onPropertyChange={this.handlePropertyChange}
                                 onTimeValueChange={this.handleTimeValueChange}
                                 notifyUser={this.notifyUser}
+                                isFullscreen={isSmall}
                             />
                         </div>
                     </Sidebar>
 
                     <Sidebar.Pusher style={pusherStyle}>
                         <div className={`${this.getSidebarClass()} main-wrapper`}>
-                            <Map
-                                className="map"
-                                ref={this.mapRef}
-                                topic={topic}
-                                properties={properties}
-                                primaryProperty={this.getPropertyById(selection.primaryPropertyId)}
-                                currentValues={currentValues}
-                                timeZone={TIME_ZONE}
-                                data={geojsonData}
-                                vgiData={vgiData}
-                                isSmall={isSmall}
-                                mapSize={mapSize}
-                                isDataValid={isDataValid}
-                                loading={loading}
-                                index={selection.timeValueIndex}
-                            />
+                            <div style={{ height: `calc(100% - ${sliderHeight}px)` }}>
+                                <Map
+                                    className="map"
+                                    ref={this.mapRef}
+                                    topic={topic}
+                                    properties={properties}
+                                    primaryProperty={this.getPropertyById(
+                                        selection.primaryPropertyId
+                                    )}
+                                    currentValues={currentValues}
+                                    timeZone={TIME_ZONE}
+                                    data={geojsonData}
+                                    vgiData={vgiData}
+                                    isSmall={isSmall}
+                                    mapSize={mapSize}
+                                    isDataValid={isDataValid}
+                                    loading={loading}
+                                    index={selection.timeValueIndex}
+                                />
+                            </div>
+
+                            {isDataValid && isSmall && !loading && (
+                                <div className="inline-slider">
+                                    <TimeSliderCollapsible
+                                        currentValues={currentValues}
+                                        loading={loading}
+                                        onValueChange={this.handleTimeValueChange}
+                                        onCollapsedChange={this.handleSliderCollapsedChange}
+                                        timeZone={TIME_ZONE}
+                                    />
+                                </div>
+                            )}
 
                             <Button
                                 className="sidebar-toggle"

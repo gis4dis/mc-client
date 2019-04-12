@@ -92,6 +92,7 @@ screen and (max-height: 700px) and (max-width: 400px) {
         --segment-top-bottom-padding: 2em;
     }
 
+    /* menu */
     .mobile-menu {
         display: block !important;
     }
@@ -119,6 +120,7 @@ screen and (max-height: 700px) and (max-width: 400px) {
     .desktop-menu {
         display: none !important;
     }
+    /* menu */
 
     /* sidebar */
     .sidebar-visible.right .control-panel {
@@ -144,7 +146,7 @@ screen and (max-height: 700px) and (max-width: 400px) {
     .sidebar-toggle {
         display: none !important;
     }
-    /* sidebar styles */
+    /* sidebar */
 
     /* main wrapper */
     .right.sidebar-visible.main-wrapper {
@@ -158,4 +160,10 @@ screen and (max-height: 700px) and (max-width: 400px) {
     }
     /* main wrapper */
 
+    /* timeslider */
+    .inline-slider {
+        position: relative;
+        bottom: 0;
+    } 
+    /* timeslider */
 }

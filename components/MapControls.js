@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import { Dropdown } from 'semantic-ui-react';
-import TimeControl from './TimeControl';
+import TimeControl from './timeControls/TimeControl';
 
 /** ********************** styles ************************************** */
 const partStyle = {
@@ -22,6 +22,7 @@ const MapControls = props => {
     const {
         currentValues,
         loading,
+        isFullscreen,
         notifyUser,
         onDateRangeChange,
         onPropertyChange,
@@ -48,6 +49,7 @@ const MapControls = props => {
                 dateRange={{ from: selection.from, to: selection.to }}
                 currentValues={currentValues}
                 loading={loading}
+                showSlider={!isFullscreen}
                 timeZone={timeZone}
                 handleDateRangeChange={onDateRangeChange}
                 handleTimeValueChange={onTimeValueChange}
@@ -58,13 +60,20 @@ const MapControls = props => {
     );
 };
 
+MapControls.defaultProps = {
+    isFullscreen: true,
+};
+
 MapControls.propTypes = {
     currentValues: PropTypes.shape({
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
+        time: momentPropTypes.momentObj,
         frequency: PropTypes.number,
+        valueDuration: PropTypes.number,
     }).isRequired,
     loading: PropTypes.bool.isRequired,
+    isFullscreen: PropTypes.bool,
     notifyUser: PropTypes.func.isRequired,
     onDateRangeChange: PropTypes.func.isRequired,
     onPropertyChange: PropTypes.func.isRequired,

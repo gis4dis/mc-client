@@ -8,7 +8,7 @@ class TimeSlider extends React.Component {
         super(props);
 
         this.state = {
-            value: props.from || 0,
+            value: props.value || props.from || 0,
             isPlaying: false,
         };
 
@@ -31,6 +31,18 @@ class TimeSlider extends React.Component {
                 value: nextProps.from || 0,
             });
         }
+        /*const { from, to, value } = this.props;
+        let newValue;
+        if (nextProps.value !== value) {
+            newValue = value;
+        } else if (nextProps.from !== from || nextProps.to !== to) {
+            newValue = nextProps.from || 0;
+        }
+        if (newValue || newValue === 0) {
+            this.setState({
+                value: newValue,
+            });
+        } */
     }
 
     onChange(event) {
@@ -175,7 +187,7 @@ class TimeSlider extends React.Component {
         const { isPlaying, value } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to, disabled, frequency, interval, loading, timeZone } = this.props;
+        const { from, to, disabled, frequency, interval, loading } = this.props;
         let thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
         if (!thumbWidth) {
             thumbWidth = '14px';
@@ -191,15 +203,6 @@ class TimeSlider extends React.Component {
 
         return (
             <div className="timeSlider">
-                {from && to && (
-                    <div className="currentValue">
-                        {moment
-                            .unix(value)
-                            .utcOffset(timeZone)
-                            .format('L LT Z')}
-                    </div>
-                )}
-
                 <div className="sliderContainer">
                     <input
                         type="range"
@@ -268,7 +271,7 @@ class TimeSlider extends React.Component {
                 <style jsx>
                     {`
                         .timeSlider {
-                            padding: 8px 0;
+                            padding: 0;
                         }
 
                         .currentValue {
@@ -322,6 +325,7 @@ class TimeSlider extends React.Component {
 TimeSlider.defaultProps = {
     from: 0,
     to: 100,
+    value: 0,
     callback: null,
     frequency: null,
     interval: null,
@@ -330,6 +334,7 @@ TimeSlider.defaultProps = {
 TimeSlider.propTypes = {
     from: PropTypes.number,
     to: PropTypes.number,
+    value: PropTypes.number,
     loading: PropTypes.bool.isRequired,
     callback: PropTypes.func,
     disabled: PropTypes.bool.isRequired,

@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
-import DateRangeSelector from './DateRangeSelector';
+import DateRangeSelector from '../DateRangeSelector';
 import TimeSlider from './TimeSlider';
+import TimeValue from './TimeValue';
 
 const controlPartStyle = {
     marginTop: '16px',
@@ -35,31 +36,33 @@ class TimeControl extends React.Component {
     }
 
     render() {
-        const { currentValues, handleTimeValueChange, loading, notifyUser, timeZone } = this.props;
+        const {
+            currentValues,
+            showSlider,
+            handleTimeValueChange,
+            loading,
+            notifyUser,
+            timeZone,
+        } = this.props;
 
         const { from, to } = this.state;
 
+        const currentFrom = currentValues.from ? currentValues.from.unix() : null;
         const currentTo = currentValues.to
             ? currentValues.to
                   .clone()
                   .subtract(currentValues.frequency, 'seconds')
                   .unix()
             : null;
+        const currentTime = currentValues.time ? currentValues.time.unix() : null;
+
+        const sliderStyle = {
+            position: 'relative',
+            bottom: 'auto',
+        };
 
         return (
             <div>
-                <div style={controlPartStyle}>
-                    <TimeSlider
-                        from={currentValues.from ? currentValues.from.unix() : null}
-                        to={currentTo}
-                        interval={currentValues.valueDuration}
-                        loading={loading}
-                        timeZone={timeZone}
-                        frequency={currentValues.frequency}
-                        disabled={currentValues.from == null || currentValues.to == null}
-                        callback={handleTimeValueChange}
-                    />
-                </div>
                 <div style={controlPartStyle}>
                     <DateRangeSelector
                         from={from}
@@ -71,15 +74,39 @@ class TimeControl extends React.Component {
                         style={controlPartStyle}
                     />
                 </div>
+
+                {showSlider && (
+                    <div style={controlPartStyle}>
+                        <div style={sliderStyle}>
+                            {from && to && <TimeValue value={currentValues.time} />}
+                            <TimeSlider
+                                from={currentFrom}
+                                to={currentTo}
+                                value={currentTime}
+                                interval={currentValues.valueDuration}
+                                loading={loading}
+                                timeZone={timeZone}
+                                frequency={currentValues.frequency}
+                                disabled={currentValues.from == null || currentValues.to == null}
+                                callback={handleTimeValueChange}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
 }
 
+TimeControl.defaultProps = {
+    showSlider: true,
+};
+
 TimeControl.propTypes = {
     currentValues: PropTypes.shape({
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
+        time: momentPropTypes.momentObj,
         frequency: PropTypes.number,
         valueDuration: PropTypes.number,
     }).isRequired,
@@ -88,6 +115,7 @@ TimeControl.propTypes = {
         to: momentPropTypes.momentObj,
     }).isRequired,
     loading: PropTypes.bool.isRequired,
+    showSlider: PropTypes.bool,
     handleDateRangeChange: PropTypes.func.isRequired,
     handleTimeValueChange: PropTypes.func.isRequired,
     notifyUser: PropTypes.func.isRequired,
