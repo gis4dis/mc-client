@@ -357,7 +357,7 @@ FeatureCharts.defaultProps = {
 
 FeatureCharts.propTypes = {
     chartId: PropTypes.string.isRequired,
-    feature: PropTypes.instanceOf(),
+    feature: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     height: PropTypes.number,
     property: PropTypes.shape({
         name: PropTypes.string,

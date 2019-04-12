@@ -125,7 +125,7 @@ FullscreenFeatureCharts.defaultProps = {
 FullscreenFeatureCharts.propTypes = {
     active: PropTypes.bool,
     chartId: PropTypes.string.isRequired,
-    feature: PropTypes.instanceOf(),
+    feature: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     onClose: PropTypes.func.isRequired,
     property: PropTypes.shape({
         name: PropTypes.string,
