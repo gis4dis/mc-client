@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 
+const minThumbWidth = 14;
+const minThumbWidthString = `${minThumbWidth}px`;
+
 class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
@@ -22,6 +25,8 @@ class TimeSlider extends React.Component {
 
         this.setValueToMin = this.setValueToMin.bind(this);
         this.setValueToMax = this.setValueToMax.bind(this);
+
+        this.inputElement = React.createRef();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -31,18 +36,6 @@ class TimeSlider extends React.Component {
                 value: nextProps.from || 0,
             });
         }
-        /*const { from, to, value } = this.props;
-        let newValue;
-        if (nextProps.value !== value) {
-            newValue = value;
-        } else if (nextProps.from !== from || nextProps.to !== to) {
-            newValue = nextProps.from || 0;
-        }
-        if (newValue || newValue === 0) {
-            this.setState({
-                value: newValue,
-            });
-        } */
     }
 
     onChange(event) {
@@ -188,14 +181,19 @@ class TimeSlider extends React.Component {
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
         const { from, to, disabled, frequency, interval, loading } = this.props;
-        let thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
-        if (!thumbWidth) {
-            thumbWidth = '14px';
-        } else {
-            if (thumbWidth < 1) {
-                thumbWidth = 1;
+        const thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
+
+        let thumbWidthString;
+        if (thumbWidth && this.inputElement && this.inputElement.current) {
+            const width = this.inputElement.current.offsetWidth;
+            const thumbWidthInPx = (width * thumbWidth) / 100;
+            if (thumbWidthInPx < minThumbWidth) {
+                thumbWidthString = minThumbWidthString;
+            } else {
+                thumbWidthString = `${thumbWidth}%`;
             }
-            thumbWidth += '%';
+        } else {
+            thumbWidthString = minThumbWidthString;
         }
 
         const min = loading ? 0 : from || 0;
@@ -207,13 +205,14 @@ class TimeSlider extends React.Component {
                     <input
                         type="range"
                         className="slider"
+                        ref={this.inputElement}
                         min={min}
                         max={max}
                         step={frequency}
                         value={value}
                         disabled={disabled}
                         onChange={this.onChange}
-                        style={{ '--slider-thumb-width': thumbWidth }}
+                        style={{ '--slider-thumb-width': thumbWidthString }}
                     />
                 </div>
 
