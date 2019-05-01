@@ -2,12 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
-import { Button } from 'semantic-ui-react';
+import { Button, Dropdown } from 'semantic-ui-react';
 import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from 'recharts';
 
 const DEFAULT_CHART_HEIGHT = 286;
 const DEFAULT_CHART_WIDTH = 500;
 const HEADER_HEIGHT = 54;
+
+const getTitle = feature => {
+    return feature ? feature.get('name') : null;
+};
 
 const getDatesDiff = timeSettings => {
     const { from, to } = timeSettings;
@@ -121,10 +125,15 @@ class FeatureCharts extends React.Component {
         super(props);
 
         const { feature, property, timeSettings } = props;
+        const isAggregatedFeature = feature && feature.get('intersectedFeatures');
 
-        const title = feature ? feature.get('name') : null;
+        const selectedFeature = isAggregatedFeature
+            ? feature.get('intersectedFeatures')[0]
+            : feature;
+
+        const title = isAggregatedFeature ? null : getTitle(selectedFeature);
         const subtitle = getTimeRangeString(timeSettings);
-        const data = getData(feature, property, timeSettings);
+        const data = getData(selectedFeature, property, timeSettings);
 
         let timeFormatter;
         if (data) {
@@ -133,6 +142,7 @@ class FeatureCharts extends React.Component {
         }
 
         this.state = Object.assign(initialState, {
+            selectedFeature,
             data,
             title,
             subtitle,
@@ -140,15 +150,22 @@ class FeatureCharts extends React.Component {
         });
 
         this.zoomIn = this.zoomIn.bind(this);
+        this.zoomOut = this.zoomOut.bind(this);
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
+        this.onIntersectedFeatureChange = this.onIntersectedFeatureChange.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
-        const title = nextProps.feature ? nextProps.feature.get('name') : null;
+        const isAggregatedFeature =
+            nextProps.feature && nextProps.feature.get('intersectedFeatures');
+        const selectedFeature = isAggregatedFeature
+            ? nextProps.feature.get('intersectedFeatures')[0]
+            : nextProps.feature;
+        const title = isAggregatedFeature ? null : getTitle(selectedFeature);
         const { timeSettings } = this.props;
         const subtitle = getTimeRangeString(timeSettings);
-        const data = getData(nextProps.feature, nextProps.property, nextProps.timeSettings);
+        const data = getData(selectedFeature, nextProps.property, nextProps.timeSettings);
 
         let timeFormatter;
         if (data) {
@@ -158,12 +175,28 @@ class FeatureCharts extends React.Component {
 
         this.setState(
             Object.assign(initialState, {
+                selectedFeature,
                 data,
                 title,
                 subtitle,
                 timeFormatter,
             })
         );
+    }
+
+    onIntersectedFeatureChange(event, data) {
+        const { feature, property, timeSettings } = this.props;
+        const featId = data.value;
+        const selectedFeature = feature
+            .get('intersectedFeatures')
+            .find(feat => feat.get('id_by_provider') === featId);
+        const featureData = getData(selectedFeature, property, timeSettings);
+
+        this.setState({
+            selectedFeature,
+            data: featureData,
+            title: null,
+        });
     }
 
     _onMouseDown(evt) {
@@ -224,7 +257,9 @@ class FeatureCharts extends React.Component {
     }
 
     render() {
+        const { feature } = this.props;
         const {
+            selectedFeature,
             data,
             title,
             subtitle,
@@ -250,7 +285,25 @@ class FeatureCharts extends React.Component {
         const id = chartId;
 
         return (
-            <div>
+            <div style={{ textAlign: 'left' }}>
+                {feature && feature.get('intersectedFeatures') && (
+                    <Dropdown
+                        value={selectedFeature.get('id_by_provider')}
+                        selection
+                        options={feature.get('intersectedFeatures').map(feat => {
+                            const featId = feat.get('id_by_provider');
+                            const featName = feat.get('name');
+
+                            return {
+                                key: featId,
+                                text: featName,
+                                value: featId,
+                            };
+                        })}
+                        onChange={this.onIntersectedFeatureChange}
+                    />
+                )}
+
                 {title && <div className="title">{title}</div>}
                 <div style={{ height: '36px' }}>
                     {subtitle && <div className="subtitle">{subtitle}</div>}
@@ -334,12 +387,12 @@ class FeatureCharts extends React.Component {
                         .title {
                             font-size: 18px;
                             font-weight: bold;
-                            margin-bottom: 4px;
+                            margin: 0 0 4px 8px;
                         }
 
                         .subtitle {
                             display: inline-block;
-                            margin-right: 4px;
+                            margin: 4px 4px 0 8px;
                         }
                     `}
                 </style>

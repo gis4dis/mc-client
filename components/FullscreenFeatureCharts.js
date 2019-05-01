@@ -78,13 +78,7 @@ class FullscreenFeatureCharts extends Component {
         return (
             <Dimmer active={active} page onClickOutside={onClose}>
                 <div className="popup fullscreen">
-                    <Button
-                        icon="close"
-                        basic
-                        floated="right"
-                        onClick={onClose}
-                        style={{ marginRight: '16px' }}
-                    />
+                    <Button icon="close" basic floated="right" onClick={onClose} />
 
                     <FeatureCharts
                         chartId={chartId}
@@ -105,7 +99,6 @@ class FullscreenFeatureCharts extends Component {
 
                         .popup.fullscreen {
                             overflow: hidden;
-                            padding: 25px 0;
                             position: relative;
                             width: 100%;
                         }
