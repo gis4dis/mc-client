@@ -224,9 +224,7 @@ class MapApp extends React.Component {
             sidebarDirection: direction,
         });
 
-        setTimeout(() => {
-            this.mapRef.current.updateMapSize();
-        }, 100);
+        this.resizeMap();
     }
 
     handleSidebarToggleClick() {
@@ -235,13 +233,7 @@ class MapApp extends React.Component {
             sidebarVisible: !sidebarVisible,
         });
 
-        setTimeout(() => {
-            this.mapRef.current.updateMapSize();
-
-            this.setState({
-                mapSize: this._getMapSize(),
-            });
-        }, 100);
+        this.resizeMap();
     }
     /** ************************** sidebar handlers ******************************** */
 
@@ -253,6 +245,16 @@ class MapApp extends React.Component {
             isSmall: window.innerWidth <= NARROW_WIDTH,
             mapSize: this._getMapSize(),
         });
+    }
+
+    resizeMap() {
+        setTimeout(() => {
+            this.mapRef.current.updateMapSize();
+
+            this.setState({
+                mapSize: this._getMapSize(),
+            });
+        }, 100);
     }
 
     _getMapSize() {
@@ -277,7 +279,7 @@ class MapApp extends React.Component {
      * bbox
      */
     handleAppStateChange(options) {
-        const { properties, topic } = this.state;
+        const { isDataValid, isSmall, properties, topic } = this.state;
         const requestParameters = {
             topic,
             phenomenon_date_from: options.from.format('YYYY-MM-DD'),
@@ -289,6 +291,10 @@ class MapApp extends React.Component {
         if (props.length) {
             const nameIds = props.map(property => property.name_id);
             requestParameters.props = nameIds.join(',');
+        }
+
+        if (isSmall && isDataValid) {
+            this.resizeMap();
         }
 
         Promise.all([
@@ -342,6 +348,10 @@ class MapApp extends React.Component {
                             isDataValid: Boolean(from && to),
                             loading: false,
                         });
+
+                        if (isSmall && Boolean(from && to)) {
+                            this.resizeMap();
+                        }
                     });
                 }
             })
@@ -402,6 +412,8 @@ class MapApp extends React.Component {
         this.setState({
             sliderCollapsed: collapsed,
         });
+
+        this.resizeMap();
     }
 
     notifyUser(message) {
