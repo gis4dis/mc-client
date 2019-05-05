@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import generalize from 'gis4dis-generalizer';
-import { Button, Dimmer, Loader } from 'semantic-ui-react';
+import { Button, Dimmer, Icon, Loader, Message } from 'semantic-ui-react';
 import FeatureCharts from './FeatureCharts';
 import FullscreenFeatureCharts from './FullscreenFeatureCharts';
 
@@ -323,9 +323,26 @@ class Map extends React.Component {
                 </div>
 
                 {!loading && !isDataValid && (
-                    <div className="warning-wrap">
-                        <div>No data to display</div>
-                    </div>
+                    <Message
+                        icon
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            height: '86px',
+                            width: '265px',
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            margin: 'auto',
+                        }}
+                    >
+                        <Icon name="ban" />
+                        <Message.Content>
+                            <Message.Header>No data</Message.Header>
+                            No data found for given date range and property.
+                        </Message.Content>
+                    </Message>
                 )}
 
                 <style jsx>
@@ -378,31 +395,6 @@ class Map extends React.Component {
                             border-width: 11px;
                             left: 48px;
                             margin-left: -11px;
-                        }
-
-                        .warning-wrap {
-                            background-color: rgba(255, 255, 255, 0.8);
-                            border: solid 3px rgba(0, 0, 0, 0.2);
-                            border-radius: 10px;
-                            color: rgba(0, 0, 0, 0.6);
-                            font-weight: bolder;
-                            text-transform: uppercase;
-                            padding: 10px;
-                            text-align: center;
-
-                            height: 46px;
-                            width: 30%;
-
-                            position: absolute;
-                            top: 0;
-                            bottom: 0;
-                            left: 0;
-                            right: 0;
-
-                            margin: auto;
-                        }
-                        .warning-wrap > * {
-                            vertical-align: middle;
                         }
                     `}
                 </style>
