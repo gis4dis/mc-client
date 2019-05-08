@@ -451,6 +451,8 @@ class MapApp extends React.Component {
             topic,
         } = this.state;
 
+        const { switchToMapHandler } = this.props;
+
         let sliderHeight = 0;
         if (isDataValid && isSmall && !loading) {
             sliderHeight = sliderCollapsed ? 35 : 113;
@@ -478,6 +480,7 @@ class MapApp extends React.Component {
                                 onTimeValueChange={this.handleTimeValueChange}
                                 notifyUser={this.notifyUser}
                                 isFullscreen={isSmall}
+                                switchToMapHandler={switchToMapHandler}
                             />
                         </div>
                     </Sidebar>
@@ -549,6 +552,7 @@ MapApp.defaultProps = {
 };
 
 MapApp.propTypes = {
+    switchToMapHandler: PropTypes.func.isRequired,
     sidebarVisible: PropTypes.bool.isRequired,
     topic: PropTypes.string,
 };

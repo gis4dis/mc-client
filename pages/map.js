@@ -36,6 +36,7 @@ class MapPage extends React.Component {
         };
 
         this.handleModeClick = (e, { name }) => this.setState({ mode: name });
+        this.switchToMap = () => this.setState({ mode: 'map' });
     }
 
     render() {
@@ -63,7 +64,13 @@ class MapPage extends React.Component {
                         <Icon name="cogs" />
                     </Menu.Item>
                 </HeaderMenu>
-                <MapApp sidebarVisible topic={topic} topics={topics} />
+
+                <MapApp
+                    sidebarVisible
+                    topic={topic}
+                    topics={topics}
+                    switchToMapHandler={this.switchToMap}
+                />
             </div>
         );
     }

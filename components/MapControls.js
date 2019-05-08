@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
-import { Dropdown } from 'semantic-ui-react';
+import { Dropdown, Icon, Message } from 'semantic-ui-react';
 import TimeControl from './timeControls/TimeControl';
 
 /** ********************** styles ************************************** */
@@ -29,6 +29,7 @@ const MapControls = props => {
         onTimeValueChange,
         properties,
         selection,
+        switchToMapHandler,
         timeZone,
     } = props;
 
@@ -56,6 +57,18 @@ const MapControls = props => {
                 notifyUser={notifyUser}
                 style={partStyle}
             />
+
+            {isFullscreen && (
+                <Message icon onClick={switchToMapHandler}>
+                    <Icon name={loading ? 'spinner' : 'map'} loading={loading} />
+                    <Message.Content>
+                        <Message.Header>
+                            {loading ? 'Loading data...' : 'Loading finished.'}
+                        </Message.Header>
+                        {!loading ? 'Switch to map to see results.' : null}
+                    </Message.Content>
+                </Message>
+            )}
         </div>
     );
 };
@@ -92,6 +105,7 @@ MapControls.propTypes = {
         timeValueIndex: PropTypes.number,
         bbox: PropTypes.array,
     }).isRequired,
+    switchToMapHandler: PropTypes.func.isRequired,
     timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
