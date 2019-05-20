@@ -47,10 +47,13 @@ class TimeControl extends React.Component {
         } = this.props;
 
         const { from, to } = this.state;
+        const { from: currFrom, to: currTo, frequency, time, valueDuration } = currentValues;
 
-        const currentFrom = currentValues.from ? currentValues.from.unix() : null;
-        const currentTo = currentValues.to ? getLastObservationTime(currentValues.to).unix() : null;
-        const currentTime = currentValues.time ? currentValues.time.unix() : null;
+        const currentFrom = currFrom ? currFrom.unix() : null;
+        const currentTo = currTo
+            ? getLastObservationTime(currTo, frequency, timeZone).unix()
+            : null;
+        const currentTime = time ? time.unix() : null;
 
         const sliderStyle = {
             position: 'relative',
@@ -75,16 +78,16 @@ class TimeControl extends React.Component {
                 {showSlider && (
                     <div style={controlPartStyle}>
                         <div style={sliderStyle}>
-                            {from && to && <TimeValue value={currentValues.time} />}
+                            {from && to && <TimeValue value={time} />}
                             <TimeSlider
                                 from={currentFrom}
                                 to={currentTo}
                                 value={currentTime}
-                                interval={currentValues.valueDuration}
+                                interval={valueDuration}
                                 loading={loading}
                                 timeZone={timeZone}
-                                frequency={currentValues.frequency}
-                                disabled={currentValues.from == null || currentValues.to == null}
+                                frequency={frequency}
+                                disabled={currFrom == null || currTo == null}
                                 callback={handleTimeValueChange}
                             />
                         </div>

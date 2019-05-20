@@ -24,10 +24,11 @@ class TimeSliderCollapsible extends React.Component {
 
     render() {
         const { currentValues, loading, onValueChange, timeZone } = this.props;
+        const { frequency, from, time, to, valueDuration } = currentValues;
 
-        const currentFrom = currentValues.from ? currentValues.from.unix() : null;
-        const currentTo = currentValues.to ? getLastObservationTime(currentValues.to).unix() : null;
-        const currentTime = currentValues.time ? currentValues.time.unix() : null;
+        const currentFrom = from ? from.unix() : null;
+        const currentTo = to ? getLastObservationTime(to, frequency, timeZone).unix() : null;
+        const currentTime = time ? time.unix() : null;
 
         const { activeIndex } = this.state;
 
@@ -40,10 +41,10 @@ class TimeSliderCollapsible extends React.Component {
                         onClick={this.handleClick}
                         style={{ padding: 0 }}
                     >
-                        {currentValues.from && currentTo && (
+                        {from && currentTo && (
                             <div>
                                 <Icon name="dropdown" />
-                                <TimeValue value={currentValues.time} />
+                                <TimeValue value={time} />
                             </div>
                         )}
                     </Accordion.Title>
@@ -52,11 +53,11 @@ class TimeSliderCollapsible extends React.Component {
                             from={currentFrom}
                             to={currentTo}
                             value={currentTime}
-                            interval={currentValues.valueDuration}
+                            interval={valueDuration}
                             loading={loading}
                             timeZone={timeZone}
-                            frequency={currentValues.frequency}
-                            disabled={currentValues.from == null || currentValues.to == null}
+                            frequency={frequency}
+                            disabled={from == null || to == null}
                             callback={onValueChange}
                         />
                     </Accordion.Content>
