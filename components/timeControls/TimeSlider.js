@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button } from 'semantic-ui-react';
 
-const minThumbWidth = 14;
+const minThumbWidth = 12;
 const minThumbWidthString = `${minThumbWidth}px`;
 
 class TimeSlider extends React.Component {
@@ -273,42 +273,55 @@ class TimeSlider extends React.Component {
                             padding: 0;
                         }
 
-                        .currentValue {
-                            color: #54ffff;
-                            text-align: right;
-                        }
-
                         .sliderContainer {
                             margin: 8px 0 8px;
                         }
 
                         .slider {
                             -webkit-appearance: none;
-                            width: 100%;
-                            height: 8px;
+                            height: 2px;
                             border-radius: 5px;
-                            background: #ddd;
+                            box-shadow: none;
+                            background: #6dffff;
                             outline: none;
-                            -webkit-transition: 0.2s;
                             transition: opacity 0.2s;
+                            width: 100%;
+                            -webkit-transition: 0.2s;
                         }
 
                         .slider::-webkit-slider-thumb {
                             -webkit-appearance: none;
                             appearance: none;
-                            height: 14px;
-                            width: var(--slider-thumb-width, 14px);
+                            height: 12px;
+                            width: var(--slider-thumb-width, 12px);
                             border-radius: 50%;
                             background: #54ffff;
                             cursor: pointer;
                         }
 
                         .slider::-moz-range-thumb {
-                            height: 14px;
-                            width: var(--slider-thumb-width, 14px);
+                            height: 12px;
+                            width: var(--slider-thumb-width, 12px);
                             border-radius: 50%;
-                            background: #4caf50;
+                            border: none;
+                            background: #54ffff;
                             cursor: pointer;
+                        }
+
+                        .slider[disabled] {
+                            opacity: 0.45;
+                        }
+
+                        .slider[disabled]::-webkit-slider-thumb {
+                            border: solid 3px #000;
+                            cursor: default;
+                        }
+
+                        .slider[disabled]::-moz-range-thumb {
+                            border: solid 3px #000;
+                            height: 6px;
+                            width: 6px;
+                            cursor: default;
                         }
 
                         .controlButtons {

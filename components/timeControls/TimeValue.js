@@ -8,7 +8,7 @@ const TimeValue = ({ value }) => {
             <style jsx>
                 {`
                     .currentValue {
-                        color: #54ffff;
+                        color: #6dffff;
                         text-align: right;
                     }
                 `}
