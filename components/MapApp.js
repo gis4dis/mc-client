@@ -139,6 +139,7 @@ class MapApp extends React.Component {
         this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
         this.handleSliderCollapsedChange = this.handleSliderCollapsedChange.bind(this);
 
+        this.resizeApp = this.resizeApp.bind(this);
         this.notifyUser = this.notifyUser.bind(this);
 
         this.handleSidebarToggleClick = this.handleSidebarToggleClick.bind(this);
@@ -176,11 +177,11 @@ class MapApp extends React.Component {
             });
 
         this.resizeApp();
-        window.addEventListener('resize', this.resizeApp.bind(this));
+        window.addEventListener('resize', this.resizeApp);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.resizeApp.bind(this));
+        window.removeEventListener('resize', this.resizeApp);
     }
 
     getPropertyById(propertyId) {

@@ -62,6 +62,9 @@ class Map extends React.Component {
             map: null,
             fullscreenFeatureCharts: false,
         };
+
+        this._onOverlayMouseEnter = this._onOverlayMouseEnter.bind(this);
+        this._onOverlayMouseLeave = this._onOverlayMouseLeave.bind(this);
     }
 
     componentDidMount() {
@@ -157,8 +160,8 @@ class Map extends React.Component {
 
     componentWillUnmount() {
         const popup = document.getElementById('popup');
-        popup.removeEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
-        popup.removeEventListener('mouseout', this._onOverlayMouseLeave.bind(this));
+        popup.removeEventListener('mouseenter', this._onOverlayMouseEnter);
+        popup.removeEventListener('mouseout', this._onOverlayMouseLeave);
     }
 
     mapElement;
@@ -174,8 +177,8 @@ class Map extends React.Component {
     createOverlay() {
         const popup = document.getElementById('popup');
         popup.style.display = 'none';
-        popup.addEventListener('mouseenter', this._onOverlayMouseEnter.bind(this));
-        popup.addEventListener('mouseleave', this._onOverlayMouseLeave.bind(this));
+        popup.addEventListener('mouseenter', this._onOverlayMouseEnter);
+        popup.addEventListener('mouseleave', this._onOverlayMouseLeave);
 
         const overlay = new OLOverlay({
             id: 'featurePopup',

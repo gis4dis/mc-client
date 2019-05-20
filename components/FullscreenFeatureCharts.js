@@ -15,15 +15,17 @@ class FullscreenFeatureCharts extends Component {
             height: 0,
             width: 0,
         };
+
+        this.setSize = this.setSize.bind(this);
     }
 
     componentDidMount() {
         this.setSize();
-        window.addEventListener('resize', this.setSize.bind(this));
+        window.addEventListener('resize', this.setSize);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.setSize.bind(this));
+        window.removeEventListener('resize', this.setSize);
     }
 
     setSize() {
