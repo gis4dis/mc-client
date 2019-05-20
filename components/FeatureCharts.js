@@ -4,6 +4,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import { Button, Dropdown } from 'semantic-ui-react';
 import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from 'recharts';
+import { getStartOfPeriod } from '../utils/time';
 
 const DEFAULT_CHART_HEIGHT = 286;
 const DEFAULT_CHART_WIDTH = 500;
@@ -48,7 +49,7 @@ const getChartTicks = (timeSettings, left, right) => {
     if (shouldShowOnlyDates(timeSettings, left, right)) {
         return allTicks.filter(tick => {
             const time = moment.unix(tick).utcOffset(timeSettings.timeZone);
-            const startOfDay = time.clone().startOf('day');
+            const startOfDay = getStartOfPeriod(time.clone(), 'day', timeSettings.timeZone);
 
             return time.isSame(startOfDay);
         });

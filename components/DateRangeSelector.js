@@ -5,6 +5,12 @@ import moment from 'moment';
 import range from 'lodash/range';
 import DatePicker from 'react-datepicker';
 import { Button, Divider, Form, Icon, Label } from 'semantic-ui-react';
+import {
+    getEndOfPeriod,
+    getStartOfPeriod,
+    getLastPossibleObservationTime,
+    getLastObservationTime,
+} from '../utils/time';
 
 const formStyle = {
     margin: '8px',
@@ -140,27 +146,29 @@ const getCurrentValueString = (value, currentValue) => {
     return result;
 };
 
-const getShiftedRange = (state, shiftFn) => {
+const getShiftedRange = (state, shiftFn, timeZone) => {
     let diff;
     let from;
     let to;
-    const fromMonthStart = state.fromDate.clone().startOf('month');
-    const toMonthEnd = state.fromDate
-        .clone()
-        .startOf('day')
-        .endOf('month');
 
-    if (isSameDate(state.fromDate, fromMonthStart) && isSameDate(state.toDate, toMonthEnd)) {
-        diff = state.toDate.diff(state.fromDate, 'month') + 1;
-        from = shiftFn.call(state.fromDate, diff, 'month').startOf('month');
-        to = shiftFn.call(state.toDate, diff, 'month').endOf('month');
-        if (moment().isBefore(to)) {
-            to = moment();
+    const { fromDate, toDate } = state;
+
+    const fromMonthStart = getStartOfPeriod(fromDate.clone(), 'month', timeZone);
+    const toMonthEnd = getEndOfPeriod(fromDate.clone, 'month', timeZone);
+
+    if (isSameDate(fromDate, fromMonthStart) && isSameDate(toDate, toMonthEnd)) {
+        diff = toDate.diff(fromDate, 'month') + 1;
+        from = shiftFn.call(fromDate, diff, 'month').startOf('month');
+        to = getEndOfPeriod(shiftFn.call(toDate, diff, 'month'), 'month', timeZone);
+
+        const now = moment();
+        if (now.isBefore(to)) {
+            to = getEndOfPeriod(now, 'day', timeZone);
         }
     } else {
-        diff = state.toDate.diff(state.fromDate, 'days') + 1;
-        from = shiftFn.call(state.fromDate, diff, 'days');
-        to = shiftFn.call(state.toDate, diff, 'days');
+        diff = toDate.diff(fromDate, 'days') + 1;
+        from = shiftFn.call(fromDate, diff, 'days');
+        to = shiftFn.call(toDate, diff, 'days');
     }
     return {
         from,
@@ -241,8 +249,8 @@ class DateRangeSelector extends React.Component {
     /** **************************** preset options ************************************ */
     _setPrevious() {
         this.setState((prevState, props) => {
-            const { from, to } = getShiftedRange(prevState, moment.prototype.subtract);
-            const { callback } = props;
+            const { callback, timeZone } = props;
+            const { from, to } = getShiftedRange(prevState, moment.prototype.subtract, timeZone);
 
             if (callback) {
                 callback(from, to);
@@ -257,14 +265,14 @@ class DateRangeSelector extends React.Component {
 
     _setNext() {
         this.setState((prevState, props) => {
-            const { callback } = props;
-            const shiftedRange = getShiftedRange(prevState, moment.prototype.add);
+            const { callback, timeZone } = props;
+            const shiftedRange = getShiftedRange(prevState, moment.prototype.add, timeZone);
             const { from } = shiftedRange;
             let { to } = shiftedRange;
 
             let nextDisabled = false;
             if (moment().isBefore(to)) {
-                to = moment();
+                to = getEndOfPeriod(moment(), 'day', timeZone);
                 nextDisabled = true;
             }
 
@@ -281,9 +289,10 @@ class DateRangeSelector extends React.Component {
     }
 
     _setThisWeek() {
-        const today = moment();
-        const from = today.clone().startOf('week');
-        const to = today;
+        const { timeZone } = this.props;
+        const now = moment();
+        const from = getStartOfPeriod(now.clone(), 'week', timeZone);
+        const to = getEndOfPeriod(now.clone(), 'week', timeZone);
         const { callback } = this.props;
 
         if (callback) {
@@ -292,21 +301,16 @@ class DateRangeSelector extends React.Component {
 
         this.setState({
             fromDate: from,
-            toDate: today,
+            toDate: to,
             _nextDisabled: true,
         });
     }
 
     _setLastWeek() {
-        const today = moment();
-        const from = today
-            .clone()
-            .startOf('week')
-            .subtract(1, 'week');
-        const to = today
-            .clone()
-            .endOf('week')
-            .subtract(1, 'week');
+        const { timeZone } = this.props;
+        const now = moment();
+        const from = getStartOfPeriod(now.clone(), 'week', timeZone).subtract(1, 'weeks');
+        const to = getEndOfPeriod(now.clone(), 'week', timeZone).subtract(1, 'weeks');
         const { callback } = this.props;
 
         if (callback) {
@@ -321,9 +325,10 @@ class DateRangeSelector extends React.Component {
     }
 
     _setThisMonth() {
-        const today = moment();
-        const from = today.clone().startOf('month');
-        const to = today;
+        const { timeZone } = this.props;
+        const now = moment();
+        const from = getStartOfPeriod(now.clone(), 'month', timeZone);
+        const to = getEndOfPeriod(now.clone(), 'month', timeZone);
         const { callback } = this.props;
 
         if (callback) {
@@ -332,22 +337,17 @@ class DateRangeSelector extends React.Component {
 
         this.setState({
             fromDate: from,
-            toDate: today,
+            toDate: to,
             _nextDisabled: true,
         });
     }
 
     _setLastMonth() {
-        const today = moment();
-        const from = today
-            .clone()
-            .startOf('month')
-            .subtract(1, 'month');
-        const to = today
-            .clone()
-            .endOf('month')
-            .subtract(1, 'month');
-        const { callback } = this.props;
+        const { callback, timeZone } = this.props;
+
+        const now = moment();
+        const from = getStartOfPeriod(now.clone(), 'month', timeZone).subtract(1, 'months');
+        const to = getEndOfPeriod(now.clone(), 'month', timeZone).subtract(1, 'months');
 
         if (callback) {
             callback(from, to);
@@ -363,19 +363,22 @@ class DateRangeSelector extends React.Component {
 
     render() {
         const { fromDate, toDate, _nextDisabled } = this.state;
-        const { currentValues } = this.props;
+        const { currentValues, loading, timeZone } = this.props;
         const { from: currentFrom, to: currentTo, frequency } = currentValues;
         const from = getCurrentValueString(fromDate, currentFrom);
 
         let to;
         if (currentTo) {
-            const lastPossibleMeasurement = toDate
-                .clone()
-                .add(1, 'days')
-                .subtract(frequency, 'seconds');
-            const lastMeasurement = currentTo.clone().subtract(frequency, 'seconds');
-            to = getCurrentValueString(lastPossibleMeasurement, lastMeasurement);
+            const lastPossibleObservation = getLastPossibleObservationTime(
+                toDate,
+                frequency,
+                timeZone
+            );
+            const lastObservation = getLastObservationTime(currentTo, frequency, timeZone);
+            to = getCurrentValueString(lastPossibleObservation, lastObservation);
         }
+
+        const maxDate = getEndOfPeriod(moment(), 'day', timeZone).subtract(1, 'days');
 
         return (
             <div className="main" style={{ position: 'relative' }}>
@@ -389,7 +392,7 @@ class DateRangeSelector extends React.Component {
                             <Label size="small" style={{ marginTop: '2px' }}>
                                 From date
                             </Label>
-                            {from && (
+                            {from && !loading && (
                                 <Label basic color="red" pointing="left" size="small">
                                     {from}
                                 </Label>
@@ -401,7 +404,7 @@ class DateRangeSelector extends React.Component {
                                 selected={fromDate}
                                 startDate={fromDate}
                                 endDate={toDate}
-                                maxDate={moment()}
+                                maxDate={maxDate}
                                 renderCustomHeader={CalendarHeader}
                                 previousMonthButtonLabel=""
                                 nextMonthButtonLabel=""
@@ -416,7 +419,7 @@ class DateRangeSelector extends React.Component {
                             <Label size="small" style={{ marginTop: '2px' }}>
                                 To date
                             </Label>
-                            {to && (
+                            {to && !loading && (
                                 <Label basic color="red" pointing="left" size="small">
                                     {to}
                                 </Label>
@@ -429,7 +432,7 @@ class DateRangeSelector extends React.Component {
                                 startDate={fromDate}
                                 endDate={toDate}
                                 minDate={fromDate}
-                                maxDate={moment()}
+                                maxDate={maxDate}
                                 renderCustomHeader={CalendarHeader}
                                 previousMonthButtonLabel=""
                                 nextMonthButtonLabel=""
@@ -530,6 +533,7 @@ DateRangeSelector.propTypes = {
         to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
     }).isRequired,
+    loading: PropTypes.bool.isRequired,
     callback: PropTypes.func,
     notifyUser: PropTypes.func.isRequired,
 };

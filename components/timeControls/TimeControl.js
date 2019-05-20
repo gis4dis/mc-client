@@ -4,6 +4,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import DateRangeSelector from '../DateRangeSelector';
 import TimeSlider from './TimeSlider';
 import TimeValue from './TimeValue';
+import { getLastObservationTime } from '../../utils/time';
 
 const controlPartStyle = {
     marginTop: '16px',
@@ -48,12 +49,7 @@ class TimeControl extends React.Component {
         const { from, to } = this.state;
 
         const currentFrom = currentValues.from ? currentValues.from.unix() : null;
-        const currentTo = currentValues.to
-            ? currentValues.to
-                  .clone()
-                  .subtract(currentValues.frequency, 'seconds')
-                  .unix()
-            : null;
+        const currentTo = currentValues.to ? getLastObservationTime(currentValues.to).unix() : null;
         const currentTime = currentValues.time ? currentValues.time.unix() : null;
 
         const sliderStyle = {
@@ -69,6 +65,7 @@ class TimeControl extends React.Component {
                         to={to}
                         timeZone={timeZone}
                         currentValues={currentValues}
+                        loading={loading}
                         callback={this.handleDateRangeChange}
                         notifyUser={notifyUser}
                         style={controlPartStyle}

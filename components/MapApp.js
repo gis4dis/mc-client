@@ -6,6 +6,7 @@ import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup';
 import TimeSliderCollapsible from './timeControls/TimeSliderCollapsible';
+import { getEndOfPeriod, getStartOfPeriod } from '../utils/time';
 
 /** ********************** styles ************************************** */
 const NARROW_WIDTH = 700;
@@ -102,16 +103,11 @@ class MapApp extends React.Component {
     constructor(props) {
         super(props);
 
-        const now = moment().utcOffset(TIME_ZONE);
+        moment.locale('en-gb');
+        const now = moment();
 
-        const from = now
-            .clone()
-            .startOf('day')
-            .subtract(INITIAL_RANGE_LENGTH);
-        const to = now
-            .clone()
-            .startOf('day')
-            .subtract(1, 'days');
+        const from = getStartOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(INITIAL_RANGE_LENGTH);
+        const to = getEndOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(1, 'days');
 
         this.state = {
             isSmall: false,
@@ -151,8 +147,6 @@ class MapApp extends React.Component {
     }
 
     componentDidMount() {
-        moment.locale('en-gb');
-
         const { topic } = this.state;
 
         const propertiesRequestUrl = `${PROPERTIES_REQUEST_PATH}?topic=${topic}&format=json`;
