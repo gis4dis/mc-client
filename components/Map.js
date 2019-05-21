@@ -128,12 +128,43 @@ class Map extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { data, vgiData, index, isDataValid, primaryProperty, properties, topic } = nextProps;
-        const { map } = this.state;
-        if (isDataValid) {
+        const {
+            data,
+            vgiData,
+            index,
+            isDataValid,
+            loading,
+            primaryProperty,
+            properties,
+            topic,
+        } = nextProps;
+        const {
+            data: prevData,
+            vgiData: prevVgiData,
+            index: prevIndex,
+            primaryProperty: prevPrimaryProperty,
+            properties: prevProperties,
+            topic: prevTopic,
+        } = this.props;
+        const { map, selectedFeature } = this.state;
+
+        if (loading && selectedFeature) {
+            this._closeOverlay();
+        }
+
+        const isChange =
+            data !== prevData ||
+            vgiData !== prevVgiData ||
+            index !== prevIndex ||
+            primaryProperty !== prevPrimaryProperty ||
+            properties !== prevProperties ||
+            topic !== prevTopic;
+
+        if (isChange && isDataValid) {
             const view = map.getView();
             const resolution = view.getResolution();
             const featureCollection = data.feature_collection;
+
             const options = {
                 topic,
                 properties,
@@ -144,7 +175,6 @@ class Map extends React.Component {
                 resolution,
             };
             const generalization = generalize(options);
-            const { data: prevData, primaryProperty: prevPrimaryProperty } = this.props;
 
             if (generalization && this.geojsonLayer) {
                 const isDataChange = prevData !== data;
@@ -153,7 +183,7 @@ class Map extends React.Component {
 
                 this.geojsonLayer.setStyle(generalization.style);
             }
-        } else {
+        } else if (!isDataValid) {
             this._clearFeatures();
         }
     }
@@ -204,7 +234,14 @@ class Map extends React.Component {
             this._setMapInteractionsActive(true);
             this._selectInteraction.getFeatures().clear();
         }
-        event.target.blur();
+
+        this.setState({
+            selectedFeature: null,
+        });
+
+        if (event) {
+            event.target.blur();
+        }
     }
 
     _onOverlayMouseEnter() {
@@ -290,26 +327,30 @@ class Map extends React.Component {
 
         return (
             <div className="map-wrap">
-                <FullscreenFeatureCharts
-                    chartId="1"
-                    active={fullscreenFeatureCharts}
-                    feature={selectedFeature}
-                    property={primaryProperty}
-                    timeSettings={Object.assign(currentValues, { timeZone })}
-                    onClose={this._closeOverlay}
-                />
+                {selectedFeature && (
+                    <FullscreenFeatureCharts
+                        chartId="1"
+                        active={fullscreenFeatureCharts}
+                        feature={selectedFeature}
+                        property={primaryProperty}
+                        timeSettings={Object.assign(currentValues, { timeZone })}
+                        onClose={this._closeOverlay}
+                    />
+                )}
 
                 <div id="popup" className="popup ol-popup" style={{ display: 'none' }}>
                     <Button icon="close" basic floated="right" onClick={this._closeOverlay} />
 
-                    <FeatureCharts
-                        chartId="2"
-                        feature={selectedFeature}
-                        property={primaryProperty}
-                        timeSettings={Object.assign(currentValues, {
-                            timeZone,
-                        })}
-                    />
+                    {selectedFeature && (
+                        <FeatureCharts
+                            chartId="2"
+                            feature={selectedFeature}
+                            property={primaryProperty}
+                            timeSettings={Object.assign(currentValues, {
+                                timeZone,
+                            })}
+                        />
+                    )}
                 </div>
 
                 <Dimmer active={loading} inverted>
