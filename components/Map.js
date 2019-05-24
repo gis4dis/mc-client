@@ -65,6 +65,8 @@ class Map extends React.Component {
 
         this._onOverlayMouseEnter = this._onOverlayMouseEnter.bind(this);
         this._onOverlayMouseLeave = this._onOverlayMouseLeave.bind(this);
+
+        this._handleResolutionChange = this._handleResolutionChange.bind(this);
     }
 
     componentDidMount() {
@@ -85,6 +87,7 @@ class Map extends React.Component {
             center: olProj.transform([16.62, 49.2], 'EPSG:4326', projection),
             zoom: 13,
         });
+        view.on('change:resolution', this._handleResolutionChange);
 
         const baseLayer = getBaseLayer();
 
@@ -174,15 +177,11 @@ class Map extends React.Component {
                 value_idx: index,
                 resolution,
             };
-            const generalization = generalize(options);
 
-            if (generalization && this.geojsonLayer) {
-                const isDataChange = prevData !== data;
-                const isPropertyChange = prevPrimaryProperty !== primaryProperty;
-                this._updateFeatures(generalization.features, isDataChange || isPropertyChange);
+            const isDataChange = prevData !== data;
+            const isPropertyChange = prevPrimaryProperty !== primaryProperty;
 
-                this.geojsonLayer.setStyle(generalization.style);
-            }
+            this._generalizeFeatures(options, isDataChange || isPropertyChange);
         } else if (!isDataValid) {
             this._clearFeatures();
         }
@@ -192,9 +191,11 @@ class Map extends React.Component {
         const popup = document.getElementById('popup');
         popup.removeEventListener('mouseenter', this._onOverlayMouseEnter);
         popup.removeEventListener('mouseout', this._onOverlayMouseLeave);
-    }
 
-    mapElement;
+        const { map } = this.state;
+        const view = map.getView();
+        view.un('change:resolution', this._handleResolutionChange);
+    }
 
     updateMapSize() {
         const { map } = this.state;
@@ -282,11 +283,38 @@ class Map extends React.Component {
         }
     }
 
-    /*
     _handleResolutionChange(event) {
-        console.log(event);
+        const { isDataValid } = this.props;
+
+        if (isDataValid) {
+            const { data, vgiData, index, primaryProperty, properties, topic } = this.props;
+
+            const view = event.target;
+            const resolution = view.getResolution();
+            const featureCollection = data.feature_collection;
+
+            const options = {
+                topic,
+                properties,
+                primary_property: primaryProperty.name_id,
+                features: featureCollection,
+                vgi_features: vgiData,
+                value_idx: index,
+                resolution,
+            };
+            this._generalizeFeatures(options, false);
+        }
     }
-    */
+
+    _generalizeFeatures(options, isDataChange) {
+        const generalization = generalize(options);
+
+        if (generalization && this.geojsonLayer) {
+            this._updateFeatures(generalization.features, isDataChange);
+
+            this.geojsonLayer.setStyle(generalization.style);
+        }
+    }
 
     _updateFeatures(newFeatures, isDataChange) {
         const source = this.geojsonLayer.getSource();
