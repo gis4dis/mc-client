@@ -19,7 +19,7 @@
   "dependencies": {
     "@weco/next-plugin-transpile-modules": "0.0.2",
     "express": "4.16.3",
-    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#d305d65b5aa6e8d82b3030a08ce433767fadea7f",
+    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#fe130ac2c4b347add23fbc4c82eaa28e9d42f6bc",
     "http-proxy-middleware": "0.18.0",
     "lodash": "4.17.11",
     "isomorphic-unfetch": "3.0.0",
