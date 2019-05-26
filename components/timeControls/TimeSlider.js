@@ -177,11 +177,14 @@ class TimeSlider extends React.Component {
     }
 
     render() {
-        const { isPlaying, value } = this.state;
+        const { isPlaying } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to, disabled, frequency, interval, loading } = this.props;
+        const { from, to, frequency, interval, loading } = this.props;
         const thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
+
+        let { disabled } = this.props;
+        disabled = disabled || loading;
 
         let thumbWidthString;
         if (thumbWidth && this.inputElement && this.inputElement.current) {
@@ -198,6 +201,9 @@ class TimeSlider extends React.Component {
 
         const min = loading ? 0 : from || 0;
         const max = to || 100;
+
+        let { value } = this.state;
+        value = loading ? min : value || min;
 
         return (
             <div className="timeSlider">
