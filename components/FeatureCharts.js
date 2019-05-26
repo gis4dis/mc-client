@@ -190,7 +190,7 @@ class FeatureCharts extends React.Component {
         const featId = data.value;
         const selectedFeature = feature
             .get('intersectedFeatures')
-            .find(feat => feat.get('id_by_provider') === featId);
+            .find(feat => feat.getId() === featId);
         const featureData = getData(selectedFeature, property, timeSettings);
 
         this.setState({
@@ -289,10 +289,10 @@ class FeatureCharts extends React.Component {
             <div style={{ textAlign: 'left' }}>
                 {feature && feature.get('intersectedFeatures') && (
                     <Dropdown
-                        value={selectedFeature.get('id_by_provider')}
+                        value={selectedFeature.getId()}
                         selection
                         options={feature.get('intersectedFeatures').map(feat => {
-                            const featId = feat.get('id_by_provider');
+                            const featId = feat.getId();
                             const featName = feat.get('name');
 
                             return {

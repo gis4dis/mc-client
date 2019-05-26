@@ -324,10 +324,10 @@ class Map extends React.Component {
             source.addFeatures(newFeatures);
         } else {
             const currentFeatures = source.getFeatures();
-            const newIds = newFeatures.map(feature => feature.get('id'));
+            const newIds = newFeatures.map(feature => feature.getId());
             const matchingIds = [];
             currentFeatures.forEach(feature => {
-                const fid = feature.get('id');
+                const fid = feature.getId();
                 if (!newIds.includes(fid)) {
                     source.removeFeature(feature);
                 } else {
@@ -336,7 +336,7 @@ class Map extends React.Component {
             });
 
             const featuresToAdd = newFeatures.filter(feature => {
-                return !matchingIds.includes(feature.get('id'));
+                return !matchingIds.includes(feature.getId());
             });
             if (featuresToAdd.length) {
                 source.addFeatures(featuresToAdd);
