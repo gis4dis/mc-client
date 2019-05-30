@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
-import { Button, Dropdown } from 'semantic-ui-react';
+import { Button, Dropdown, Icon, Message } from 'semantic-ui-react';
 import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from 'recharts';
 import { getStartOfPeriod } from '../utils/time';
 
@@ -382,6 +382,36 @@ class FeatureCharts extends React.Component {
                             />
                         )}
                     </AreaChart>
+                )}
+
+                {!data && (
+                    <div
+                        style={{
+                            backgroundImage:
+                                'linear-gradient(to top, rgba(150,150,150,0.5), rgba(150,150,150,0.1))',
+                            height: `${height - HEADER_HEIGHT}px`,
+                            minHeight: `${height - HEADER_HEIGHT}px`,
+                            width: `${width}px`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Message
+                            icon
+                            style={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                height: '70px',
+                                width: '275px',
+                            }}
+                        >
+                            <Icon name="chart area" />
+                            <Message.Content>
+                                <Message.Header>No data</Message.Header>
+                                No data for given property.
+                            </Message.Content>
+                        </Message>
+                    </div>
                 )}
                 <style jsx>
                     {`
