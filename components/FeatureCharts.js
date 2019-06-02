@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import { Button, Dropdown, Icon, Message } from 'semantic-ui-react';
-import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, ReferenceArea, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { getStartOfPeriod } from '../utils/time';
 
 const DEFAULT_CHART_HEIGHT = 286;
@@ -351,10 +351,17 @@ class FeatureCharts extends React.Component {
                             type="number"
                             tickFormatter={timeFormatter}
                         />
-                        <YAxis yAxisId="values" label={valueAxisLabel} />
+                        <YAxis yAxisId="values" label={valueAxisLabel} unit={property.unit} />
                         <YAxis yAxisId="anomalies" orientation="right" />
 
                         <Tooltip labelFormatter={getTimeFormatter(timeSettings.timeZone, 'LT L')} />
+
+                        <ReferenceLine
+                            x={timeSettings.time.unix()}
+                            yAxisId="values"
+                            stroke="#6dffff"
+                            strokeWidth="2px"
+                        />
 
                         <Area
                             yAxisId="values"
