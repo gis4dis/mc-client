@@ -21,8 +21,8 @@
     "express": "4.16.3",
     "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#d1f0dd624c57e03aa32b3af08661d486d32c06d8",
     "http-proxy-middleware": "0.18.0",
-    "lodash": "4.17.11",
     "isomorphic-unfetch": "3.0.0",
+    "lodash": "4.17.11",
     "moment": "2.22.2",
     "next": "5.1.0",
     "ol": "jirik/ol3#19c2797513b5b3983ff186d24a60aaf81ac97e3c",
@@ -32,7 +32,7 @@
     "react-dom": "16.7.0",
     "react-markdown": "3.3.0",
     "react-moment-proptypes": "^1.6.0",
-    "recharts": "1.4.2",
+    "recharts": "1.6.2",
     "semantic-ui-react": "0.84.0"
   },
   "devDependencies": {

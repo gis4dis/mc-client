@@ -69,6 +69,21 @@ const getTimeFormatter = (timeZone, format) => {
     };
 };
 
+const getValueFormatter = property => {
+    return (value, name, props) => {
+        let formattedValue;
+        let formattedName;
+        if (name === 'value') {
+            formattedValue = `${value} ${property.unit}`;
+            formattedName = property.name;
+        } else {
+            formattedValue = value;
+            formattedName = 'anomaly rate';
+        }
+        return [formattedValue, formattedName];
+    };
+};
+
 /** ******************* zooming ********************** */
 const initialState = {
     left: 'dataMin',
@@ -274,6 +289,7 @@ class FeatureCharts extends React.Component {
         const isZoomedIn = left !== 'dataMin' || right !== 'dataMax';
 
         let valueAxisLabel;
+        let valueFormatter;
         if (property) {
             valueAxisLabel = {
                 value: /* property.name + */ ` [${property.unit}]`,
@@ -281,6 +297,7 @@ class FeatureCharts extends React.Component {
                 offset: 10,
                 position: 'insideLeft',
             };
+            valueFormatter = getValueFormatter(property);
         }
 
         const id = chartId;
@@ -354,7 +371,11 @@ class FeatureCharts extends React.Component {
                         <YAxis yAxisId="values" label={valueAxisLabel} unit={property.unit} />
                         <YAxis yAxisId="anomalies" orientation="right" />
 
-                        <Tooltip labelFormatter={getTimeFormatter(timeSettings.timeZone, 'LT L')} />
+                        <Tooltip
+                            formatter={valueFormatter}
+                            itemSorter={(a, b) => (a.name === 'anomaly_rate' ? 1 : -1)}
+                            labelFormatter={getTimeFormatter(timeSettings.timeZone, 'LT L')}
+                        />
 
                         <ReferenceLine
                             x={timeSettings.time.unix()}
