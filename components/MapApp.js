@@ -11,6 +11,11 @@ import { getEndOfPeriod, getStartOfPeriod } from '../utils/time';
 /** ********************** styles ************************************** */
 const NARROW_WIDTH = 700;
 
+const refreshViewportHeight = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
+
 const sidebarContentStyle = {
     background: '#000',
     height: '100%',
@@ -234,6 +239,8 @@ class MapApp extends React.Component {
 
     /** ****************************** app handlers ******************************** */
     resizeApp() {
+        refreshViewportHeight();
+
         this.updateSidebarDirection();
 
         this.setState({
@@ -530,7 +537,7 @@ class MapApp extends React.Component {
                 <style jsx>
                     {`
                         .content {
-                            height: calc(100vh - 40px);
+                            height: calc(var(--vh, 1vh) * 100 - 40px);
                             position: absolute;
                             top: 40px;
                             width: 100%;
