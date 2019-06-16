@@ -95,6 +95,14 @@ const initialState = {
 
 /** ******************* zooming ********************** */
 
+const getAvailableProperties = (feature, properties) => {
+    const availableProperties = properties.filter(prop => {
+        const propertyData = feature.get(prop.name_id);
+        return propertyData !== undefined;
+    });
+    return availableProperties.map(prop => prop.name);
+};
+
 const getData = (feature, property, time) => {
     if (feature && property) {
         const propertyData = feature.get(property.name_id);
@@ -273,7 +281,7 @@ class FeatureCharts extends React.Component {
     }
 
     render() {
-        const { feature } = this.props;
+        const { feature, properties } = this.props;
         const {
             selectedFeature,
             data,
@@ -428,15 +436,18 @@ class FeatureCharts extends React.Component {
                         <Message
                             icon
                             style={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                height: '70px',
-                                width: '275px',
+                                width: '350px',
                             }}
                         >
                             <Icon name="chart area" />
                             <Message.Content>
-                                <Message.Header>No data</Message.Header>
-                                No data for given property.
+                                <Message.Header>
+                                    {`No data for property ${property.name}`}
+                                </Message.Header>
+                                {`Data available for property ${getAvailableProperties(
+                                    selectedFeature,
+                                    properties
+                                ).join(', ')}.`}
                             </Message.Content>
                         </Message>
                     </div>
@@ -476,6 +487,13 @@ FeatureCharts.propTypes = {
         name_id: PropTypes.string,
         unit: PropTypes.string,
     }),
+    properties: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+            unit: PropTypes.string,
+        })
+    ).isRequired,
     timeSettings: PropTypes.shape({
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,

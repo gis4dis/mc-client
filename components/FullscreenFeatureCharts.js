@@ -74,7 +74,15 @@ class FullscreenFeatureCharts extends Component {
     }
 
     render() {
-        const { active, chartId, feature, onClose, property, timeSettings } = this.props;
+        const {
+            active,
+            chartId,
+            feature,
+            onClose,
+            property,
+            properties,
+            timeSettings,
+        } = this.props;
         const { height, width } = this._getChartSize();
 
         return (
@@ -88,6 +96,7 @@ class FullscreenFeatureCharts extends Component {
                         width={width}
                         feature={feature}
                         property={property}
+                        properties={properties}
                         timeSettings={timeSettings}
                     />
                 </div>
@@ -127,6 +136,13 @@ FullscreenFeatureCharts.propTypes = {
         name_id: PropTypes.string,
         unit: PropTypes.string,
     }),
+    properties: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+            unit: PropTypes.string,
+        })
+    ).isRequired,
     timeSettings: PropTypes.shape({
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,

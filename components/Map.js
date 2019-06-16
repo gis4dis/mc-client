@@ -351,7 +351,14 @@ class Map extends React.Component {
 
     render() {
         const { fullscreenFeatureCharts, selectedFeature } = this.state;
-        const { currentValues, loading, isDataValid, primaryProperty, timeZone } = this.props;
+        const {
+            currentValues,
+            loading,
+            isDataValid,
+            primaryProperty,
+            properties,
+            timeZone,
+        } = this.props;
 
         return (
             <div className="map-wrap">
@@ -361,6 +368,7 @@ class Map extends React.Component {
                         active={fullscreenFeatureCharts}
                         feature={selectedFeature}
                         property={primaryProperty}
+                        properties={properties}
                         timeSettings={Object.assign(currentValues, { timeZone })}
                         onClose={this._closeOverlay}
                     />
@@ -374,6 +382,7 @@ class Map extends React.Component {
                             chartId="2"
                             feature={selectedFeature}
                             property={primaryProperty}
+                            properties={properties}
                             timeSettings={Object.assign(currentValues, {
                                 timeZone,
                             })}
