@@ -299,62 +299,70 @@ class MapApp extends React.Component {
             this.resizeMap();
         }
 
+        let requestId;
+        if (this._lastRequestId === undefined) {
+            requestId = 0;
+        } else {
+            requestId = this._lastRequestId + 1;
+        }
+        this._lastRequestId = requestId;
+
         Promise.all([
             sendTimeSeriesRequest(requestParameters),
             sendVGIObservationsRequest(requestParameters),
         ])
             .then(responses => {
-                const notOkResponse = responses.find(response => response.status !== 200);
-                if (notOkResponse) {
-                    const message = `Looks like there was a problem. Status Code: ${
-                        notOkResponse.status
-                    }`;
-                    console.log(message);
-                    this.notifyUser({
-                        text: message,
-                        color: 'red',
-                    });
-
-                    this.setState({
-                        currentValues: {
-                            from: null,
-                            to: null,
-                            time: null,
-                            frequency: null,
-                        },
-                        geojsonData: null,
-                        isDataValid: false,
-                        loading: false,
-                    });
-                } else {
-                    const [timeSeriesResponse, vgiResponse] = responses;
-                    Promise.all([timeSeriesResponse.json(), vgiResponse.json()]).then(jsons => {
-                        const [data, vgiData] = jsons;
-                        const from = data.phenomenon_time_from
-                            ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
-                            : null;
-                        const to = data.phenomenon_time_to
-                            ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
-                            : null;
+                if (requestId === this._lastRequestId) {
+                    const notOkResponse = responses.find(response => response.status !== 200);
+                    if (notOkResponse) {
+                        const message = `Looks like there was a problem. Status Code: ${notOkResponse.status}`;
+                        console.log(message);
+                        this.notifyUser({
+                            text: message,
+                            color: 'red',
+                        });
 
                         this.setState({
                             currentValues: {
-                                from,
-                                to,
-                                time: from,
-                                frequency: data.value_frequency,
-                                valueDuration: data.value_duration,
+                                from: null,
+                                to: null,
+                                time: null,
+                                frequency: null,
                             },
-                            geojsonData: data,
-                            vgiData,
-                            isDataValid: Boolean(from && to),
+                            geojsonData: null,
+                            isDataValid: false,
                             loading: false,
                         });
+                    } else {
+                        const [timeSeriesResponse, vgiResponse] = responses;
+                        Promise.all([timeSeriesResponse.json(), vgiResponse.json()]).then(jsons => {
+                            const [data, vgiData] = jsons;
+                            const from = data.phenomenon_time_from
+                                ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
+                                : null;
+                            const to = data.phenomenon_time_to
+                                ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
+                                : null;
 
-                        if (isSmall && Boolean(from && to)) {
-                            this.resizeMap();
-                        }
-                    });
+                            this.setState({
+                                currentValues: {
+                                    from,
+                                    to,
+                                    time: from,
+                                    frequency: data.value_frequency,
+                                    valueDuration: data.value_duration,
+                                },
+                                geojsonData: data,
+                                vgiData,
+                                isDataValid: Boolean(from && to),
+                                loading: false,
+                            });
+
+                            if (isSmall && Boolean(from && to)) {
+                                this.resizeMap();
+                            }
+                        });
+                    }
                 }
             })
             .catch(error => console.log(error));
