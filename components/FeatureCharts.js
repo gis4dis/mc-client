@@ -183,9 +183,17 @@ class FeatureCharts extends React.Component {
     componentWillReceiveProps(nextProps) {
         const isAggregatedFeature =
             nextProps.feature && nextProps.feature.get('intersectedFeatures');
-        const selectedFeature = isAggregatedFeature
-            ? nextProps.feature.get('intersectedFeatures')[0]
-            : nextProps.feature;
+
+        const { feature } = this.props;
+        let selectedFeature;
+        if (nextProps.feature !== feature) {
+            selectedFeature = isAggregatedFeature
+                ? nextProps.feature.get('intersectedFeatures')[0]
+                : nextProps.feature;
+        } else {
+            ({ selectedFeature } = this.state);
+        }
+
         const title = isAggregatedFeature ? null : getTitle(selectedFeature);
         const { timeSettings } = this.props;
         const subtitle = getTimeRangeString(timeSettings);
