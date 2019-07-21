@@ -6,12 +6,40 @@ import { Button } from 'semantic-ui-react';
 const minThumbWidth = 12;
 const minThumbWidthString = `${minThumbWidth}px`;
 
+const getSteps = options => {
+    const { from, to, frequency, interval } = options;
+    let steps;
+
+    if (interval === frequency) {
+        steps = frequency;
+    } else {
+        steps = [];
+        const lastMeasurement = to - interval;
+        for (let i = from; i <= lastMeasurement; i += frequency) {
+            steps.push(i);
+        }
+    }
+    return steps;
+};
+
 class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
+        const { from, to, frequency, interval, value } = props;
+        let steps = [];
+        if (from && to) {
+            steps = getSteps({
+                from,
+                to,
+                frequency,
+                interval,
+            });
+        }
+
         this.state = {
-            value: props.value || props.from || 0,
+            value: value || from || 0,
+            steps,
             isPlaying: false,
         };
 
@@ -32,8 +60,21 @@ class TimeSlider extends React.Component {
     componentWillReceiveProps(nextProps) {
         const { from, to } = this.props;
         if (nextProps.from !== from || nextProps.to !== to) {
+            const { from: nextFrom, to: nextTo, frequency, interval } = nextProps;
+
+            let steps = [];
+            if (from && to) {
+                steps = getSteps({
+                    from: nextFrom,
+                    to: nextTo,
+                    frequency,
+                    interval,
+                });
+            }
+
             this.setState({
                 value: nextProps.from || 0,
+                steps,
             });
         }
     }
@@ -64,14 +105,16 @@ class TimeSlider extends React.Component {
     }
 
     setValueToMax() {
-        const { callback, to, timeZone } = this.props;
+        const { callback, timeZone } = this.props;
+        const max = this._getMax();
+
         if (callback) {
-            const timeDate = moment.unix(to).utcOffset(timeZone);
+            const timeDate = moment.unix(max).utcOffset(timeZone);
             callback(timeDate);
         }
 
         this.setState({
-            value: to,
+            value: max,
         });
     }
 
@@ -112,9 +155,17 @@ class TimeSlider extends React.Component {
     moveStepBack() {
         this.setState((prevState, props) => {
             const { callback, from, frequency, timeZone } = props;
+            const { steps } = this.state;
             const time = parseInt(prevState.value, 10);
-            const step = parseInt(frequency || 1, 10);
-            let newValue = time - step;
+
+            let newValue;
+            if (steps instanceof Array) {
+                const index = steps.indexOf(time);
+                newValue = index ? steps[index - 1] : from;
+            } else {
+                const step = parseInt(frequency || 1, 10);
+                newValue = time - step;
+            }
 
             if (newValue < from) {
                 newValue = from;
@@ -136,9 +187,17 @@ class TimeSlider extends React.Component {
     moveStepForward() {
         this.setState((prevState, props) => {
             const { frequency, callback, timeZone, to } = props;
+            const { steps } = this.state;
             const time = parseInt(prevState.value, 10);
-            const step = parseInt(frequency || 1, 10);
-            let newValue = time + step;
+
+            let newValue;
+            if (steps instanceof Array) {
+                const index = steps.indexOf(time);
+                newValue = index < steps.length - 1 ? steps[index + 1] : time;
+            } else {
+                const step = parseInt(frequency || 1, 10);
+                newValue = time + step;
+            }
 
             if (newValue > to) {
                 newValue = to;
@@ -171,22 +230,32 @@ class TimeSlider extends React.Component {
     }
 
     _isMax() {
-        const { to } = this.props;
         const { value } = this.state;
-        return value === to;
+        return value === this._getMax();
+    }
+
+    _getMax() {
+        const { to } = this.props;
+        const { steps } = this.state;
+
+        if (steps instanceof Array && steps.length) {
+            return steps[steps.length - 1];
+        }
+        return to - steps;
     }
 
     render() {
-        const { isPlaying } = this.state;
+        const { steps, isPlaying } = this.state;
         const playPauseIcon = isPlaying ? 'pause' : 'play';
 
-        const { from, to, frequency, interval, loading } = this.props;
+        const { from, to, interval, loading } = this.props;
         const thumbWidth = interval && from && to ? (interval / (to - from)) * 100 : null;
 
         let { disabled } = this.props;
         disabled = disabled || loading;
 
         let thumbWidthString;
+        let thumbBorderRadius;
         if (thumbWidth && this.inputElement && this.inputElement.current) {
             const width = this.inputElement.current.offsetWidth;
             const thumbWidthInPx = (width * thumbWidth) / 100;
@@ -194,6 +263,7 @@ class TimeSlider extends React.Component {
                 thumbWidthString = minThumbWidthString;
             } else {
                 thumbWidthString = `${thumbWidth}%`;
+                thumbBorderRadius = 0;
             }
         } else {
             thumbWidthString = minThumbWidthString;
@@ -214,11 +284,14 @@ class TimeSlider extends React.Component {
                         ref={this.inputElement}
                         min={min}
                         max={max}
-                        step={frequency}
+                        step={steps}
                         value={value}
                         disabled={disabled}
                         onChange={this.onChange}
-                        style={{ '--slider-thumb-width': thumbWidthString }}
+                        style={{
+                            '--slider-thumb-width': thumbWidthString,
+                            '--slider-thumb-border-radius': thumbBorderRadius,
+                        }}
                     />
                 </div>
 
@@ -300,7 +373,7 @@ class TimeSlider extends React.Component {
                             appearance: none;
                             height: 12px;
                             width: var(--slider-thumb-width, 12px);
-                            border-radius: 50%;
+                            border-radius: var(--slider-thumb-border-radius, 50%);
                             background: #54ffff;
                             cursor: pointer;
                         }
@@ -308,7 +381,7 @@ class TimeSlider extends React.Component {
                         .slider::-moz-range-thumb {
                             height: 12px;
                             width: var(--slider-thumb-width, 12px);
-                            border-radius: 50%;
+                            border-radius: var(--slider-thumb-border-radius, 50%);
                             border: none;
                             background: #54ffff;
                             cursor: pointer;
