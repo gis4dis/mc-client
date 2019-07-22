@@ -445,13 +445,13 @@ class DateRangeSelector extends React.Component {
 
                 <div className="column right">
                     <Button.Group>
-                        <Button inverted icon color="blue" onClick={this._setPrevious}>
+                        <Button inverted icon color="teal" onClick={this._setPrevious}>
                             <Icon name="caret left" />
                         </Button>
                         <Button
                             inverted
                             icon
-                            color="blue"
+                            color="teal"
                             disabled={_nextDisabled}
                             onClick={this._setNext}
                         >
@@ -466,7 +466,7 @@ class DateRangeSelector extends React.Component {
                             className="preset-button"
                             inverted
                             size="mini"
-                            color="blue"
+                            color="teal"
                             onClick={this._setThisWeek}
                             style={presetButtonStyle}
                         >
@@ -476,7 +476,7 @@ class DateRangeSelector extends React.Component {
                             className="preset-button"
                             inverted
                             size="mini"
-                            color="blue"
+                            color="teal"
                             onClick={this._setLastWeek}
                             style={presetButtonStyle}
                         >
@@ -488,7 +488,7 @@ class DateRangeSelector extends React.Component {
                             className="preset-button"
                             inverted
                             size="mini"
-                            color="blue"
+                            color="teal"
                             onClick={this._setThisMonth}
                             style={presetButtonStyle}
                         >
@@ -497,7 +497,7 @@ class DateRangeSelector extends React.Component {
                         <Button
                             inverted
                             size="mini"
-                            color="blue"
+                            color="teal"
                             onClick={this._setLastMonth}
                             style={presetButtonStyle}
                         >

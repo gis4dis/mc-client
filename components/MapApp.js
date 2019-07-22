@@ -2,6 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
+import {
+    INITIAL_RANGE_LENGTH,
+    DEFAULT_TOPIC,
+    TIME_ZONE,
+    PROPERTIES_REQUEST_PATH,
+    TIME_SLOTS_REQUEST_PATH,
+    TIME_SERIES_REQUEST_PATH,
+    VGI_OBSERVATIONS_REQUEST_PATH,
+} from '../appConfiguration';
 import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup';
@@ -64,16 +73,6 @@ const getSidebarToggleIcon = (direction, visible) => {
 };
 /** ********************** styles ************************************** */
 
-const INITIAL_RANGE_LENGTH = {
-    weeks: 1,
-};
-const DEFAULT_TOPIC = 'drought';
-const TIME_ZONE = '+01:00';
-
-const PROPERTIES_REQUEST_PATH = '/api/v2/properties/';
-const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
-const VGI_OBSERVATIONS_REQUEST_PATH = '/api/v2/vgi_observations/';
-
 /**
  * @param params
  */
@@ -118,8 +117,10 @@ class MapApp extends React.Component {
             isSmall: false,
             topic: props.topic || DEFAULT_TOPIC,
             properties: [],
+            timeSlots: [],
             selection: {
                 primaryPropertyId: null,
+                timeSlotId: null,
                 from,
                 to,
                 timeValueIndex: 0,
@@ -140,6 +141,7 @@ class MapApp extends React.Component {
         };
 
         this.handlePropertyChange = this.handlePropertyChange.bind(this);
+        this.handleTimeSlotChange = this.handleTimeSlotChange.bind(this);
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
         this.handleTimeValueChange = this.handleTimeValueChange.bind(this);
         this.handleSliderCollapsedChange = this.handleSliderCollapsedChange.bind(this);
@@ -156,26 +158,34 @@ class MapApp extends React.Component {
         const { topic } = this.state;
 
         const propertiesRequestUrl = `${PROPERTIES_REQUEST_PATH}?topic=${topic}&format=json`;
-        fetch(propertiesRequestUrl)
+        const timeSlotsRequestUrl = `${TIME_SLOTS_REQUEST_PATH}?topic=${topic}&format=json`;
+
+        const promises = [fetch(propertiesRequestUrl), fetch(timeSlotsRequestUrl)];
+        Promise.all(promises)
             .then(results => {
-                return results.json();
+                return Promise.all(results.map(result => result.json()));
             })
             .then(data => {
-                const primaryPropertyId = data.length ? data[0].name_id : null;
+                const [properties, timeSlots] = data;
+                const primaryPropertyId = properties.length ? properties[0].name_id : null;
+                const timeSlotId = timeSlots.length ? timeSlots[0].name_id : null;
 
                 this.setState(prevState => {
                     const { selection } = prevState;
                     selection.primaryPropertyId = primaryPropertyId;
+                    selection.timeSlotId = timeSlotId;
 
                     this.handleAppStateChange({
                         from: selection.from,
                         to: selection.to,
-                        properties: data,
+                        properties,
+                        timeSlotId,
                     });
 
                     return {
                         loading: true,
-                        properties: data,
+                        properties,
+                        timeSlots,
                         selection,
                     };
                 });
@@ -287,6 +297,7 @@ class MapApp extends React.Component {
             phenomenon_date_from: options.from.format('YYYY-MM-DD'),
             phenomenon_date_to: options.to.format('YYYY-MM-DD'),
             bbox: options.bbox,
+            time_slots: options.timeSlotId,
         };
 
         const props = options.properties || properties;
@@ -381,17 +392,40 @@ class MapApp extends React.Component {
         });
     }
 
+    handleTimeSlotChange(timeSlotId) {
+        this.setState(prevState => {
+            const { selection } = prevState;
+            selection.timeSlotId = timeSlotId;
+
+            const isPropertyChosen = selection.primaryPropertyId !== null;
+            if (isPropertyChosen) {
+                this.handleAppStateChange({
+                    from: selection.from,
+                    to: selection.to,
+                    timeSlotId,
+                });
+            }
+
+            return {
+                loading: isPropertyChosen,
+                selection,
+            };
+        });
+    }
+
     handleDateRangeChange(from, to) {
         this.setState(prevState => {
-            const isPropertyChosen = prevState.selection.primaryPropertyId !== null;
+            const { selection } = prevState;
+
+            const isPropertyChosen = selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
                 this.handleAppStateChange({
                     from,
                     to,
+                    timeSlotId: selection.timeSlotId,
                 });
             }
 
-            const { selection } = prevState;
             selection.from = from;
             selection.to = to;
 
@@ -454,6 +488,7 @@ class MapApp extends React.Component {
             popupMessage,
             popupOpen,
             properties,
+            timeSlots,
             selection,
             sidebarVisible,
             sidebarDirection,
@@ -481,12 +516,14 @@ class MapApp extends React.Component {
                         <div style={sidebarContentStyle}>
                             <MapControls
                                 properties={properties}
+                                timeSlots={timeSlots}
                                 selection={selection}
                                 currentValues={currentValues}
                                 loading={loading}
                                 timeZone={TIME_ZONE}
                                 onDateRangeChange={this.handleDateRangeChange}
                                 onPropertyChange={this.handlePropertyChange}
+                                onTimeSlotChange={this.handleTimeSlotChange}
                                 onTimeValueChange={this.handleTimeValueChange}
                                 notifyUser={this.notifyUser}
                                 isFullscreen={isSmall}

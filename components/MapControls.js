@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import { Dropdown, Icon, Message } from 'semantic-ui-react';
 import TimeControl from './timeControls/TimeControl';
+import TimeSlotControl from './TimeSlotControl';
 
 /** ********************** styles ************************************** */
 const partStyle = {
@@ -26,8 +27,10 @@ const MapControls = props => {
         notifyUser,
         onDateRangeChange,
         onPropertyChange,
+        onTimeSlotChange,
         onTimeValueChange,
         properties,
+        timeSlots,
         selection,
         switchToMapHandler,
         timeZone,
@@ -55,6 +58,19 @@ const MapControls = props => {
                 handleDateRangeChange={onDateRangeChange}
                 handleTimeValueChange={onTimeValueChange}
                 notifyUser={notifyUser}
+                style={Object.assign(
+                    {
+                        padding: '0 16px',
+                        width: '100%',
+                    },
+                    partStyle
+                )}
+            />
+
+            <TimeSlotControl
+                timeSlots={timeSlots}
+                selected={selection.timeSlotId}
+                handleTimeSlotChange={onTimeSlotChange}
                 style={partStyle}
             />
 
@@ -90,6 +106,7 @@ MapControls.propTypes = {
     notifyUser: PropTypes.func.isRequired,
     onDateRangeChange: PropTypes.func.isRequired,
     onPropertyChange: PropTypes.func.isRequired,
+    onTimeSlotChange: PropTypes.func.isRequired,
     onTimeValueChange: PropTypes.func.isRequired,
     properties: PropTypes.arrayOf(
         PropTypes.shape({
@@ -98,8 +115,15 @@ MapControls.propTypes = {
             unit: PropTypes.string,
         })
     ).isRequired,
+    timeSlots: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            name_id: PropTypes.string,
+        })
+    ).isRequired,
     selection: PropTypes.shape({
         primaryPropertyId: PropTypes.string,
+        timeSlotId: PropTypes.string,
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
         timeValueIndex: PropTypes.number,
