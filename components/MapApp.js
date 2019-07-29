@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
 import {
-    INITIAL_RANGE_LENGTH,
     DEFAULT_TOPIC,
     TIME_ZONE,
+    TIME_SLOTS,
     PROPERTIES_REQUEST_PATH,
     TIME_SLOTS_REQUEST_PATH,
     TIME_SERIES_REQUEST_PATH,
@@ -108,10 +108,6 @@ class MapApp extends React.Component {
         super(props);
 
         moment.locale('en-gb');
-        const now = moment();
-
-        const from = getStartOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(INITIAL_RANGE_LENGTH);
-        const to = getEndOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(1, 'days');
 
         this.state = {
             isSmall: false,
@@ -121,14 +117,14 @@ class MapApp extends React.Component {
             selection: {
                 primaryPropertyId: null,
                 timeSlotId: null,
-                from,
-                to,
+                from: null,
+                to: null,
                 timeValueIndex: 0,
                 bbox: null,
             },
             currentValues: {
-                from,
-                to,
+                from: null,
+                to: null,
                 frequency: 3600,
                 time: null,
             },
@@ -170,8 +166,17 @@ class MapApp extends React.Component {
                 const primaryPropertyId = properties.length ? properties[0].name_id : null;
                 const timeSlotId = timeSlots.length ? timeSlots[0].name_id : null;
 
+                const now = moment();
+
+                const from = getStartOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(
+                    TIME_SLOTS[timeSlotId].initialRange
+                );
+                const to = getEndOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(1, 'days');
+
                 this.setState(prevState => {
                     const { selection } = prevState;
+                    selection.from = from;
+                    selection.to = to;
                     selection.primaryPropertyId = primaryPropertyId;
                     selection.timeSlotId = timeSlotId;
 

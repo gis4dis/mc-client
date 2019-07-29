@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
-import { TIME_SLOTS_TITLES } from '../appConfiguration';
+import { TIME_SLOTS } from '../appConfiguration';
 
 const controlPartStyle = {
     marginTop: '16px',
@@ -29,7 +29,7 @@ const TimeSlotControl = props => {
                             active={selected === timeSlot.name_id}
                             onClick={handleClick}
                         >
-                            {TIME_SLOTS_TITLES[timeSlot.name_id]}
+                            {TIME_SLOTS[timeSlot.name_id].title}
                         </Button>
                     );
                 })}

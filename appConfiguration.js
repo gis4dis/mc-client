@@ -9,10 +9,25 @@ export const TIME_SLOTS_REQUEST_PATH = '/api/v2/time_slots/';
 export const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
 export const VGI_OBSERVATIONS_REQUEST_PATH = '/api/v2/vgi_observations/';
 
-export const TIME_SLOTS_TITLES = {
-    '1_hour_slot': '1 hour',
-    '24_hour_slot': '24 hours',
-    '30_days_daily': '30 days',
+export const TIME_SLOTS = {
+    '1_hour_slot': {
+        title: '1 hour',
+        initialRange: {
+            days: 1,
+        },
+    },
+    '24_hour_slot': {
+        title: '24 hours',
+        initialRange: {
+            weeks: 1,
+        },
+    },
+    '30_days_daily': {
+        title: '30 days',
+        initialRange: {
+            month: 1,
+        },
+    },
 };
 
 const appConfiguration = {
@@ -23,7 +38,7 @@ const appConfiguration = {
     TIME_SLOTS_REQUEST_PATH,
     TIME_SERIES_REQUEST_PATH,
     VGI_OBSERVATIONS_REQUEST_PATH,
-    TIME_SLOTS_TITLES,
+    TIME_SLOTS,
 };
 
 export default appConfiguration;

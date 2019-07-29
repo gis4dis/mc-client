@@ -198,6 +198,16 @@ class DateRangeSelector extends React.Component {
         this._setThisWeek = this._setThisWeek.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const { fromDate, toDate } = this.state;
+        if (!fromDate || !toDate) {
+            this.setState({
+                fromDate: nextProps.from,
+                toDate: nextProps.to,
+            });
+        }
+    }
+
     handleFromChange(date) {
         const { timeZone, callback } = this.props;
         date.utcOffset(timeZone);
@@ -522,11 +532,13 @@ class DateRangeSelector extends React.Component {
 
 DateRangeSelector.defaultProps = {
     callback: null,
+    from: null,
+    to: null,
 };
 
 DateRangeSelector.propTypes = {
-    from: momentPropTypes.momentObj.isRequired,
-    to: momentPropTypes.momentObj.isRequired,
+    from: momentPropTypes.momentObj,
+    to: momentPropTypes.momentObj,
     timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     currentValues: PropTypes.shape({
         from: momentPropTypes.momentObj,

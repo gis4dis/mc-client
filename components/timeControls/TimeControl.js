@@ -24,6 +24,15 @@ class TimeControl extends React.Component {
         this.handleDateRangeChange = this.handleDateRangeChange.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const { dateRange } = nextProps;
+
+        this.setState({
+            from: dateRange ? dateRange.from : null,
+            to: dateRange ? dateRange.to : null,
+        });
+    }
+
     handleDateRangeChange(from, to) {
         const { handleDateRangeChange } = this.props;
         if (handleDateRangeChange) {
