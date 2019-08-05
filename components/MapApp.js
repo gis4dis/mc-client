@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Sidebar } from 'semantic-ui-react';
 import {
+    INITIAL_DATE,
     DEFAULT_TOPIC,
     TIME_ZONE,
     TIME_SLOTS,
@@ -166,12 +167,20 @@ class MapApp extends React.Component {
                 const primaryPropertyId = properties.length ? properties[0].name_id : null;
                 const timeSlotId = timeSlots.length ? timeSlots[0].name_id : null;
 
-                const now = moment();
+                let initialDate;
+                if (INITIAL_DATE === 'now') {
+                    initialDate = moment();
+                } else {
+                    initialDate = moment(`${INITIAL_DATE} 01Z`);
+                }
 
-                const from = getStartOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(
+                const from = getStartOfPeriod(initialDate.clone(), 'day', TIME_ZONE).subtract(
                     TIME_SLOTS[timeSlotId].initialRange
                 );
-                const to = getEndOfPeriod(now.clone(), 'day', TIME_ZONE).subtract(1, 'days');
+                const to = getEndOfPeriod(initialDate.clone(), 'day', TIME_ZONE).subtract(
+                    1,
+                    'days'
+                );
 
                 this.setState(prevState => {
                     const { selection } = prevState;
