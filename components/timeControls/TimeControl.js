@@ -48,6 +48,7 @@ class TimeControl extends React.Component {
     render() {
         const {
             currentValues,
+            timeSlot,
             showSlider,
             handleTimeValueChange,
             loading,
@@ -75,6 +76,7 @@ class TimeControl extends React.Component {
                     <DateRangeSelector
                         from={from}
                         to={to}
+                        timeSlot={timeSlot}
                         timeZone={timeZone}
                         currentValues={currentValues}
                         loading={loading}
@@ -108,6 +110,7 @@ class TimeControl extends React.Component {
 }
 
 TimeControl.defaultProps = {
+    timeSlot: null,
     showSlider: true,
 };
 
@@ -123,6 +126,7 @@ TimeControl.propTypes = {
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
     }).isRequired,
+    timeSlot: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     showSlider: PropTypes.bool,
     handleDateRangeChange: PropTypes.func.isRequired,

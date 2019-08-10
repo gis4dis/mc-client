@@ -11,6 +11,7 @@ import {
     getLastPossibleObservationTime,
     getLastObservationTime,
 } from '../utils/time';
+import { TIME_SLOTS } from '../appConfiguration';
 
 const formStyle = {
     margin: '8px',
@@ -19,6 +20,8 @@ const formStyle = {
 
 const presetButtonStyle = {
     display: 'block',
+    margin: '2px',
+    width: 'calc(100% - 4px)',
 };
 
 const years = range(2010, moment().year() + 1, 1);
@@ -191,11 +194,6 @@ class DateRangeSelector extends React.Component {
 
         this._setPrevious = this._setPrevious.bind(this);
         this._setNext = this._setNext.bind(this);
-
-        this._setLastMonth = this._setLastMonth.bind(this);
-        this._setLastWeek = this._setLastWeek.bind(this);
-        this._setThisMonth = this._setThisMonth.bind(this);
-        this._setThisWeek = this._setThisWeek.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -298,66 +296,13 @@ class DateRangeSelector extends React.Component {
         });
     }
 
-    _setThisWeek() {
-        const { timeZone } = this.props;
-        const now = moment();
-        const from = getStartOfPeriod(now.clone(), 'week', timeZone);
-        const to = getEndOfPeriod(now.clone(), 'week', timeZone);
-        const { callback } = this.props;
-
-        if (callback) {
-            callback(from, to);
-        }
-
-        this.setState({
-            fromDate: from,
-            toDate: to,
-            _nextDisabled: true,
-        });
-    }
-
-    _setLastWeek() {
-        const { timeZone } = this.props;
-        const now = moment();
-        const from = getStartOfPeriod(now.clone(), 'week', timeZone).subtract(1, 'weeks');
-        const to = getEndOfPeriod(now.clone(), 'week', timeZone).subtract(1, 'weeks');
-        const { callback } = this.props;
-
-        if (callback) {
-            callback(from, to);
-        }
-
-        this.setState({
-            fromDate: from,
-            toDate: to,
-            _nextDisabled: false,
-        });
-    }
-
-    _setThisMonth() {
-        const { timeZone } = this.props;
-        const now = moment();
-        const from = getStartOfPeriod(now.clone(), 'month', timeZone);
-        const to = getEndOfPeriod(now.clone(), 'month', timeZone);
-        const { callback } = this.props;
-
-        if (callback) {
-            callback(from, to);
-        }
-
-        this.setState({
-            fromDate: from,
-            toDate: to,
-            _nextDisabled: true,
-        });
-    }
-
-    _setLastMonth() {
+    _setPreset(preset) {
+        const { unit, subtract } = preset;
         const { callback, timeZone } = this.props;
 
         const now = moment();
-        const from = getStartOfPeriod(now.clone(), 'month', timeZone).subtract(1, 'months');
-        const to = getEndOfPeriod(now.clone(), 'month', timeZone).subtract(1, 'months');
+        const from = getStartOfPeriod(now.clone(), unit, timeZone).subtract(subtract, `${unit}s`);
+        const to = getEndOfPeriod(now.clone(), unit, timeZone).subtract(subtract, `${unit}s`);
 
         if (callback) {
             callback(from, to);
@@ -366,14 +311,14 @@ class DateRangeSelector extends React.Component {
         this.setState({
             fromDate: from,
             toDate: to,
-            _nextDisabled: false,
+            _nextDisabled: true,
         });
     }
     /** **************************** preset options ************************************ */
 
     render() {
         const { fromDate, toDate, _nextDisabled } = this.state;
-        const { currentValues, loading, timeZone } = this.props;
+        const { currentValues, loading, timeSlot, timeZone } = this.props;
         const { from: currentFrom, to: currentTo, frequency } = currentValues;
         const from = getCurrentValueString(fromDate, currentFrom);
 
@@ -389,6 +334,13 @@ class DateRangeSelector extends React.Component {
         }
 
         const maxDate = getEndOfPeriod(moment(), 'day', timeZone).subtract(1, 'days');
+
+        const timeSlotConfig = TIME_SLOTS[timeSlot];
+
+        let presetGroups;
+        if (timeSlotConfig) {
+            ({ presetGroups } = timeSlotConfig);
+        }
 
         return (
             <div className="main" style={{ position: 'relative' }}>
@@ -471,49 +423,29 @@ class DateRangeSelector extends React.Component {
                 </div>
 
                 <Form style={formStyle}>
-                    <div className="button-wrapper">
-                        <Button
-                            className="preset-button"
-                            inverted
-                            size="mini"
-                            color="teal"
-                            onClick={this._setThisWeek}
-                            style={presetButtonStyle}
-                        >
-                            This Week
-                        </Button>
-                        <Button
-                            className="preset-button"
-                            inverted
-                            size="mini"
-                            color="teal"
-                            onClick={this._setLastWeek}
-                            style={presetButtonStyle}
-                        >
-                            Last Week
-                        </Button>
-                    </div>
-                    <div className="button-wrapper">
-                        <Button
-                            className="preset-button"
-                            inverted
-                            size="mini"
-                            color="teal"
-                            onClick={this._setThisMonth}
-                            style={presetButtonStyle}
-                        >
-                            This Month
-                        </Button>
-                        <Button
-                            inverted
-                            size="mini"
-                            color="teal"
-                            onClick={this._setLastMonth}
-                            style={presetButtonStyle}
-                        >
-                            Last Month
-                        </Button>
-                    </div>
+                    {presetGroups &&
+                        presetGroups.map((group, index) => {
+                            const groupId = `group${index}`;
+                            return (
+                                <div className="button-wrapper" key={groupId}>
+                                    {group.map(preset => {
+                                        return (
+                                            <Button
+                                                className="preset-button"
+                                                key={preset.title}
+                                                inverted
+                                                size="mini"
+                                                color="teal"
+                                                onClick={e => this._setPreset(preset)}
+                                                style={presetButtonStyle}
+                                            >
+                                                {preset.title}
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
+                            );
+                        })}
                 </Form>
 
                 <Divider horizontal inverted style={{ marginTop: '8px' }} />
@@ -534,11 +466,13 @@ DateRangeSelector.defaultProps = {
     callback: null,
     from: null,
     to: null,
+    timeSlot: null,
 };
 
 DateRangeSelector.propTypes = {
     from: momentPropTypes.momentObj,
     to: momentPropTypes.momentObj,
+    timeSlot: PropTypes.string,
     timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     currentValues: PropTypes.shape({
         from: momentPropTypes.momentObj,

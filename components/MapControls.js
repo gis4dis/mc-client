@@ -52,6 +52,7 @@ const MapControls = props => {
             <TimeControl
                 dateRange={{ from: selection.from, to: selection.to }}
                 currentValues={currentValues}
+                timeSlot={selection.timeSlotId}
                 loading={loading}
                 showSlider={!isFullscreen}
                 timeZone={timeZone}

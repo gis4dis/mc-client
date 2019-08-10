@@ -37,18 +37,96 @@ export const TIME_SLOTS = {
         initialRange: {
             days: 1,
         },
+        presetGroups: [
+            [
+                {
+                    title: 'Yesterday',
+                    unit: 'day',
+                    subtract: 1,
+                },
+                {
+                    title: '2 Days Ago',
+                    unit: 'day',
+                    subtract: 2,
+                },
+            ],
+            [
+                {
+                    title: 'This Week',
+                    unit: 'week',
+                    subtract: 0,
+                },
+                {
+                    title: 'Previous Week',
+                    unit: 'week',
+                    subtract: 1,
+                },
+            ],
+        ],
     },
     '24_hour_slot': {
         title: '24 hours',
         initialRange: {
             weeks: 1,
         },
+        presetGroups: [
+            [
+                {
+                    title: 'This Week',
+                    unit: 'week',
+                    subtract: 0,
+                },
+                {
+                    title: 'Previous Week',
+                    unit: 'week',
+                    subtract: 1,
+                },
+            ],
+            [
+                {
+                    title: 'This Month',
+                    unit: 'month',
+                    subtract: 0,
+                },
+                {
+                    title: 'Previous Month',
+                    unit: 'month',
+                    subtract: 1,
+                },
+            ],
+        ],
     },
     '30_days_daily': {
         title: '30 days',
         initialRange: {
             month: 1,
         },
+        presetGroups: [
+            [
+                {
+                    title: 'This Month',
+                    unit: 'month',
+                    subtract: 0,
+                },
+                {
+                    title: 'Previous Month',
+                    unit: 'month',
+                    subtract: 1,
+                },
+            ],
+            [
+                {
+                    title: 'This Quarter',
+                    unit: 'quarter',
+                    subtract: 0,
+                },
+                {
+                    title: 'Previous Quarter',
+                    unit: 'quarter',
+                    subtract: 1,
+                },
+            ],
+        ],
     },
 };
 
