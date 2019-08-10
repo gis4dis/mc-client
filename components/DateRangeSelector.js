@@ -204,6 +204,13 @@ class DateRangeSelector extends React.Component {
                 toDate: nextProps.to,
             });
         }
+
+        const { timeSlot } = this.props;
+        if (nextProps.timeSlot !== timeSlot) {
+            this.setState({
+                fromDate: nextProps.from,
+            });
+        }
     }
 
     handleFromChange(date) {

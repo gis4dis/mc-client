@@ -413,8 +413,16 @@ class MapApp extends React.Component {
 
             const isPropertyChosen = selection.primaryPropertyId !== null;
             if (isPropertyChosen) {
+                const timeSlotConfig = TIME_SLOTS[timeSlotId];
+                const { initialRange } = timeSlotConfig;
+
+                const from = getStartOfPeriod(selection.to.clone(), 'day', TIME_ZONE).subtract(
+                    initialRange
+                );
+                selection.from = from;
+
                 this.handleAppStateChange({
-                    from: selection.from,
+                    from,
                     to: selection.to,
                     timeSlotId,
                 });
