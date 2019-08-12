@@ -63,7 +63,7 @@ const getShiftedRange = (state, shiftFn, timeZone) => {
         to = getEndOfPeriod(shiftFn.call(toDate, diff, 'month'), 'month', timeZone);
 
         if (maxDate.isSameOrBefore(to)) {
-            to = maxDate;
+            to = maxDate.clone();
         }
     } else {
         diff = toDate.diff(fromDate, 'days') + 1;
@@ -175,7 +175,9 @@ class DateRangeSelector extends React.Component {
         return nextDisabled;
     }
 
-    _setPrevious() {
+    _setPrevious(event) {
+        event.target.blur();
+
         this.setState((prevState, props) => {
             const { callback, timeZone } = props;
             const { from, to } = getShiftedRange(prevState, moment.prototype.subtract, timeZone);
@@ -192,7 +194,9 @@ class DateRangeSelector extends React.Component {
         });
     }
 
-    _setNext() {
+    _setNext(event) {
+        event.target.blur();
+
         this.setState((prevState, props) => {
             const { callback, timeZone } = props;
             const shiftedRange = getShiftedRange(prevState, moment.prototype.add, timeZone);
@@ -202,7 +206,7 @@ class DateRangeSelector extends React.Component {
             let nextDisabled = false;
             const { maxDate } = this.state;
             if (maxDate.isSameOrBefore(to)) {
-                to = maxDate;
+                to = maxDate.clone();
                 nextDisabled = true;
             }
 
