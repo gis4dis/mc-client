@@ -2,16 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
-import range from 'lodash/range';
+
 import DatePicker from 'react-datepicker';
 import { Button, Divider, Form, Icon, Label } from 'semantic-ui-react';
+
+import CalendarHeader from './CalendarHeader';
 import {
     getEndOfPeriod,
     getStartOfPeriod,
     getLastPossibleObservationTime,
     getLastObservationTime,
-} from '../utils/time';
-import { TIME_SLOTS } from '../appConfiguration';
+} from '../../../utils/time';
+import { TIME_SLOTS } from '../../../appConfiguration';
 
 const formStyle = {
     margin: '8px',
@@ -22,110 +24,6 @@ const presetButtonStyle = {
     display: 'block',
     margin: '2px',
     width: 'calc(100% - 4px)',
-};
-
-const years = range(2010, moment().year() + 1, 1);
-const months = moment.months();
-
-const CalendarHeader = ({
-    date,
-    changeMonth,
-    changeYear,
-    decreaseMonth,
-    increaseMonth,
-    prevMonthButtonDisabled,
-    nextMonthButtonDisabled,
-}) => {
-    const prevMonthButtonClick = event => {
-        decreaseMonth(event);
-        event.target.blur();
-    };
-
-    const nextMonthButtonClick = event => {
-        increaseMonth(event);
-        event.target.blur();
-    };
-
-    const onMonthChange = ({ target }) => {
-        const { value } = target;
-        changeMonth(value);
-        target.blur();
-    };
-
-    const onYearChange = ({ target }) => {
-        const { value } = target;
-        changeYear(value);
-        target.blur();
-    };
-
-    return (
-        <div
-            style={{
-                margin: '0 12px',
-                display: 'flex',
-                justifyContent: 'center',
-            }}
-        >
-            <button
-                type="button"
-                className="react-datepicker__navigation react-datepicker__navigation--previous"
-                onClick={prevMonthButtonClick}
-                disabled={prevMonthButtonDisabled}
-                style={{
-                    top: '14px',
-                }}
-            />
-            <select
-                value={months[date.month()]}
-                onChange={onMonthChange}
-                style={{
-                    fontWeight: 'bold',
-                    width: '92px',
-                    padding: '.5em .5em',
-                }}
-            >
-                {months.map(option => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            <select
-                value={date.year()}
-                onChange={onYearChange}
-                style={{
-                    fontWeight: 'bold',
-                    width: '60px',
-                    padding: '.5em .5em',
-                }}
-            >
-                {years.map(option => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            <button
-                type="button"
-                className="react-datepicker__navigation react-datepicker__navigation--next"
-                onClick={nextMonthButtonClick}
-                disabled={nextMonthButtonDisabled}
-                style={{
-                    top: '14px',
-                }}
-            />
-        </div>
-    );
-};
-
-CalendarHeader.propTypes = {
-    date: PropTypes.instanceOf(Date).isRequired,
-    changeMonth: PropTypes.func.isRequired,
-    changeYear: PropTypes.func.isRequired,
-    decreaseMonth: PropTypes.func.isRequired,
-    increaseMonth: PropTypes.func.isRequired,
-    prevMonthButtonDisabled: PropTypes.bool.isRequired,
-    nextMonthButtonDisabled: PropTypes.bool.isRequired,
 };
 
 const isRangeValid = (from, to) => {
@@ -154,7 +52,7 @@ const getShiftedRange = (state, shiftFn, timeZone) => {
     let from;
     let to;
 
-    const { fromDate, toDate } = state;
+    const { fromDate, toDate, maxDate } = state;
 
     const fromMonthStart = getStartOfPeriod(fromDate.clone(), 'month', timeZone);
     const toMonthEnd = getEndOfPeriod(fromDate.clone, 'month', timeZone);
@@ -164,9 +62,8 @@ const getShiftedRange = (state, shiftFn, timeZone) => {
         from = shiftFn.call(fromDate, diff, 'month').startOf('month');
         to = getEndOfPeriod(shiftFn.call(toDate, diff, 'month'), 'month', timeZone);
 
-        const now = moment();
-        if (now.isBefore(to)) {
-            to = getEndOfPeriod(now, 'day', timeZone);
+        if (maxDate.isSameOrBefore(to)) {
+            to = maxDate;
         }
     } else {
         diff = toDate.diff(fromDate, 'days') + 1;
@@ -183,10 +80,13 @@ class DateRangeSelector extends React.Component {
     constructor(props) {
         super(props);
 
+        const maxDate = getEndOfPeriod(moment(), 'day', props.timeZone).subtract(1, 'days');
+
         this.state = {
             fromDate: props.from,
             toDate: props.to,
-            _nextDisabled: false,
+            maxDate,
+            _nextDisabled: maxDate.isSameOrBefore(props.to),
         };
 
         this.handleFromChange = this.handleFromChange.bind(this);
@@ -202,6 +102,7 @@ class DateRangeSelector extends React.Component {
             this.setState({
                 fromDate: nextProps.from,
                 toDate: nextProps.to,
+                _nextDisabled: this._getNextDisabled(nextProps.to),
             });
         }
 
@@ -244,6 +145,7 @@ class DateRangeSelector extends React.Component {
 
         this.setState({
             toDate: date,
+            _nextDisabled: this._getNextDisabled(date),
         });
 
         if (callback) {
@@ -262,6 +164,17 @@ class DateRangeSelector extends React.Component {
     }
 
     /** **************************** preset options ************************************ */
+    _getNextDisabled(to) {
+        const { maxDate } = this.state;
+
+        let nextDisabled = false;
+        if (maxDate.isSameOrBefore(to)) {
+            nextDisabled = true;
+        }
+
+        return nextDisabled;
+    }
+
     _setPrevious() {
         this.setState((prevState, props) => {
             const { callback, timeZone } = props;
@@ -274,6 +187,7 @@ class DateRangeSelector extends React.Component {
             return {
                 fromDate: from,
                 toDate: to,
+                _nextDisabled: false,
             };
         });
     }
@@ -286,8 +200,9 @@ class DateRangeSelector extends React.Component {
             let { to } = shiftedRange;
 
             let nextDisabled = false;
-            if (moment().isBefore(to)) {
-                to = getEndOfPeriod(moment(), 'day', timeZone);
+            const { maxDate } = this.state;
+            if (maxDate.isSameOrBefore(to)) {
+                to = maxDate;
                 nextDisabled = true;
             }
 
@@ -318,13 +233,13 @@ class DateRangeSelector extends React.Component {
         this.setState({
             fromDate: from,
             toDate: to,
-            _nextDisabled: true,
+            _nextDisabled: this._getNextDisabled(to),
         });
     }
     /** **************************** preset options ************************************ */
 
     render() {
-        const { fromDate, toDate, _nextDisabled } = this.state;
+        const { fromDate, toDate, maxDate, _nextDisabled } = this.state;
         const { currentValues, loading, timeSlot, timeZone } = this.props;
         const { from: currentFrom, to: currentTo, frequency } = currentValues;
         const from = getCurrentValueString(fromDate, currentFrom);
@@ -339,8 +254,6 @@ class DateRangeSelector extends React.Component {
             const lastObservation = getLastObservationTime(currentTo, frequency, timeZone);
             to = getCurrentValueString(lastPossibleObservation, lastObservation);
         }
-
-        const maxDate = getEndOfPeriod(moment(), 'day', timeZone).subtract(1, 'days');
 
         const timeSlotConfig = TIME_SLOTS[timeSlot];
 
@@ -415,7 +328,7 @@ class DateRangeSelector extends React.Component {
                 <div className="column right">
                     <Button.Group>
                         <Button inverted icon color="teal" onClick={this._setPrevious}>
-                            <Icon name="caret left" />
+                            <Icon name="angle left" />
                         </Button>
                         <Button
                             inverted
@@ -424,7 +337,7 @@ class DateRangeSelector extends React.Component {
                             disabled={_nextDisabled}
                             onClick={this._setNext}
                         >
-                            <Icon name="caret right" />
+                            <Icon name="angle right" />
                         </Button>
                     </Button.Group>
                 </div>

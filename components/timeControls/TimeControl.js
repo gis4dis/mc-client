@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
-import DateRangeSelector from '../DateRangeSelector';
+import DateRangeSelector from './dateRangeSelector/DateRangeSelector';
 import TimeSlider from './TimeSlider';
 import TimeValue from './TimeValue';
 import { getLastObservationTime } from '../../utils/time';
