@@ -2,7 +2,7 @@
 .next
 node_modules
 build
-static/symbolization
+static/symbolization*
 out
 *.zip
 server-export-dev.js

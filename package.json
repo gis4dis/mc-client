@@ -10,7 +10,7 @@
     "export-dev": "next export && mv out/_next out/static/mc/",
     "serve-export-dev": "node server-export-dev.js",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "postinstall": "rm -rf static/symbolization && cp -r node_modules/gis4dis-generalizer/static/symbolization static",
+    "postinstall": "rm -rf static/symbolization* && cp -r node_modules/gis4dis-generalizer/static/symbolization* static/",
     "lint": "eslint --fix components/** pages/**"
   },
   "keywords": [],
@@ -19,7 +19,7 @@
   "dependencies": {
     "@weco/next-plugin-transpile-modules": "0.0.2",
     "express": "4.16.3",
-    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#d1f0dd624c57e03aa32b3af08661d486d32c06d8",
+    "gis4dis-generalizer": "git+https://git@github.com/gis4dis/cg#367476513e4c7db078f5cde822e90ccb6727bfc1",
     "http-proxy-middleware": "0.18.0",
     "isomorphic-unfetch": "3.0.0",
     "lodash": "4.17.15",
