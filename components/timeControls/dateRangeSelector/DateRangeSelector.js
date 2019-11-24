@@ -245,17 +245,17 @@ class DateRangeSelector extends React.Component {
     render() {
         const { fromDate, toDate, maxDate, _nextDisabled } = this.state;
         const { currentValues, loading, timeSlot, timeZone } = this.props;
-        const { from: currentFrom, to: currentTo, frequency } = currentValues;
+        const { from: currentFrom, to: currentTo, valueDuration } = currentValues;
         const from = getCurrentValueString(fromDate, currentFrom);
 
         let to;
         if (currentTo) {
             const lastPossibleObservation = getLastPossibleObservationTime(
                 toDate,
-                frequency,
+                valueDuration,
                 timeZone
             );
-            const lastObservation = getLastObservationTime(currentTo, frequency, timeZone);
+            const lastObservation = getLastObservationTime(currentTo, valueDuration, timeZone);
             to = getCurrentValueString(lastPossibleObservation, lastObservation);
         }
 
@@ -402,6 +402,7 @@ DateRangeSelector.propTypes = {
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
         frequency: PropTypes.number,
+        valueDuration: PropTypes.number,
     }).isRequired,
     loading: PropTypes.bool.isRequired,
     callback: PropTypes.func,

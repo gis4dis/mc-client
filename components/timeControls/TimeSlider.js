@@ -10,10 +10,10 @@ class TimeSlider extends React.Component {
     constructor(props) {
         super(props);
 
-        const { value, from, to, interval } = props;
+        const { value, from, to } = props;
 
         this.state = {
-            max: interval ? to - interval : 100,
+            max: to || 100,
             value: value || from || 0,
             isPlaying: false,
         };
@@ -36,7 +36,7 @@ class TimeSlider extends React.Component {
         const { from, to } = this.props;
         if (nextProps.from !== from || nextProps.to !== to) {
             this.setState({
-                max: nextProps.to - nextProps.interval,
+                max: nextProps.to,
                 value: nextProps.from || 0,
             });
         }

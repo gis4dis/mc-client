@@ -27,7 +27,7 @@ class TimeSliderCollapsible extends React.Component {
         const { frequency, from, time, to, valueDuration } = currentValues;
 
         const currentFrom = from ? from.unix() : null;
-        const currentTo = to ? getLastObservationTime(to, frequency, timeZone).unix() : null;
+        const currentTo = to ? getLastObservationTime(to, valueDuration, timeZone).unix() : null;
         const currentTime = time ? time.unix() : null;
 
         const { activeIndex } = this.state;

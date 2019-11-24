@@ -61,7 +61,7 @@ class TimeControl extends React.Component {
 
         const currentFrom = currFrom ? currFrom.unix() : null;
         const currentTo = currTo
-            ? getLastObservationTime(currTo, frequency, timeZone).unix()
+            ? getLastObservationTime(currTo, valueDuration, timeZone).unix()
             : null;
         const currentTime = time ? time.unix() : null;
 

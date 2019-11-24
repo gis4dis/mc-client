@@ -39,10 +39,10 @@ export const getEndOfPeriod = (date, period, timeZone) => {
  * @param {Number|String} timeZone time zone offset
  * @returns {Moment} new Moment instance representing last possible observation
  */
-export const getLastPossibleObservationTime = (date, frequency, timeZone) => {
+export const getLastPossibleObservationTime = (date, valueDuration, timeZone) => {
     const dateClone = getDateInTimeZone(date, timeZone);
     const startOfNextDay = dateClone.add(1, 'days').startOf('day');
-    return startOfNextDay.subtract(frequency, 'seconds');
+    return startOfNextDay.subtract(valueDuration, 'seconds');
 };
 
 /**
@@ -52,8 +52,8 @@ export const getLastPossibleObservationTime = (date, frequency, timeZone) => {
  * @param {Number|String} timeZone time zone offset
  * @returns {Moment} new Moment instance representing last observation
  */
-export const getLastObservationTime = (time, frequency, timeZone) => {
+export const getLastObservationTime = (time, valueDuration, timeZone) => {
     const timeClone = moment(getDateInTimeZone(time, timeZone));
-    const lastTime = timeClone.subtract(frequency, 'seconds');
+    const lastTime = timeClone.subtract(valueDuration, 'seconds');
     return lastTime;
 };
