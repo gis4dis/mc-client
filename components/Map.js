@@ -182,6 +182,10 @@ class Map extends React.Component {
             const isPropertyChange = prevPrimaryProperty !== primaryProperty;
 
             this._generalizeFeatures(options, isDataChange || isPropertyChange);
+
+            if (selectedFeature) {
+                selectedFeature.changed();
+            }
         } else if (!isDataValid) {
             this._clearFeatures();
         }
