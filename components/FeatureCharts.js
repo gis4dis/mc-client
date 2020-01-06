@@ -178,6 +178,7 @@ class FeatureCharts extends React.Component {
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
         this.onIntersectedFeatureChange = this.onIntersectedFeatureChange.bind(this);
+        this.compareFeatures = this.compareFeatures.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -188,7 +189,7 @@ class FeatureCharts extends React.Component {
         let selectedFeature;
         if (nextProps.feature !== feature) {
             selectedFeature = isAggregatedFeature
-                ? nextProps.feature.get('intersectedFeatures')[0]
+                ? nextProps.feature.get('intersectedFeatures').sort(this.compareFeatures)[0]
                 : nextProps.feature;
         } else {
             ({ selectedFeature } = this.state);
@@ -229,6 +230,22 @@ class FeatureCharts extends React.Component {
             data: featureData,
             title: null,
         });
+    }
+
+    compareFeatures(feat1, feat2) {
+        const { property, timeSettings } = this.props;
+
+        const data1 = getData(feat1, property, timeSettings);
+        const data2 = getData(feat2, property, timeSettings);
+        if ((data1 && data2) || (!data1 && !data2)) {
+            return 0;
+        }
+
+        if (data1) {
+            return -1;
+        }
+
+        return 1;
     }
 
     _onMouseDown(evt) {
@@ -324,16 +341,19 @@ class FeatureCharts extends React.Component {
                     <Dropdown
                         value={selectedFeature.getId()}
                         selection
-                        options={feature.get('intersectedFeatures').map(feat => {
-                            const featId = feat.getId();
-                            const featName = feat.get('name');
+                        options={feature
+                            .get('intersectedFeatures')
+                            .sort(this.compareFeatures)
+                            .map(feat => {
+                                const featId = feat.getId();
+                                const featName = feat.get('name');
 
-                            return {
-                                key: featId,
-                                text: featName,
-                                value: featId,
-                            };
-                        })}
+                                return {
+                                    key: featId,
+                                    text: featName,
+                                    value: featId,
+                                };
+                            })}
                         onChange={this.onIntersectedFeatureChange}
                     />
                 )}
@@ -428,7 +448,7 @@ class FeatureCharts extends React.Component {
                     </AreaChart>
                 )}
 
-                {!data && (
+                {selectedFeature && !data && (
                     <div
                         style={{
                             backgroundImage:
@@ -505,6 +525,9 @@ FeatureCharts.propTypes = {
     timeSettings: PropTypes.shape({
         from: momentPropTypes.momentObj,
         to: momentPropTypes.momentObj,
+        time: momentPropTypes.momentObj,
+        frequency: PropTypes.number,
+        valueDuration: PropTypes.number,
         timeZone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
     width: PropTypes.number,

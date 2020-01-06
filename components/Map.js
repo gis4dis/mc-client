@@ -366,7 +366,7 @@ class Map extends React.Component {
 
         return (
             <div className="map-wrap">
-                {selectedFeature && (
+                {primaryProperty && (
                     <FullscreenFeatureCharts
                         chartId="1"
                         active={fullscreenFeatureCharts}
@@ -381,7 +381,7 @@ class Map extends React.Component {
                 <div id="popup" className="popup ol-popup" style={{ display: 'none' }}>
                     <Button icon="close" basic floated="right" onClick={this._closeOverlay} />
 
-                    {selectedFeature && (
+                    {primaryProperty && (
                         <FeatureCharts
                             chartId="2"
                             feature={selectedFeature}
@@ -393,11 +393,9 @@ class Map extends React.Component {
                         />
                     )}
                 </div>
-
                 <Dimmer active={loading} inverted>
                     <Loader>Loading data...</Loader>
                 </Dimmer>
-
                 <div
                     className="map"
                     ref={d => {
@@ -406,7 +404,6 @@ class Map extends React.Component {
                 >
                     {' '}
                 </div>
-
                 {!loading && !isDataValid && (
                     <Message
                         icon
@@ -429,7 +426,6 @@ class Map extends React.Component {
                         </Message.Content>
                     </Message>
                 )}
-
                 <style jsx>
                     {`
                         .map-wrap,
@@ -483,7 +479,6 @@ class Map extends React.Component {
                         }
                     `}
                 </style>
-
                 <style jsx global>
                     {`
                         .map-wrap .ui.blue.buttons.zoom .button:focus {
