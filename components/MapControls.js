@@ -71,6 +71,7 @@ const MapControls = props => {
             <TimeSlotControl
                 timeSlots={timeSlots}
                 selected={selection.timeSlotId}
+                property={selection.primaryPropertyId}
                 handleTimeSlotChange={onTimeSlotChange}
                 style={partStyle}
             />

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
-import { TIME_SLOTS } from '../appConfiguration';
+import { Button, Divider } from 'semantic-ui-react';
+import { TIME_SLOTS, TIME_SLOTS_PART_TITLES } from '../appConfiguration';
 
 const controlPartStyle = {
     marginTop: '16px',
@@ -10,10 +10,13 @@ const controlPartStyle = {
 };
 
 const TimeSlotControl = props => {
-    const { timeSlots, selected, handleTimeSlotChange } = props;
+    const { timeSlots, selected, property, handleTimeSlotChange } = props;
 
     return (
         <div style={controlPartStyle}>
+            <Divider horizontal inverted style={{ marginTop: '18px' }}>
+                {TIME_SLOTS_PART_TITLES[property]}
+            </Divider>
             <Button.Group inverted size="mini">
                 {timeSlots.map(timeSlot => {
                     const handleClick = () => {
@@ -39,11 +42,13 @@ const TimeSlotControl = props => {
 };
 
 TimeSlotControl.defaultProps = {
+    property: null,
     selected: null,
 };
 
 TimeSlotControl.propTypes = {
     handleTimeSlotChange: PropTypes.func.isRequired,
+    property: PropTypes.string,
     selected: PropTypes.string,
     timeSlots: PropTypes.arrayOf(
         PropTypes.shape({

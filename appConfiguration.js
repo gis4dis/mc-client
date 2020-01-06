@@ -25,6 +25,13 @@ export const TIME_SLOTS_REQUEST_PATH = '/api/v2/time_slots/';
 export const TIME_SERIES_REQUEST_PATH = '/api/v2/timeseries/';
 export const VGI_OBSERVATIONS_REQUEST_PATH = '/api/v2/vgi_observations/';
 
+export const TIME_SLOTS_PART_TITLES = {
+    air_temperature: 'moving average',
+    pm10: 'moving average',
+    precipitation: 'moving sum',
+    stream_flow: 'moving average',
+};
+
 /**
  * Key-value pairs - key is time slot id, value is an object defining its properties.
  * @type {Object}
@@ -139,6 +146,7 @@ const appConfiguration = {
     TIME_SERIES_REQUEST_PATH,
     VGI_OBSERVATIONS_REQUEST_PATH,
     TIME_SLOTS,
+    TIME_SLOTS_PART_TITLES,
 };
 
 export default appConfiguration;
