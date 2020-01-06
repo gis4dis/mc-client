@@ -112,13 +112,21 @@ class Map extends React.Component {
             const { coordinate } = evt.mapBrowserEvent;
 
             const feature = evt.target.getFeatures().item(0);
-            this.setState({
-                selectedFeature: feature,
-            });
+            const isSelectable = feature && this.isFeatureSelectable(feature);
+
+            if (isSelectable) {
+                this.setState({
+                    selectedFeature: feature,
+                });
+            } else {
+                this.setState({
+                    selectedFeature: null,
+                });
+            }
 
             const { isSmall } = this.props;
-            overlay.setPosition(feature && !isSmall ? coordinate : undefined);
-            this._setOverlayVisible(!!feature);
+            overlay.setPosition(isSelectable && !isSmall ? coordinate : undefined);
+            this._setOverlayVisible(isSelectable);
         });
         map.addInteraction(selectInteraction);
         this._selectInteraction = selectInteraction;
@@ -209,6 +217,22 @@ class Map extends React.Component {
     }
 
     /** *********************** overlay ********************************************************** */
+    isFeatureSelectable(feature) {
+        const intersectedFeatures = feature.get('intersectedFeatures');
+
+        if (intersectedFeatures) {
+            return intersectedFeatures.some(feat => this.hasAnyPropertyData(feat));
+        }
+
+        return this.hasAnyPropertyData(feature);
+    }
+
+    hasAnyPropertyData(feature) {
+        const { properties } = this.props;
+        const propertyIds = properties.map(property => property.name_id);
+        return propertyIds.some(property => feature.get(property));
+    }
+
     createOverlay() {
         const popup = document.getElementById('popup');
         popup.style.display = 'none';
