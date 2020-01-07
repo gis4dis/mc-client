@@ -160,7 +160,7 @@ class FeatureCharts extends React.Component {
         const data = getData(selectedFeature, property, timeSettings);
 
         let timeFormatter;
-        if (data) {
+        if (timeSettings.from !== null && timeSettings.to !== null) {
             const format = getDatesDiff(timeSettings) > 1 ? 'L' : 'LT';
             timeFormatter = getTimeFormatter(timeSettings.timeZone, format);
         }
@@ -196,14 +196,15 @@ class FeatureCharts extends React.Component {
         }
 
         const title = isAggregatedFeature ? null : getTitle(selectedFeature);
-        const { timeSettings } = this.props;
-        const subtitle = getTimeRangeString(timeSettings);
-        const data = getData(selectedFeature, nextProps.property, nextProps.timeSettings);
+
+        const nextTimeSettings = nextProps.timeSettings;
+        const subtitle = getTimeRangeString(nextTimeSettings);
+        const data = getData(selectedFeature, nextProps.property, nextTimeSettings);
 
         let timeFormatter;
-        if (data) {
-            const format = getDatesDiff(nextProps.timeSettings) > 1 ? 'L' : 'LT';
-            timeFormatter = getTimeFormatter(nextProps.timeSettings.timeZone, format);
+        if (nextTimeSettings.from !== null && nextTimeSettings.to !== null) {
+            const format = getDatesDiff(nextTimeSettings) > 1 ? 'L' : 'LT';
+            timeFormatter = getTimeFormatter(nextTimeSettings.timeZone, format);
         }
 
         this.setState(
