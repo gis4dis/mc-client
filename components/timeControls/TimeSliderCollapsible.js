@@ -4,7 +4,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import { Accordion, Icon, Segment } from 'semantic-ui-react';
 import TimeSlider from './TimeSlider';
 import TimeValue from './TimeValue';
-import { getLastObservationTime } from '../../utils/time';
+import { getLastObservationTime, getObservationTime } from '../../utils/time';
 
 class TimeSliderCollapsible extends React.Component {
     state = { activeIndex: 0 };
@@ -27,7 +27,7 @@ class TimeSliderCollapsible extends React.Component {
         const { frequency, from, time, to, valueDuration } = currentValues;
 
         const currentFrom = from ? from.unix() : null;
-        const currentTo = to ? getLastObservationTime(to, valueDuration, timeZone).unix() : null;
+        const currentTo = to ? getLastObservationTime(to, valueDuration).unix() : null;
         const currentTime = time ? time.unix() : null;
 
         const { activeIndex } = this.state;
@@ -44,7 +44,9 @@ class TimeSliderCollapsible extends React.Component {
                         {from && currentTo && (
                             <div>
                                 <Icon name="dropdown" />
-                                <TimeValue value={time} />
+                                <TimeValue
+                                    value={getObservationTime(time, valueDuration, frequency)}
+                                />
                             </div>
                         )}
                     </Accordion.Title>

@@ -4,7 +4,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import { Button, Dropdown, Icon, Message } from 'semantic-ui-react';
 import { Area, AreaChart, ReferenceArea, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
-import { getStartOfPeriod } from '../utils/time';
+import { getObservationTime, getObservationTimeInSeconds } from '../utils/time';
 
 const DEFAULT_CHART_HEIGHT = 286;
 const DEFAULT_CHART_WIDTH = 500;
@@ -30,26 +30,27 @@ const shouldShowOnlyDates = (timeSettings, left, right) => {
 };
 
 const getTime = (timeSettings, i) => {
-    const { from, frequency } = timeSettings;
-    const time = from.unix() + frequency * i;
+    const { from, frequency, valueDuration } = timeSettings;
+    const time = getObservationTimeInSeconds(from, valueDuration, frequency) + frequency * i;
     return time;
 };
 
 const getChartTicks = (timeSettings, left, right) => {
+    const { from, frequency, to, valueDuration, timeZone } = timeSettings;
     const allTicks = [];
 
-    let indexTime = timeSettings.from.unix();
-    while (indexTime < timeSettings.to.unix() && (right === 'dataMax' || indexTime < right)) {
+    let indexTime = getObservationTimeInSeconds(from, valueDuration, frequency);
+    while (indexTime < to.unix() && (right === 'dataMax' || indexTime < right)) {
         if (left === 'dataMin' || left < indexTime) {
             allTicks.push(indexTime);
         }
-        indexTime += timeSettings.frequency;
+        indexTime += frequency;
     }
 
     if (shouldShowOnlyDates(timeSettings, left, right)) {
         return allTicks.filter(tick => {
-            const time = moment.unix(tick).utcOffset(timeSettings.timeZone);
-            const startOfDay = getStartOfPeriod(time.clone(), 'day', timeSettings.timeZone);
+            const time = moment.unix(tick).utcOffset(timeZone);
+            const startOfDay = time.clone().startOf('day');
 
             return time.isSame(startOfDay);
         });
@@ -138,8 +139,10 @@ const getData = (feature, property, time) => {
 };
 
 const getTimeRangeString = timeSettings => {
-    if (timeSettings.from && timeSettings.to) {
-        return `${timeSettings.from.format('L')} - ${timeSettings.to.format('L')}`;
+    const { from, to, frequency, valueDuration } = timeSettings;
+    if (from && to) {
+        const firstObservation = getObservationTime(from, valueDuration, frequency);
+        return `${firstObservation.format('L')} - ${to.format('L')}`;
     }
     return null;
 };
@@ -336,6 +339,8 @@ class FeatureCharts extends React.Component {
 
         const id = chartId;
 
+        const { frequency, time, timeZone, valueDuration } = timeSettings;
+
         return (
             <div style={{ textAlign: 'left' }}>
                 {feature && feature.get('intersectedFeatures') && (
@@ -411,11 +416,11 @@ class FeatureCharts extends React.Component {
                         <Tooltip
                             formatter={valueFormatter}
                             itemSorter={(a, b) => (a.name === 'anomaly_rate' ? 1 : -1)}
-                            labelFormatter={getTimeFormatter(timeSettings.timeZone, 'LT L')}
+                            labelFormatter={getTimeFormatter(timeZone, 'LT L')}
                         />
 
                         <ReferenceLine
-                            x={timeSettings.time.unix()}
+                            x={getObservationTimeInSeconds(time, valueDuration, frequency)}
                             yAxisId="values"
                             stroke="#6dffff"
                             strokeWidth="2px"

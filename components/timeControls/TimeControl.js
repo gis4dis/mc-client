@@ -4,7 +4,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import DateRangeSelector from './dateRangeSelector/DateRangeSelector';
 import TimeSlider from './TimeSlider';
 import TimeValue from './TimeValue';
-import { getLastObservationTime } from '../../utils/time';
+import { getObservationTime, getLastObservationTime } from '../../utils/time';
 
 const controlPartStyle = {
     marginTop: '16px',
@@ -60,9 +60,7 @@ class TimeControl extends React.Component {
         const { from: currFrom, to: currTo, frequency, time, valueDuration } = currentValues;
 
         const currentFrom = currFrom ? currFrom.unix() : null;
-        const currentTo = currTo
-            ? getLastObservationTime(currTo, valueDuration, timeZone).unix()
-            : null;
+        const currentTo = currTo ? getLastObservationTime(currTo, valueDuration).unix() : null;
         const currentTime = time ? time.unix() : null;
 
         const sliderStyle = {
@@ -89,7 +87,15 @@ class TimeControl extends React.Component {
                 {showSlider && (
                     <div style={controlPartStyle}>
                         <div style={sliderStyle}>
-                            {from && to && <TimeValue value={time} />}
+                            {from && to && (
+                                <TimeValue
+                                    value={
+                                        time
+                                            ? getObservationTime(time, valueDuration, frequency)
+                                            : null
+                                    }
+                                />
+                            )}
                             <TimeSlider
                                 from={currentFrom}
                                 to={currentTo}

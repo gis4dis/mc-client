@@ -16,7 +16,6 @@ import Map from './Map';
 import MapControls from './MapControls';
 import NotificationPopup from './NotificationPopup';
 import TimeSliderCollapsible from './timeControls/TimeSliderCollapsible';
-import { getEndOfPeriod, getStartOfPeriod } from '../utils/time';
 
 /** ********************** styles ************************************** */
 const NARROW_WIDTH = 700;
@@ -169,18 +168,13 @@ class MapApp extends React.Component {
 
                 let initialDate;
                 if (INITIAL_DATE === 'now') {
-                    initialDate = moment();
+                    initialDate = moment(`00${TIME_ZONE}`, 'HHZ').subtract(1, 'days');
                 } else {
-                    initialDate = moment(`${INITIAL_DATE} 01Z`);
+                    initialDate = moment(`${INITIAL_DATE}${TIME_ZONE}`, 'YYYY-MM-DDZ');
                 }
 
-                const from = getStartOfPeriod(initialDate.clone(), 'day', TIME_ZONE).subtract(
-                    TIME_SLOTS[timeSlotId].initialRange
-                );
-                const to = getEndOfPeriod(initialDate.clone(), 'day', TIME_ZONE).subtract(
-                    1,
-                    'days'
-                );
+                const from = initialDate.clone().subtract(TIME_SLOTS[timeSlotId].initialRange);
+                const to = initialDate.clone().endOf('day');
 
                 this.setState(prevState => {
                     const { selection } = prevState;
@@ -363,10 +357,10 @@ class MapApp extends React.Component {
                         Promise.all([timeSeriesResponse.json(), vgiResponse.json()]).then(jsons => {
                             const [data, vgiData] = jsons;
                             const from = data.phenomenon_time_from
-                                ? moment(data.phenomenon_time_from).utcOffset(TIME_ZONE)
+                                ? moment(data.phenomenon_time_from)
                                 : null;
                             const to = data.phenomenon_time_to
-                                ? moment(data.phenomenon_time_to).utcOffset(TIME_ZONE)
+                                ? moment(data.phenomenon_time_to)
                                 : null;
 
                             this.setState({
@@ -416,9 +410,10 @@ class MapApp extends React.Component {
                 const timeSlotConfig = TIME_SLOTS[timeSlotId];
                 const { initialRange } = timeSlotConfig;
 
-                const from = getStartOfPeriod(selection.to.clone(), 'day', TIME_ZONE).subtract(
-                    initialRange
-                );
+                const from = selection.to
+                    .clone()
+                    .startOf('day')
+                    .subtract(initialRange);
                 selection.from = from;
 
                 this.handleAppStateChange({

@@ -4,6 +4,10 @@
     position: relative;
 }
 
+.ui.form input {
+    padding: 8px !important;
+}
+
 .ui.pointing.label {
     vertical-align: top;
 }
