@@ -31,7 +31,7 @@ const shouldShowOnlyDates = (timeSettings, left, right) => {
 
 const getTime = (timeSettings, i) => {
     const { from, frequency, valueDuration } = timeSettings;
-    const time = getObservationTimeInSeconds(from, valueDuration, frequency) + frequency * i;
+    const time = getObservationTimeInSeconds(from, valueDuration) + frequency * i;
     return time;
 };
 
@@ -39,7 +39,7 @@ const getChartTicks = (timeSettings, left, right) => {
     const { from, frequency, to, valueDuration, timeZone } = timeSettings;
     const allTicks = [];
 
-    let indexTime = getObservationTimeInSeconds(from, valueDuration, frequency);
+    let indexTime = getObservationTimeInSeconds(from, valueDuration);
     while (indexTime < to.unix() && (right === 'dataMax' || indexTime < right)) {
         if (left === 'dataMin' || left < indexTime) {
             allTicks.push(indexTime);
@@ -420,7 +420,7 @@ class FeatureCharts extends React.Component {
                         />
 
                         <ReferenceLine
-                            x={getObservationTimeInSeconds(time, valueDuration, frequency)}
+                            x={getObservationTimeInSeconds(time, valueDuration)}
                             yAxisId="values"
                             stroke="#6dffff"
                             strokeWidth="2px"
