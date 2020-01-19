@@ -6,6 +6,7 @@
 
 .ui.form input {
     padding: 8px !important;
+    text-align: center;
 }
 
 .ui.pointing.label {

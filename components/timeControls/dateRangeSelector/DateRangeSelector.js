@@ -7,8 +7,8 @@ import DatePicker from 'react-datepicker';
 import { Button, Divider, Form, Icon, Label } from 'semantic-ui-react';
 
 import CalendarHeader from './CalendarHeader';
-import { getObservationTime } from '../../../utils/time';
 import { TIME_SLOTS } from '../../../appConfiguration';
+import { getObservationTime } from '../../../utils/time';
 
 const formStyle = {
     margin: '8px',
@@ -21,34 +21,18 @@ const presetButtonStyle = {
     width: 'calc(100% - 4px)',
 };
 
+const observationTimeLabelStyle = {
+    paddingLeft: '12px',
+    paddingRight: '8px',
+    cursor: 'default',
+};
+
 const isRangeValid = (from, to) => {
     return from.isSameOrBefore(to);
 };
 
 const isSameDate = (value, currentValue) => {
     return value.isSame(currentValue, 'day');
-};
-
-const getCurrentValueString = (value, currentValue, isToDate) => {
-    let fixValue = value;
-    if (isToDate) {
-        fixValue = value
-            .clone()
-            .add(1, 'days')
-            .startOf('day');
-    }
-
-    let result;
-
-    if (currentValue && !fixValue.isSame(currentValue, 'second')) {
-        if (isSameDate(fixValue, currentValue)) {
-            result = currentValue.format('LT');
-        } else {
-            result = currentValue.format('L LT');
-        }
-    }
-
-    return result;
 };
 
 const getShiftedRange = (state, shiftFn) => {
@@ -161,7 +145,7 @@ class DateRangeSelector extends React.Component {
     }
 
     _notifyRangeFix() {
-        console.log("To date can't be before from date.");
+        console.warn("To date can't be before from date.");
         const { notifyUser } = this.props;
         notifyUser({
             text: "'To date' can't be before 'from date'.",
@@ -257,28 +241,32 @@ class DateRangeSelector extends React.Component {
     render() {
         const { fromDate, toDate, maxDate, _nextDisabled } = this.state;
         const { currentValues, loading, timeSlot } = this.props;
-        const { from: currentFrom, to: currentTo, frequency, valueDuration } = currentValues;
+        const { from: currentFrom, to: currentTo, valueDuration } = currentValues;
 
         if (fromDate && toDate) {
-            let from;
-            let to;
-
-            if (currentFrom && currentTo) {
-                const firstObservationTime = getObservationTime(
-                    currentFrom,
-                    valueDuration,
-                    frequency
-                );
-
-                from = getCurrentValueString(fromDate, firstObservationTime);
-                to = getCurrentValueString(toDate, currentTo, true);
-            }
-
             const timeSlotConfig = TIME_SLOTS[timeSlot];
 
             let presetGroups;
             if (timeSlotConfig) {
                 ({ presetGroups } = timeSlotConfig);
+            }
+
+            let fromLabelColor = 'grey';
+            if (currentFrom && fromDate.isBefore(currentFrom)) {
+                fromLabelColor = 'red';
+            }
+
+            let toLabelColor = 'grey';
+            if (
+                currentTo &&
+                currentTo.isBefore(
+                    toDate
+                        .clone()
+                        .add(1, 'days')
+                        .startOf('day')
+                )
+            ) {
+                toLabelColor = 'red';
             }
 
             return (
@@ -293,9 +281,17 @@ class DateRangeSelector extends React.Component {
                                 <Label size="small" style={{ marginTop: '2px' }}>
                                     From date
                                 </Label>
-                                {from && !loading && (
-                                    <Label basic color="red" pointing="left" size="small">
-                                        {from}
+                                {currentFrom && !loading && (
+                                    <Label
+                                        tag
+                                        color={fromLabelColor}
+                                        size="small"
+                                        style={observationTimeLabelStyle}
+                                        title="End of the first observation"
+                                    >
+                                        {getObservationTime(currentFrom, valueDuration).format(
+                                            'L LT'
+                                        )}
                                     </Label>
                                 )}
                             </div>
@@ -320,9 +316,15 @@ class DateRangeSelector extends React.Component {
                                 <Label size="small" style={{ marginTop: '2px' }}>
                                     To date
                                 </Label>
-                                {to && !loading && (
-                                    <Label basic color="red" pointing="left" size="small">
-                                        {to}
+                                {currentTo && !loading && (
+                                    <Label
+                                        tag
+                                        color={toLabelColor}
+                                        size="small"
+                                        style={observationTimeLabelStyle}
+                                        title="End of the last observation"
+                                    >
+                                        {currentTo.format('L LT')}
                                     </Label>
                                 )}
                             </div>

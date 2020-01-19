@@ -13,22 +13,20 @@ export const getLastObservationTime = (time, valueDuration) => {
  * Returns new Moment instance representing time of observation.
  * @param {Moment} time Moment instance representing beginning of the observation
  * @param {Number} valueDuration observation duration in seconds
- * @param {Number} frequency observation frequency in seconds
  * @returns {Moment} new Moment instance representing end of observation
  */
-export const getObservationTime = (time, valueDuration, frequency) => {
+export const getObservationTime = (time, valueDuration) => {
     const endTime = time.clone().add(valueDuration, 'seconds');
-    return endTime.subtract(frequency, 'seconds');
+    return endTime;
 };
 
 /**
  * Returns new Moment instance representing time of observation in UNIX seconds.
  * @param {Moment} time Moment instance representing beginning of the observation
  * @param {Number} valueDuration observation duration in seconds
- * @param {Number} frequency observation frequency in seconds
  * @returns {Number} new Moment instance representing end of observation
  */
-export const getObservationTimeInSeconds = (time, valueDuration, frequency) => {
+export const getObservationTimeInSeconds = (time, valueDuration) => {
     const endTime = time.unix() + valueDuration;
-    return endTime - frequency;
+    return endTime;
 };

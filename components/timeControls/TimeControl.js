@@ -89,11 +89,7 @@ class TimeControl extends React.Component {
                         <div style={sliderStyle}>
                             {from && to && (
                                 <TimeValue
-                                    value={
-                                        time
-                                            ? getObservationTime(time, valueDuration, frequency)
-                                            : null
-                                    }
+                                    value={time ? getObservationTime(time, valueDuration) : null}
                                 />
                             )}
                             <TimeSlider

@@ -139,10 +139,10 @@ const getData = (feature, property, time) => {
 };
 
 const getTimeRangeString = timeSettings => {
-    const { from, to, frequency, valueDuration } = timeSettings;
+    const { from, to, valueDuration } = timeSettings;
     if (from && to) {
-        const firstObservation = getObservationTime(from, valueDuration, frequency);
-        return `${firstObservation.format('L')} - ${to.format('L')}`;
+        const firstObservation = getObservationTime(from, valueDuration);
+        return `${firstObservation.format('L LT')} - ${to.format('L LT')}`;
     }
     return null;
 };

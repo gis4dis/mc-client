@@ -44,9 +44,7 @@ class TimeSliderCollapsible extends React.Component {
                         {from && currentTo && (
                             <div>
                                 <Icon name="dropdown" />
-                                <TimeValue
-                                    value={getObservationTime(time, valueDuration, frequency)}
-                                />
+                                <TimeValue value={getObservationTime(time, valueDuration)} />
                             </div>
                         )}
                     </Accordion.Title>
